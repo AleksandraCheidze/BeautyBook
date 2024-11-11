@@ -22,6 +22,9 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * The UserService class provides methods for managing users.
+ */
 @RequiredArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
@@ -35,6 +38,12 @@ public class UserServiceImpl implements UserService {
     @Value("${spring.mail.username}")
     private String adminEmail;
 
+    /**
+     * Description: This method saves the new user to the DB or throws an exception if the user's email address already exists.
+     *
+     * @param newUserDto new User data
+     * @return the UserDto entity
+     */
     @Override
     @Transactional
     public UserDto register(NewUserDto newUserDto) {
@@ -42,17 +51,17 @@ public class UserServiceImpl implements UserService {
         User user = createUser(newUserDto);
         if (user.getRole() == User.Role.MASTER) {
             sendConfirmationEmails(user);
-            user.setActive(false);
+            user.setActive(false); /// createUser changed isActive -> false
         } else {
             user.setActive(true);
             sendRegistrationEmail(user);
         }
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
-        String accessToken = tokenService.generateAccessToken(user);
-        String refreshToken = tokenService.generateRefreshToken(user);
+        String accessToken = tokenService.generateAccessToken(savedUser);
+        String refreshToken = tokenService.generateRefreshToken(savedUser);
 
-        UserDto userDto = userMapper.toDto(user);
+        UserDto userDto = userMapper.toDto(savedUser);
         userDto.setAccessToken(accessToken);
         userDto.setRefreshToken(refreshToken);
 

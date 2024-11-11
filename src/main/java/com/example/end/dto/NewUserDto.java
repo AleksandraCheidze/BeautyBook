@@ -25,9 +25,10 @@ public class NewUserDto {
 
     @Email
     @NotNull
-    @Schema(description = "Email пользователя", example = "user@mail.com")
+    @Schema(description = "Users email", example = "user@mail.com")
     private String email;
 
+    //TODO - password, not a hashpassword?
     @NotNull
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$")
     @Schema(description = "Users password", example = "Qwerty007!")

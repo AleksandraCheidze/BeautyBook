@@ -14,7 +14,7 @@ import jakarta.mail.internet.MimeMessage;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class ProjectMailSender {
+public class    ProjectMailSender {
 
     private final JavaMailSender javaMailSender;
     @Value("${spring.mail.username}") // Внедряем имя пользователя (адрес эл. почты) из application.yml

@@ -101,7 +101,18 @@
             <version>0.12.5</version>
             <scope>runtime</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.7.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>5.3.1</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
@@ -124,7 +135,9 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.7.0</version>
                 <configuration>
-
+                    <includes>
+                        <include>**/*Test.java</include>
+                    </includes>
                     <annotationProcessorPaths>
                         <path>
                             <groupId>org.projectlombok</groupId>

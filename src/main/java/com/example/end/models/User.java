@@ -89,7 +89,14 @@ public class User {
     @Column(name = "image_url")
     private Set<String> portfolioImageUrls;
 
-
+    public User(Long id, String firstName, String lastName, String email, boolean isActive, Role role) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.isActive = isActive;
+        this.role = role;
+    }
 
     @Override
     public final boolean equals(Object o) {
