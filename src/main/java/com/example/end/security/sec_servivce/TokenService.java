@@ -9,6 +9,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.Nonnull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -32,8 +33,9 @@ public class TokenService {
             @Value("${jwt.refresh.key}") String refreshKey
 
     ) {
+        this.userRepository = userRepository;
         this.accessKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessKey));
-        this.refreshKey = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(refreshKey));
+        this.refreshKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshKey));
 
     }
 

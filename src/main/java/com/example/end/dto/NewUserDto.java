@@ -34,7 +34,7 @@ public class NewUserDto {
     private String hashPassword;
 
     @NotNull
-    @Schema(description = "Users role", example = "Master")
+    @Schema(description = "Users role", example = "MASTER")
     private User.Role role;
 
 }
