@@ -1,7 +1,6 @@
 package com.example.end.models;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -36,6 +35,10 @@ public class Category {
     @EqualsAndHashCode.Exclude
     @ManyToMany(mappedBy = "categories")
     private Set<User> userMaster ;
+
+    public Category(Long id) {
+        this.id = id;
+    }
 
     @Override
     public final boolean equals(Object o) {

@@ -25,9 +25,10 @@ public class NewUserDto {
 
     @Email
     @NotNull
-    @Schema(description = "Email пользователя", example = "user@mail.com")
+    @Schema(description = "Users email", example = "user@mail.com")
     private String email;
 
+    //TODO - password, not a hashpassword?
     @NotNull
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$")
     @Schema(description = "Users password", example = "Qwerty007!")
@@ -36,6 +37,17 @@ public class NewUserDto {
     @NotNull
     @Schema(description = "Users role", example = "MASTER")
     private User.Role role;
+
+    public User createUser() {
+        return User.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .email(email)
+                .role(role != null ? role : User.Role.CLIENT)
+                .hashPassword(hashPassword)
+                .isActive(role != User.Role.MASTER)
+                .build();
+    }
 
 }
 

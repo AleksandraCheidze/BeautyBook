@@ -20,12 +20,7 @@ public interface UserService {
 
     UserDetailsDto getById(Long id);
 
-    void sendConfirmationEmails(User masterUser);
-
     void validateEmail(String email);
-
-    User createUser(NewUserDto newUserDto);
-
 
     @jakarta.transaction.Transactional
     UserDetailsDto updateUserDetails(Long userId, NewUserDetailsDto userDetailsDto);
@@ -34,7 +29,6 @@ public interface UserService {
 
     UserDto getClientById(Long id);
 
-    @jakarta.transaction.Transactional
     void confirmMasterByEmail(String email);
 
     List<UserDetailsDto> findUsersByCategoryId(Long categoryId);
@@ -57,12 +51,11 @@ public interface UserService {
 
     List<UserDetailsDto> getAllMasters();
 
-    void sendMessageToAdmin(String email, String phone, String firstName, String lastName, String message);
-
     // void sendMessageToAdmin(String subject, String message);
 
     UserDto getUserById(Long currentUserId);
 
+    void sendMessageToAdmin(String email, String phone, String firstName, String lastName, String message);
 }
 
 

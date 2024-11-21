@@ -3,7 +3,6 @@ package com.example.end.controller;
 import com.example.end.controller.api.UserApi;
 import com.example.end.dto.*;
 import com.example.end.service.interfaces.UserService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,6 +53,8 @@ public class UserController implements UserApi {
     public void deleteById(Long id) {
        userService.deleteById(id);
     }
+
+    //TODO
     @Override
     public void sendMessageToAdmin(AdminMessageRequest messageRequest) {
         userService.sendMessageToAdmin(
