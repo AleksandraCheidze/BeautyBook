@@ -38,7 +38,7 @@ public class NewUserDto {
     @Schema(description = "Users role", example = "Master")
     private User.Role role;
 
-    public User createUser(NewUserDto newUserDto) {
+    public User createUser() {
         return User.builder()
                 .firstName(firstName)
                 .lastName(lastName)

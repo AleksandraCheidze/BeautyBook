@@ -82,8 +82,6 @@ public class    ProjectMailSender {
      * </p>
      *
      * @param user the user who has successfully registered. The user's email must be valid and non-null.
-     *
-     * @throws ....
      */
     public void sendRegistrationEmail(User user) {
         String subject = "Registrierung auf der Website";

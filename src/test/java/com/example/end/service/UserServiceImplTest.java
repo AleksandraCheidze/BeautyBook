@@ -6,7 +6,6 @@ import com.example.end.exceptions.UserNotFoundException;
 import com.example.end.mail.ProjectMailSender;
 import com.example.end.mapping.UserMapper;
 import com.example.end.models.Category;
-import com.example.end.models.Procedure;
 import com.example.end.models.User;
 import com.example.end.repository.CategoryRepository;
 import com.example.end.repository.UserRepository;

@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto register(NewUserDto newUserDto) {
         validateEmail(newUserDto.getEmail());
-        User user = newUserDto.createUser(newUserDto);   //createUser(newUserDto);
+        User user = newUserDto.createUser();   //createUser(newUserDto);
         user.setHashPassword(passwordEncoder.encode(newUserDto.getHashPassword()));
 
         if (user.getRole() == User.Role.MASTER) {
