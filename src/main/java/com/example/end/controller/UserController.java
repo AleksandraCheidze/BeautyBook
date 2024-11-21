@@ -54,6 +54,8 @@ public class UserController implements UserApi {
     public void deleteById(Long id) {
        userService.deleteById(id);
     }
+
+    //TODO
     @Override
     public void sendMessageToAdmin(AdminMessageRequest messageRequest) {
         userService.sendMessageToAdmin(

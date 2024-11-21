@@ -38,5 +38,16 @@ public class NewUserDto {
     @Schema(description = "Users role", example = "Master")
     private User.Role role;
 
+    public User createUser(NewUserDto newUserDto) {
+        return User.builder()
+                .firstName(firstName)
+                .lastName(lastName)
+                .email(email)
+                .role(role != null ? role : User.Role.CLIENT)
+                .hashPassword(hashPassword)
+                .isActive(role != User.Role.MASTER)
+                .build();
+    }
+
 }
 

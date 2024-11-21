@@ -37,6 +37,10 @@ public class Category {
     @ManyToMany(mappedBy = "categories")
     private Set<User> userMaster ;
 
+    public Category(Long id) {
+        this.id = id;
+    }
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;

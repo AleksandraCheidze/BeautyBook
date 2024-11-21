@@ -42,6 +42,9 @@ public class Procedure {
     @ManyToMany(mappedBy = "procedures")
     private Set<User> userMaster;
 
+    public Procedure(Long id) {
+        this.id = id;
+    }
 
     @Override
     public final boolean equals(Object o) {
