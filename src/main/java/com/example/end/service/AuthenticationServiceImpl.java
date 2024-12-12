@@ -2,9 +2,9 @@ package com.example.end.service;
 
 import com.example.end.dto.LoginRequestDto;
 import com.example.end.models.User;
-import com.example.end.security.sec_dto.AuthInfo;
-import com.example.end.security.sec_dto.TokenResponseDto;
-import com.example.end.security.sec_servivce.TokenService;
+import com.example.end.infrastructure.security.sec_dto.AuthInfo;
+import com.example.end.infrastructure.security.sec_dto.TokenResponseDto;
+import com.example.end.infrastructure.security.sec_servivce.TokenService;
 import com.example.end.service.interfaces.AuthenticationService;
 import io.jsonwebtoken.Claims;
 import jakarta.annotation.Nonnull;

@@ -1,4 +1,4 @@
-package com.example.end.security.sec_dto;
+package com.example.end.infrastructure.security.sec_dto;
 
 import lombok.Getter;
 import lombok.Setter;

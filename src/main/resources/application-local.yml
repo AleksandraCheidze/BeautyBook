@@ -12,9 +12,9 @@ spring:
         format_sql: true
 
   mail:
-    username: beauty-booking@gmx.net  # Ваш адрес электронной почты GMX
-    password: Qwerty007!     # Ваш пароль для электронной почты GMX
-    host: smtp.gmx.net   # SMTP-сервер
+    username: Beautybooking@gmx.de  # Ваш адрес электронной почты GMX
+    password: USGCY7UA7TQUYHCUQELM  # Ваш пароль для электронной почты GMX
+    host: mail.gmx.net  # SMTP-сервер
     port: 587
     properties:
       mail:
@@ -23,11 +23,13 @@ spring:
           auth: true
           starttls:
             enable: true
+    admin-email: Beautybooking@gmx.de  # Адрес вашей электронной почты для администратора
+
 jwt:
   access:
     key: "X30INcpL2Yzf80ArITEdwLegdAFT2dkeq1hxlR7waOk="
   refresh:
-    key: "u1vxX56P6a-4tWS2RLt0qIG9yF8DbW6d1pv4JUQI-dk="
+    key: "u1vxX56P6a+4tWS2RLt0qIG9yF8DbW6d1pv4JUQI+dk="
 
 logging:
   level:
