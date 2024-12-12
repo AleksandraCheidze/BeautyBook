@@ -1,8 +1,8 @@
-package com.example.end.security.sec_filter;
+package com.example.end.infrastructure.security.sec_filter;
 
 
-import com.example.end.security.sec_dto.AuthInfo;
-import com.example.end.security.sec_servivce.TokenService;
+import com.example.end.infrastructure.security.sec_servivce.TokenService;
+import com.example.end.infrastructure.security.sec_dto.AuthInfo;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

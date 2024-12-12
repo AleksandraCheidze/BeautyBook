@@ -4,12 +4,12 @@ import com.example.end.dto.*;
 import com.example.end.exceptions.ProcedureNotFoundException;
 import com.example.end.exceptions.RestException;
 import com.example.end.exceptions.UserNotFoundException;
-import com.example.end.mail.ProjectMailSender;
+import com.example.end.infrastructure.mail.ProjectMailSender;
 import com.example.end.mapping.UserMapper;
 import com.example.end.models.*;
 import com.example.end.repository.CategoryRepository;
 import com.example.end.repository.UserRepository;
-import com.example.end.security.sec_servivce.TokenService;
+import com.example.end.infrastructure.security.sec_servivce.TokenService;
 import com.example.end.service.interfaces.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,8 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final ProjectMailSender mailSender;
     private final TokenService tokenService;
-    @Value("${spring.mail.username}")
+
+    @Value("${spring.mail.admin-email}")
     private String adminEmail;
 
     /**
@@ -473,34 +474,6 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User not found for id: " + id));
         userRepository.delete(user);
-    }
-
-    //TODO public void sendMessageToAdmin(String email, String phone, String firstName, String lastName, String message)  -> new service like SenderService
-    //TODO add a check when is a MailException and null or FE?
-    //TODO this method have not to connect with controller!!!
-    /**
-     * Sends a message to the administrator with details provided by the user.
-     *
-     * <p>
-     * This method is used to relay a user's contact information and their message
-     * to the administrator via email. It composes the email using the user's
-     * first name, last name, email address, phone number, and the content of the message.
-     * </p>
-     *
-     * @param email the email address of the user sending the message. Must be a valid email.
-     * @param phone the phone number of the user sending the message. Can be null or empty if unavailable.
-     * @param firstName the first name of the user sending the message. Must be non-null and not empty.
-     * @param lastName the last name of the user sending the message. Must be non-null and not empty.
-     * @param message the content of the message being sent to the administrator. Must be non-null.
-     */
-
-    @Override
-    public void sendMessageToAdmin(String email, String phone, String firstName, String lastName, String message) {
-        String subject = "Neue Nachricht vom Benutzer: " + firstName + " " + lastName;
-        String messageBody = "Email: " + email + "\n" +
-                "Telefon: " + phone + "\n" +
-                "Nachricht: " + message;
-        mailSender.sendEmail(adminEmail, subject, messageBody);
     }
 
 }

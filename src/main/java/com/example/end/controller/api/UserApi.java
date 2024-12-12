@@ -95,7 +95,5 @@ public interface UserApi {
     void deleteById(@Parameter(description = "ID of the user to be deleted. Cannot be empty.", required = true)
                                     @PathVariable ("id")  Long id);
 
-    @Operation(summary = "Send message to admin", description = "Send message to admin with user details.")
-    @PostMapping("/message-admin")
-    void sendMessageToAdmin(@RequestBody @Valid AdminMessageRequest messageRequest);
+
 }

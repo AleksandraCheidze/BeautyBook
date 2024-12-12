@@ -1,6 +1,6 @@
-package com.example.end.security.config;
+package com.example.end.infrastructure.security.config;
 
-import com.example.end.security.sec_filter.TokenFilter;
+import com.example.end.infrastructure.security.sec_filter.TokenFilter;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;

@@ -1,4 +1,4 @@
-package com.example.end.security.config;
+package com.example.end.infrastructure.security.config;
 
 import com.example.end.dto.StandardResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;

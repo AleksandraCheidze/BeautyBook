@@ -1,4 +1,4 @@
-package com.example.end.mail;
+package com.example.end.infrastructure.mail;
 
 import com.example.end.models.User;
 import lombok.RequiredArgsConstructor;
