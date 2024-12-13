@@ -4,6 +4,7 @@ import com.example.end.controller.api.UserApi;
 import com.example.end.dto.*;
 import com.example.end.service.interfaces.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,9 +35,10 @@ public class UserController implements UserApi {
     public List<UserDetailsDto> findUsersByCategoryId(Long categoryId) {
         return userService.findUsersByCategoryId(categoryId);
     }
-
-    public void confirmMasterByEmail(String email) {
-      userService.confirmMasterByEmail(email);
+    @Override
+    public ResponseEntity<String> confirmMasterByEmail(String email) {
+        userService.confirmMasterByEmail(email);
+        return ResponseEntity.ok("Master confirmed successfully.");
     }
 
     @Override

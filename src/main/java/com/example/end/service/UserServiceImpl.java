@@ -58,12 +58,12 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto register(NewUserDto newUserDto) {
         validateEmail(newUserDto.getEmail());
-        User user = newUserDto.createUser();   //createUser(newUserDto);
+        User user = newUserDto.createUser();
         user.setHashPassword(passwordEncoder.encode(newUserDto.getHashPassword()));
 
         if (user.getRole() == User.Role.MASTER) {
             mailSender.sendConfirmationEmails(user, adminEmail);
-            user.setActive(false); /// createUser changed isActive -> false
+            user.setActive(false);
         } else {
             user.setActive(true);
             mailSender.sendRegistrationEmail(user);
@@ -256,7 +256,13 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void confirmMasterByEmail(String email) {
         User masterUser = findMasterUserByEmail(email);
-        activateMasterUser(masterUser);
+
+        if (masterUser.isActive()) {
+            throw new IllegalStateException("Master is already active.");
+        }
+        masterUser.setActive(true);
+        userRepository.save(masterUser);
+
         mailSender.sendRegistrationEmail(masterUser);
     }
 

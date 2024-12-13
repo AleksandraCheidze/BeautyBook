@@ -9,38 +9,36 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
 @AllArgsConstructor
 public class AuthInfo implements Authentication {
 
-
     private boolean authenticated;
     private final String username;
     private Set<User.Role> roles;
 
-    public AuthInfo(String username, Set<String> roles) {
+
+    public AuthInfo(String username, Set<User.Role> roles) {
         this.username = username;
-        this.roles = convertStringRolesToEnum(roles);
+        this.roles = roles;
     }
 
-    private Set<User.Role> convertStringRolesToEnum(Set<String> stringRoles) {
-        Set<User.Role> enumRoles = new HashSet<>();
-        for (String stringRole : stringRoles) {
-            enumRoles.add(User.Role.valueOf(stringRole));
-        }
-        return enumRoles;
+    public AuthInfo(String username, Collection<? extends GrantedAuthority> authorities) {
+        this.username = username;
+        this.roles = authorities.stream()
+                .map(authority -> User.Role.valueOf(authority.getAuthority().replace("ROLE_", "")))
+                .collect(Collectors.toSet());
     }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Set<GrantedAuthority> authorities = new HashSet<>();
-        for (User.Role role : roles) {
-            authorities.add(new SimpleGrantedAuthority(role.name()));
-        }
-        return authorities;
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.name())) // Добавляем "ROLE_" для совместимости
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -73,5 +71,3 @@ public class AuthInfo implements Authentication {
         return username;
     }
 }
-
-

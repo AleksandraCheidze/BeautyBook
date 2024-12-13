@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -94,6 +95,14 @@ public interface UserApi {
     @DeleteMapping("/{id}")
     void deleteById(@Parameter(description = "ID of the user to be deleted. Cannot be empty.", required = true)
                                     @PathVariable ("id")  Long id);
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Confirm a master by email. Available to ADMIN", description = "Confirm a master user by their email. Available to ADMIN")
+    @PostMapping("/confirm-master-by-email")
+    public ResponseEntity<String> confirmMasterByEmail(
+            @Parameter(description = "Email of the master to be confirmed.", required = true)
+            @RequestParam String email);
+
 
 
 }

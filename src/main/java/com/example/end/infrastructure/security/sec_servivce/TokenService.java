@@ -10,6 +10,8 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -48,12 +50,13 @@ public class TokenService {
                 .expiration(expirationDate)
                 .signWith(accessKey)
                 .claim("user_id", user.getId())
-                .claim("roles", user.getRole())
+                .claim("roles", "ROLE_" + user.getRole().name()) // Добавляем префикс ROLE_
                 .claim("firstName", user.getFirstName())
                 .claim("lastName", user.getLastName())
                 .claim("email", user.getEmail())
                 .compact();
     }
+
 
     public String generateRefreshToken(@Nonnull User user) {
         LocalDateTime currentDate = LocalDateTime.now();
@@ -104,60 +107,8 @@ public class TokenService {
 
     public AuthInfo generateAuthInfo(Claims claims) {
         String username = claims.getSubject();
-        String rolesString = (String) claims.get("roles");
-
-        // Предположим, что роли разделены запятыми
-        List<String> rolesList = Arrays.asList(rolesString.split(","));
-
-        Set<User.Role> roles = new HashSet<>();
-        for (String roleName : rolesList) {
-            User.Role role = User.Role.valueOf(roleName);
-            roles.add(role);
-        }
-
-        Set<String> roleStrings = roles.stream()
-                .map(Enum::name)
-                .collect(Collectors.toSet());
-
-        return new AuthInfo(username, roleStrings);
+        String roleString = claims.get("roles", String.class);
+        User.Role role = User.Role.valueOf(roleString.replace("ROLE_", ""));
+        return new AuthInfo(username, Set.of(role)); // Оборачиваем в Set
     }
-
-
-//    public AuthInfo generateAuthInfo(Claims claims) {
-//        String username = claims.getSubject();
-//        String rolesString  = claims.get("roles", String.class);
-//        //List<LinkedHashMap<String, String>> rolesList = (List<LinkedHashMap<String, String>>) claims.get("roles");
-//        Set<User.Role> roles = new HashSet<>();
-//
-//       if (rolesString != null && !rolesString.isEmpty()) {
-//            String roleName = roleEntry.get("authority");
-//            User.Role role = User.Role.valueOf(roleName);
-//            roles.add(role);
-//        }
-//
-//        // Преобразуем Set<User.Role> в Set<String>
-//        Set<String> roleStrings = roles.stream()
-//                .map(Enum::name)
-//                .collect(Collectors.toSet());
-//
-//        return new AuthInfo(username, roleStrings);
-//    }
-
-//    public AuthInfo generateAuthInfo(Claims claims) {
-//        String username = claims.getSubject();
-//        String rolesString = claims.get("roles", String.class); // Получить роли как строку
-//        Set<String> roles = new HashSet<>();
-//
-//        if (rolesString != null && !rolesString.isEmpty()) {
-//            // Предположим, что роли разделены запятой
-//            String[] rolesArray = rolesString.split(",");
-//            for (String role : rolesArray) {
-//                roles.add(role.trim()); // Удалить лишние пробелы
-//            }
-//        }
-//
-//        return new AuthInfo(username, roles);
-//    }
-
-
 }
