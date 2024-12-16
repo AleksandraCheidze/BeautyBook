@@ -379,11 +379,25 @@ public class UserServiceImpl implements UserService {
                 .map(userMapper::userDetailsToDto)
                 .collect(Collectors.toList());
     }
-
+    /**
+     * Retrieves a user by their ID.
+     *
+     * This method fetches the user with the specified ID from the database. If the user is found,
+     * it maps the user entity to a UserDto and returns it. If the user with the given ID does not
+     * exist, an exception is thrown indicating that the user was not found.
+     *
+     * @param currentUserId the ID of the user to be retrieved
+     * @return a UserDto containing the user's details
+     * @throws UserNotFoundException if no user is found with the specified ID
+     */
     @Override
     public UserDto getUserById(Long currentUserId) {
-        return null;
+        User user = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new UserNotFoundException("User not found for id: " + currentUserId));
+
+        return userMapper.toDto(user);
     }
+
 
     /**
      * Retrieves a list of all users in the system and converts them to DTOs.
