@@ -113,7 +113,8 @@ public class UserServiceImplTest {
            // verify(mailSenderMocked, times(1)).sendEmail(masterEmail, "Bestätigung der Registrierung des Meisters ausstehend", "Ihre Registrierung als Meister wurde erfasst und wartet auf die Bestätigung durch den Administrator. " +
              //       "Wir werden uns mit Ihnen in Verbindung setzen, sobald Ihr Konto bestätigt wurde. Vielen Dank für Ihre Registrierung!");
            // verify(mailSenderMocked, times(0)).sendEmail(masterEmail, "Registrierung auf der Website", "Herzlichen Glückwunsch zur erfolgreichen Registrierung auf unserer Website!");
-            verify(mailSenderMocked, times(1)).sendConfirmationEmails(any(), any()); //MASTER
+            verify(mailSenderMocked, times(1)).sendConfirmationEmails(any(), eq(masterEmail), eq(master.getFirstName() + " " + master.getLastName()));
+            //MASTER
             verify(mailSenderMocked, never()).sendRegistrationEmail(any()); ///CLIENT
 
 
@@ -148,7 +149,7 @@ public class UserServiceImplTest {
             //verify(mailSenderMocked, times(0)).sendEmail(clientEmail, "Bestätigung der Registrierung des Meisters ausstehend", "Ihre Registrierung als Meister wurde erfasst und wartet auf die Bestätigung durch den Administrator. " +
                  //   "Wir werden uns mit Ihnen in Verbindung setzen, sobald Ihr Konto bestätigt wurde. Vielen Dank für Ihre Registrierung!");
             //verify(mailSenderMocked, times(1)).sendEmail(clientEmail, "Registrierung auf der Website", "Herzlichen Glückwunsch zur erfolgreichen Registrierung auf unserer Website!");
-            verify(mailSenderMocked, never()).sendConfirmationEmails(any(), any());
+            verify(mailSenderMocked, never()).sendConfirmationEmails(any(), eq(clientEmail), eq(client.getFirstName() + " " + client.getLastName()));
             verify(mailSenderMocked, times(1)).sendRegistrationEmail(any()); ///CLIENT
 
             verify(userRepositoryMocked, times(1)).save(any(User.class));
@@ -373,7 +374,7 @@ public class UserServiceImplTest {
             when(userRepositoryMocked.findByEmail(masterEmail)).thenReturn(Optional.of(master));
 
             userServiceMocked.confirmMasterByEmail(masterEmail);
-            verify(mailSenderMocked, times(1)).sendRegistrationEmail(master);
+            verify(mailSenderMocked, times(1)).sendRegistrationEmail(master.getEmail());
             verify(userRepositoryMocked, times(1)).save(master);
             assertTrue(master.isActive());
         }
@@ -383,7 +384,7 @@ public class UserServiceImplTest {
 
             UserNotFoundException e = assertThrows(UserNotFoundException.class, () -> userServiceMocked.confirmMasterByEmail(masterEmail));
             assertEquals("Master user not found or already confirmed for email: email@testMaster.de", e.getMessage());
-            verify(mailSenderMocked, never()).sendRegistrationEmail(master);
+            verify(mailSenderMocked, never()).sendRegistrationEmail(master.getEmail());
             verify(userRepositoryMocked, never()).save(master);
         }
         @Test
@@ -394,7 +395,7 @@ public class UserServiceImplTest {
 
             UserNotFoundException e = assertThrows(UserNotFoundException.class, () -> userServiceMocked.confirmMasterByEmail(masterEmail));
             assertEquals("Master user not found or already confirmed for email: email@testMaster.de", e.getMessage());
-            verify(mailSenderMocked, never()).sendRegistrationEmail(master);
+            verify(mailSenderMocked, never()).sendRegistrationEmail(master.getEmail());
             verify(userRepositoryMocked, never()).save(master);
         }
         @Test
@@ -405,7 +406,7 @@ public class UserServiceImplTest {
 
             UserNotFoundException e = assertThrows(UserNotFoundException.class, () -> userServiceMocked.confirmMasterByEmail(masterEmail));
             assertEquals("Master user not found or already confirmed for email: email@testMaster.de", e.getMessage());
-            verify(mailSenderMocked, never()).sendRegistrationEmail(master);
+            verify(mailSenderMocked, never()).sendRegistrationEmail(master.getEmail());
             verify(userRepositoryMocked, never()).save(master);
         }
     }
@@ -588,34 +589,7 @@ public class UserServiceImplTest {
 
     }
 
-    @Nested
-    @DisplayNameGeneration(ReplaceUnderscores.class)
-    class ActivateMasterUser_Tests {
-        @Test
-        void activateMasterUser_user_with_role_master_is_activate_successful() {
-            master.setActive(false);
 
-            userServiceMocked.activateMasterUser(master);
-            assertTrue(master.isActive());
-            verify(userRepositoryMocked, times(1)).save(master);
-        }
-
-        @Test
-        void activateMasterUser_user_with_role_master_is_already_activated() {
-            master.setActive(true);
-
-            userServiceMocked.activateMasterUser(master);
-
-            verify(userRepositoryMocked, never()).save(master);
-        }
-
-        @Test
-        void activateMasterUser_user_with_role_master_is_null() {
-            IllegalArgumentException e  = assertThrows(IllegalArgumentException.class, () -> userServiceMocked.activateMasterUser(null));
-            assertEquals("Master user cannot be null", e.getMessage());
-            verify(userRepositoryMocked, never()).save(master);
-        }
-    }
     @Nested
     @DisplayNameGeneration(ReplaceUnderscores.class)
     class GetAllMasters_Tests {

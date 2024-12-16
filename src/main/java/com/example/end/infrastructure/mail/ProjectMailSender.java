@@ -1,6 +1,5 @@
 package com.example.end.infrastructure.mail;
 
-import com.example.end.models.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,34 +10,53 @@ import org.springframework.stereotype.Component;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
-
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class    ProjectMailSender {
+public class ProjectMailSender {
 
     private final JavaMailSender javaMailSender;
-    @Value("${spring.mail.username}") // Внедряем имя пользователя (адрес эл. почты) из application.yml
+
+    @Value("${spring.mail.username}")
     private String senderEmail;
+
+    /**
+     * Sends an email to the specified recipient.
+     * <p>
+     * This method is used to send any kind of email message with the provided recipient email, subject, and content.
+     * </p>
+     *
+     * @param email - The email address of the recipient.
+     * @param subject - The subject of the email.
+     * @param text - The body content of the email.
+     */
     @Async
     public void sendEmail(String email, String subject, String text) {
-
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
 
         try {
-
             helper.setFrom(senderEmail);
             helper.setTo(email);
             helper.setSubject(subject);
             helper.setText(text, true);
         } catch (MessagingException e) {
-            throw new IllegalStateException(e);
+            throw new IllegalStateException("Error creating message", e);
         }
 
         javaMailSender.send(message);
     }
 
+    /**
+     * Sends a request email to the administrator for the confirmation of a new master.
+     * <p>
+     * This method is used to notify the administrator that a new user has registered as a master
+     * and is awaiting confirmation.
+     * </p>
+     *
+     * @param adminEmail - The email address of the administrator.
+     * @param masterName - The name of the master who needs confirmation.
+     */
     @Async
     public void sendMasterConfirmationRequest(String adminEmail, String masterName) {
         String subject = "Anfrage zur Bestätigung eines neuen Meisters";
@@ -46,47 +64,38 @@ public class    ProjectMailSender {
                 "Der Benutzer %s hat sich als Meister registriert und wartet auf Ihre Bestätigung.\n" +
                 "Bitte bestätigen Sie dies im System.\n\n" +
                 "Mit freundlichen Grüßen,\nIhr Verwaltungssystem.", masterName);
-        sendEmail(adminEmail, subject, text); // Using the sendEmail method to send the message
+        sendEmail(adminEmail, subject, text);
     }
 
-    //TODO add a check when is a MailException
     /**
-     * Sends confirmation emails to a master user and an administrator.
+     * Sends confirmation emails to the master and the administrator.
      * <p>
-     * This method is used to notify the master user that their registration is pending approval
-     * and to inform the administrator about the pending request.
+     * This method notifies the master about the pending confirmation and informs the administrator about the
+     * master’s registration request.
      * </p>
      *
-     * @param masterUser the {@link User} object representing the master user who registered.
-     *                   This object must contain valid email and name details.
+     * @param adminEmail - The email address of the administrator.
+     * @param masterEmail - The email address of the master.
+     * @param masterName - The name of the master.
      */
-
-    public void sendConfirmationEmails(User masterUser, String adminEmail) {
-        String subject = "Bestätigung der Registrierung des Meisters ausstehend";
-        String messageToMaster = "Ihre Registrierung als Meister wurde erfasst und wartet auf die Bestätigung durch den Administrator. " +
-                "Wir werden uns mit Ihnen in Verbindung setzen, sobald Ihr Konto bestätigt wurde. Vielen Dank für Ihre Registrierung!";
-        sendEmail(masterUser.getEmail(), subject, messageToMaster);
-        String messageToAdmin = masterUser.getFirstName() + " " + masterUser.getLastName();
-        sendMasterConfirmationRequest(adminEmail, messageToAdmin);
+    public void sendConfirmationEmails(String adminEmail, String masterEmail, String masterName) {
+        String subject = "Bestätigung der Registrierung des Meisters";
+        String messageToMaster = "Ihre Registrierung als Meister wurde erfolgreich erfasst und wartet auf die Bestätigung des Administrators.";
+        sendEmail(masterEmail, subject, messageToMaster);
+        sendMasterConfirmationRequest(adminEmail, masterName);
     }
 
-    //TODO add a check when is a MailException
-    //TODO ==> in Sender
     /**
-     * Sends a registration email to the specified user.
-     *
+     * Sends a registration email to a user.
      * <p>
-     * This method is used to notify the user of a successful registration on the platform.
-     * The email includes a congratulatory message and is sent to the email address
-     * associated with the provided {@code User} object.
+     * This method is used to inform the user that they have successfully registered on the platform.
      * </p>
      *
-     * @param user the user who has successfully registered. The user's email must be valid and non-null.
+     * @param email - The email address of the user.
      */
-    public void sendRegistrationEmail(User user) {
-        String subject = "Registrierung auf der Website";
-        String message = "Herzlichen Glückwunsch zur erfolgreichen Registrierung auf unserer Website!";
-        sendEmail(user.getEmail(), subject, message);
+    public void sendRegistrationEmail(String email) {
+        String subject = "Herzlichen Glückwunsch zur erfolgreichen Registrierung!";
+        String message = "Vielen Dank für Ihre Registrierung auf unserer Plattform!";
+        sendEmail(email, subject, message);
     }
-
 }
