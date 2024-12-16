@@ -50,17 +50,6 @@ public class UserDto {
     @Schema(description = "Refresh token of the user")
     private String refreshToken;
 
-//    @Schema(description = "List of reviews given by the user")
-//    private List<ReviewDto> reviews;
-//
-//    @Schema(description = "Set of categories associated with the user")
-//    private Set<CategoryDto> categories;
-//
-//    @Schema(description = "Set of procedures associated with the user")
-//    private Set<ProcedureDto> procedures;
-//
-//    @Schema(description = "Cart associated with the user")
-//    private CartDto cart;
 
 }
 
