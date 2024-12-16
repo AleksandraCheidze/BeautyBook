@@ -35,6 +35,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final ProjectMailSender mailSender;
     private final TokenService tokenService;
+    private final SenderService senderService;
 
     @Value("${spring.mail.admin-email}")
     private String adminEmail;
@@ -62,12 +63,13 @@ public class UserServiceImpl implements UserService {
         user.setHashPassword(passwordEncoder.encode(newUserDto.getHashPassword()));
 
         if (user.getRole() == User.Role.MASTER) {
-            mailSender.sendConfirmationEmails(user, adminEmail);
+            senderService.sendMasterRegistrationConfirmation(user);
             user.setActive(false);
         } else {
+            mailSender.sendRegistrationEmail(user.getEmail());
             user.setActive(true);
-            mailSender.sendRegistrationEmail(user);
         }
+
         User savedUser = userRepository.save(user);
 
         String accessToken = tokenService.generateAccessToken(savedUser);
@@ -79,6 +81,7 @@ public class UserServiceImpl implements UserService {
 
         return userDto;
     }
+
 
     /**
      * Description: This method authenticates the user using email and password.
@@ -131,7 +134,6 @@ public class UserServiceImpl implements UserService {
      *                       The exception will have an HTTP status of {@link HttpStatus#CONFLICT}
      *                       and a message indicating the conflict.
      */
-    //TODO void method, we need to check if something needs to be returned for processing on FE
       @Override
       public void validateEmail(String email) {
         if (userRepository.existsByEmail(email)) {
@@ -251,7 +253,6 @@ public class UserServiceImpl implements UserService {
      * @throws UserNotFoundException if no user with the specified email is found.
     // * @throws MailSendingException if an error occurs while sending the confirmation email.
      */
-    //TODO void method, we need to check if something needs to be returned for processing on FE
     @Override
     @Transactional
     public void confirmMasterByEmail(String email) {
@@ -263,7 +264,7 @@ public class UserServiceImpl implements UserService {
         masterUser.setActive(true);
         userRepository.save(masterUser);
 
-        mailSender.sendRegistrationEmail(masterUser);
+        mailSender.sendRegistrationEmail(masterUser.getEmail());
     }
 
     /**
@@ -284,16 +285,24 @@ public class UserServiceImpl implements UserService {
      *         - The user does not have the MASTER role.
      *         - The user is already active (confirmed).
      */
-    //TODO differ message?
     @Override
     public User findMasterUserByEmail(String email) {
         Optional<User> optionalUser = userRepository.findByEmail(email);
-        User masterUser = optionalUser.orElseThrow(() -> new UserNotFoundException("Master user not found or already confirmed for email: " + email));
-        if (masterUser.getRole() != User.Role.MASTER || masterUser.isActive()) {
-            throw new UserNotFoundException("Master user not found or already confirmed for email: " + email);
+        User masterUser = optionalUser.orElseThrow(() ->
+                new UserNotFoundException("No user found with email: " + email)
+        );
+
+        if (masterUser.getRole() != User.Role.MASTER) {
+            throw new UserNotFoundException("User with email " + email + " is not a MASTER.");
         }
+
+        if (masterUser.isActive()) {
+            throw new UserNotFoundException("Master user with email " + email + " is already active.");
+        }
+
         return masterUser;
     }
+
 
 
     /**
@@ -353,31 +362,6 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Activates a master user account.
-     *
-     * <p>
-     * This method sets the active status of a given master user to {@code true} and saves the updated user entity
-     * to the database.
-     * </p>
-     *
-     * @param masterUser the {@code User} object representing the master user whose account is to be activated.
-     *                   The user object must not be {@code null}.
-     *
-     * @throws IllegalArgumentException if the provided {@code masterUser} is {@code null}.
-     */
-    //TODO void method, we need to check if something needs to be returned for processing on FE
-    @Override
-    public void activateMasterUser(User masterUser) {
-        if (masterUser == null) {
-            throw new IllegalArgumentException("Master user cannot be null");
-        }
-        if (!masterUser.isActive()) {
-            masterUser.setActive(true);
-            userRepository.save(masterUser);
-        }
-    }
-
-    /**
      * Retrieves a list of all users with the "MASTER" role and converts them to DTOs.
      *
      * <p>
@@ -396,7 +380,6 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
-    //TODO????
     @Override
     public UserDto getUserById(Long currentUserId) {
         return null;
@@ -458,7 +441,6 @@ public class UserServiceImpl implements UserService {
      * @param email the email address to search for. Must be a valid email string.
      * @return an {@code Optional<User>} containing the user entity if found, or empty if no user exists with the given email.
      */
-    //TODO two methods findByEmail and loadUserByEmail do the same - ???
     @Override
     public Optional<User> findByEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
@@ -466,14 +448,6 @@ public class UserServiceImpl implements UserService {
         }
         return userRepository.findByEmail(email);
     }
-
-    //TODO two methods findByEmail and loadUserByEmail do the same - ???
-    @Override
-    public Optional<User> loadUserByEmail(String email) {
-        return userRepository.findByEmail(email);
-    }
-
-    //TODO void method, we need to check if something needs to be returned for processing on FE
     @Override
     @Transactional
     public void deleteById(Long id) {
@@ -481,6 +455,5 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UserNotFoundException("User not found for id: " + id));
         userRepository.delete(user);
     }
-
 }
 

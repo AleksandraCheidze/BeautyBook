@@ -61,7 +61,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (tokenService.validateRefreshToken(refreshToken)) {
             Claims refreshClaims = tokenService.getRefreshClaims(refreshToken);
             String email = refreshClaims.getSubject();
-            Optional<User> optionalUser = userService.loadUserByEmail(email);
+            Optional<User> optionalUser = userService.findByEmail(email);
 
             if (optionalUser.isPresent()) {
                 User user = optionalUser.get();

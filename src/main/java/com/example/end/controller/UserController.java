@@ -35,6 +35,7 @@ public class UserController implements UserApi {
     public List<UserDetailsDto> findUsersByCategoryId(Long categoryId) {
         return userService.findUsersByCategoryId(categoryId);
     }
+
     @Override
     public ResponseEntity<String> confirmMasterByEmail(String email) {
         userService.confirmMasterByEmail(email);
@@ -43,7 +44,7 @@ public class UserController implements UserApi {
 
     @Override
     public List<UserDetailsDto> getAllMasters() {
-        return userService.getAllMasters() ;
+        return userService.getAllMasters();
     }
 
     @Override
@@ -52,9 +53,9 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public void deleteById(Long id) {
-       userService.deleteById(id);
+    public ResponseEntity<String> deleteById(Long id) {
+        userService.deleteById(id);
+        return ResponseEntity.ok("User with ID " + id + " was successfully deleted.");
     }
-
-    }
+}
 

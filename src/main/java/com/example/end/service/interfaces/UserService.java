@@ -35,8 +35,6 @@ public interface UserService {
 
     Optional<User> findByEmail(String email);
 
-    Optional<User> loadUserByEmail(String email);
-
     List<UserDetailsDto> getAllUsers();
 
     void deleteById(Long id);
@@ -47,10 +45,8 @@ public interface UserService {
 
     UserDetailsDto addPortfolioImages(Long userId, PortfolioImageDto portfolioImageDto);
 
-    void activateMasterUser(User masterUser);
 
     List<UserDetailsDto> getAllMasters();
-
 
     UserDto getUserById(Long currentUserId);
 

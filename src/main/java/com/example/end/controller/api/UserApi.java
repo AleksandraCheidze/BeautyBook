@@ -93,8 +93,8 @@ public interface UserApi {
     @PreAuthorize("hasAuthority('ADMIN')")
     @Operation(summary = "Delete user by ID. Available to ADMIN", description = "Available to ADMIN")
     @DeleteMapping("/{id}")
-    void deleteById(@Parameter(description = "ID of the user to be deleted. Cannot be empty.", required = true)
-                                    @PathVariable ("id")  Long id);
+    ResponseEntity<String> deleteById(@Parameter(description = "ID of the user to be deleted. Cannot be empty.", required = true)
+                                      @PathVariable("id") Long id);
 
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Confirm a master by email. Available to ADMIN", description = "Confirm a master user by their email. Available to ADMIN")
