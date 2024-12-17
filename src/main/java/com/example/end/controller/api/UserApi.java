@@ -66,7 +66,7 @@ public interface UserApi {
                             content = @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = StandardResponseDto.class)))
             })
-    @PreAuthorize("hasAuthority('MASTER')")
+    @PreAuthorize("hasAuthority('ROLE_MASTER')")
     @PutMapping("/{userId}/details")
     UserDetailsDto updateUserDetails(
             @Parameter(description = "ID of the user to be updated. Cannot be empty.",

@@ -55,7 +55,7 @@ public class SenderService {
      * @param user - The user object representing the master who registered.
      */
     public void sendMasterRegistrationConfirmation(User user) {
-        // Check if the user is a master
+
         if (user.getRole() != User.Role.MASTER) {
             throw new IllegalArgumentException("This user is not a master.");
         }
@@ -64,7 +64,6 @@ public class SenderService {
         String messageToMaster = "Ihre Registrierung als Meister wurde erfolgreich erfasst und wartet auf die Bestätigung des Administrators.";
         mailSender.sendEmail(user.getEmail(), subject, messageToMaster);
 
-        // Send a message to the administrator for confirmation
         String messageToAdmin = user.getFirstName() + " " + user.getLastName();
         mailSender.sendMasterConfirmationRequest(adminEmail, messageToAdmin);
     }
