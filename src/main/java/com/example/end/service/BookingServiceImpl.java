@@ -19,17 +19,27 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Implementation of the BookingService interface.
+ * Provides business logic for creating, updating, canceling, and retrieving bookings.
+ */
 @RequiredArgsConstructor
 @Service
-public class BookingServiceImpl  implements BookingService {
+public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
     private final BookingMapper bookingMapper;
     private final ProcedureRepository procedureRepository;
     private final UserRepository userRepository;
 
-
-
+    /**
+     * Creates a new booking for a client with a specific master and procedure.
+     *
+     * @param bookingDto the DTO containing the booking details.
+     * @return the created BookingDto.
+     * @throws UserNotFoundException if the client or master is not found.
+     * @throws ProcedureNotFoundException if the procedure is not found.
+     */
     @Override
     public BookingDto createBooking(NewBookingDto bookingDto) {
         User client = userRepository.findById(bookingDto.getClientId())
@@ -53,6 +63,12 @@ public class BookingServiceImpl  implements BookingService {
         return bookingMapper.toDto(booking);
     }
 
+    /**
+     * Updates the status of an existing booking.
+     *
+     * @param bookingDto the DTO containing the booking ID and new status.
+     * @throws IllegalArgumentException if the booking with the given ID is not found.
+     */
     @Override
     public void updateBookingStatus(NewUpdateBookingDto bookingDto) {
         Booking existingBooking = bookingRepository.findById(bookingDto.getId())
@@ -62,7 +78,11 @@ public class BookingServiceImpl  implements BookingService {
         bookingRepository.save(existingBooking);
     }
 
-
+    /**
+     * Cancels an existing booking by updating its status to CANCELED.
+     *
+     * @param bookingId the ID of the booking to cancel.
+     */
     @Override
     public void cancelBooking(Long bookingId) {
         NewUpdateBookingDto bookingDto = new NewUpdateBookingDto();
@@ -71,11 +91,18 @@ public class BookingServiceImpl  implements BookingService {
         updateBookingStatus(bookingDto);
     }
 
+    /**
+     * Retrieves a list of bookings for a specific user with a specific status.
+     *
+     * @param userId the ID of the user for whom the bookings are to be retrieved.
+     * @param status the status of the bookings to retrieve.
+     * @return a list of BookingDto objects representing the user's bookings.
+     */
     @Override
     public List<BookingDto> findBookingsByUser(Long userId, BookingStatus status) {
         List<Booking> bookings = bookingRepository.findBookingsByUserIdAndStatus(userId, status);
         return bookings.stream()
                 .map(bookingMapper::toDto)
                 .collect(Collectors.toList());
-}
+    }
 }

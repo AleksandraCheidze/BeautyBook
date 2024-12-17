@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProcedureMapper {
 
-   public ProcedureDto toDto(Procedure procedure){
+    public ProcedureDto toDto(Procedure procedure){
         return ProcedureDto.builder()
                 .id(procedure.getId())
                 .price(procedure.getPrice())
@@ -27,14 +27,14 @@ public class ProcedureMapper {
                 .build();
     }
 
-    public Procedure toEntity(NewProcedureDto procedureDto){
+    public Procedure fromNewProcedureDto(NewProcedureDto procedureDto){
         return Procedure.builder()
                 .price(procedureDto.getPrice())
                 .name(procedureDto.getName())
                 .build();
 
-}
-    public Procedure toEntity(ProcedureDto procedureDto){
+    }
+    public Procedure fromProcedureDto(ProcedureDto procedureDto){
         return Procedure.builder()
                 .id(procedureDto.getId())
                 .price(procedureDto.getPrice())
@@ -42,5 +42,12 @@ public class ProcedureMapper {
                 .build();
 
     }
-}
+    public Procedure toEntity(ProcedureByCategoryDto procedureByCategoryDto) {
+        return Procedure.builder()
+                .id(procedureByCategoryDto.getId())
+                .price(procedureByCategoryDto.getPrice())
+                .name(procedureByCategoryDto.getName())
+                .build();
+    }
 
+}

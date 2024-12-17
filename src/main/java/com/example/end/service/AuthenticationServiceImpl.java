@@ -18,6 +18,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * Implementation of the AuthenticationService interface.
+ * Provides methods for user authentication, token generation, and validation.
+ */
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
 
@@ -26,16 +30,28 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final BCryptPasswordEncoder encoder;
     private final TokenService tokenService;
 
+    /**
+     * Constructor to initialize the AuthenticationServiceImpl with required dependencies.
+     *
+     * @param userService the service to interact with user data
+     * @param encoder the password encoder used for password verification
+     * @param tokenService the service used to handle token generation and validation
+     */
     @Autowired
-    public AuthenticationServiceImpl( UserServiceImpl userService, BCryptPasswordEncoder encoder,TokenService tokenService) {
+    public AuthenticationServiceImpl(UserServiceImpl userService, BCryptPasswordEncoder encoder, TokenService tokenService) {
         this.userService = userService;
         this.refreshStorage = new HashMap<>();
         this.encoder = encoder;
         this.tokenService = tokenService;
     }
 
-
-
+    /**
+     * Authenticates a user based on their login credentials and generates JWT tokens (access and refresh).
+     *
+     * @param loginRequest the login request containing the user's email and password
+     * @return a TokenResponseDto containing the access and refresh tokens
+     * @throws AuthException if the user is not found or the password is incorrect
+     */
     public TokenResponseDto login(@Nonnull LoginRequestDto loginRequest) throws AuthException {
         String email = loginRequest.getEmail();
         Optional<User> userOptional = userService.findByEmail(email);
@@ -43,9 +59,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (userOptional.isPresent()) {
             User foundUser = userOptional.get();
 
+            // Verify if the password matches
             if (encoder.matches(loginRequest.getHashPassword(), foundUser.getHashPassword())) {
                 String accessToken = tokenService.generateAccessToken(foundUser);
                 String refreshToken = tokenService.generateRefreshToken(foundUser);
+
+                // Store the refresh token for the user
                 refreshStorage.put(email, refreshToken);
                 return new TokenResponseDto(accessToken, refreshToken);
             } else {
@@ -56,11 +75,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
-
+    /**
+     * Retrieves a new access token using a valid refresh token.
+     *
+     * @param refreshToken the refresh token used to generate a new access token
+     * @return a TokenResponseDto containing the new access token, or null if the refresh token is invalid
+     */
     public TokenResponseDto getAccessToken(@Nonnull String refreshToken) {
+        // Validate the refresh token
         if (tokenService.validateRefreshToken(refreshToken)) {
             Claims refreshClaims = tokenService.getRefreshClaims(refreshToken);
             String email = refreshClaims.getSubject();
+
             Optional<User> optionalUser = userService.findByEmail(email);
 
             if (optionalUser.isPresent()) {
@@ -69,12 +95,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 return new TokenResponseDto(accessToken, null);
             }
         }
-        // Обработка случая, когда пользователь не найден
+
         return new TokenResponseDto(null, null);
     }
 
-
-
+    /**
+     * Retrieves the authentication information from the current security context.
+     *
+     * @return the authentication information as an AuthInfo object
+     */
     public AuthInfo getAuthInfo() {
         return (AuthInfo) SecurityContextHolder.getContext().getAuthentication();
     }

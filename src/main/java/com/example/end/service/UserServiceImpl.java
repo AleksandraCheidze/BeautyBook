@@ -5,11 +5,14 @@ import com.example.end.exceptions.ProcedureNotFoundException;
 import com.example.end.exceptions.RestException;
 import com.example.end.exceptions.UserNotFoundException;
 import com.example.end.infrastructure.mail.ProjectMailSender;
+import com.example.end.mapping.ProcedureMapper;
 import com.example.end.mapping.UserMapper;
 import com.example.end.models.*;
 import com.example.end.repository.CategoryRepository;
 import com.example.end.repository.UserRepository;
 import com.example.end.infrastructure.security.sec_servivce.TokenService;
+import com.example.end.service.interfaces.CategoryService;
+import com.example.end.service.interfaces.ProcedureService;
 import com.example.end.service.interfaces.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,10 +35,12 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final UserMapper userMapper;
+    private final CategoryService categoryService;
     private final PasswordEncoder passwordEncoder;
     private final ProjectMailSender mailSender;
     private final TokenService tokenService;
     private final SenderService senderService;
+
 
     @Value("${spring.mail.admin-email}")
     private String adminEmail;
@@ -147,19 +152,19 @@ public class UserServiceImpl implements UserService {
      * <p>
      * This method retrieves a user by their unique ID, updates their information based on the provided
      * details, and saves the changes to the database. It also validates the provided category and procedure IDs
-     * to ensure they exist and belong to the selected categories.
+     * to ensure they are valid and that the procedures belong to the selected categories.
      * </p>
      *
      * @param userId the ID of the user whose details are to be updated. Must be a valid user ID.
-     * @param userDetailsDto a {@code NewUserDetailsDto} object containing the new details for the user.
-     *                        Includes description, phone number, address, category IDs, and procedure IDs.
-     * @return a {@code UserDetailsDto} containing the updated user details, including category and procedure IDs.
+     * @param userDetailsDto a {@code NewUserDetailsDto} object containing the new details for the user,
+     *                       including description, phone number, address, category IDs, and procedure IDs.
+     * @return a {@code UserDetailsDto} containing the updated user details, including the category and procedure IDs.
      *
      * @throws UserNotFoundException if no user is found for the provided ID.
-     * @throws ProcedureNotFoundException if a procedure ID in {@code userDetailsDto} is invalid or doesn't belong to the selected categories.
+     * @throws ProcedureNotFoundException if any procedure ID in {@code userDetailsDto} is invalid or does not belong
+     *                                     to the selected categories.
      */
-    //TODO UserDetailsDto updateUserDetails loop within loop
-    //TODO split this method
+
     @Override
     @Transactional
     public UserDetailsDto updateUserDetails(Long userId, NewUserDetailsDto userDetailsDto) {
@@ -172,24 +177,19 @@ public class UserServiceImpl implements UserService {
 
         Set<Category> selectedCategories = new HashSet<>(categoryRepository.findAllById(userDetailsDto.getCategoryIds()));
         user.setCategories(selectedCategories);
-        Set<Procedure> selectedProcedures = new HashSet<>();
 
-        for (Category category : selectedCategories) {
-            for (Long procedureId : userDetailsDto.getProcedureIds()) {
-                Procedure procedure = category.getProcedures().stream()
-                        .filter(p -> p.getId().equals(procedureId))
-                        .findFirst()
-                        .orElseThrow(() -> new ProcedureNotFoundException("Procedure not found for id: " + procedureId));
-                selectedProcedures.add(procedure);
-            }
-        }
+        Set<Procedure> selectedProcedures = categoryService.getProceduresForCategories(selectedCategories, userDetailsDto.getProcedureIds());
         user.setProcedures(selectedProcedures);
+
         User updatedUser = userRepository.save(user);
+
         UserDetailsDto responseDto = userMapper.userDetailsToDto(updatedUser);
         responseDto.setCategoryIds(updatedUser.getCategories().stream().map(Category::getId).collect(Collectors.toList()));
         responseDto.setProcedureIds(updatedUser.getProcedures().stream().map(Procedure::getId).collect(Collectors.toList()));
+
         return responseDto;
     }
+
 
     /**
      * Retrieves a master user by their unique identifier.

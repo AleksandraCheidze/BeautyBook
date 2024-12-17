@@ -17,21 +17,39 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Implementation of the ReviewService interface.
+ * Provides business logic for managing reviews for users, specifically for masters.
+ */
 @RequiredArgsConstructor
 @Service
 public class ReviewServiceImpl implements ReviewService {
+
     private final ReviewRepository reviewRepository;
     private final ReviewMapper reviewMapper;
     private final UserService userService;
     private final UserMapper userMapper;
 
-
+    /**
+     * Retrieves all reviews for a specific master.
+     *
+     * @param masterId the ID of the master for whom to retrieve reviews.
+     * @return a list of ReviewDto objects representing the reviews for the specified master.
+     */
     public List<ReviewDto> getReviewsByMaster(Long masterId) {
         List<Review> reviews = reviewRepository.findByMasterId(masterId);
         return reviews.stream()
                 .map(reviewMapper::toDto)
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Adds a new review for a master by a client.
+     *
+     * @param reviewDto the ReviewDto containing the review details.
+     * @return the added ReviewDto after being saved in the database.
+     * @throws IllegalArgumentException if the client or master is not found.
+     */
     @Override
     public ReviewDto addReview(ReviewDto reviewDto) {
         UserDto clientDto = userService.getClientById(reviewDto.getClientId());
@@ -53,8 +71,14 @@ public class ReviewServiceImpl implements ReviewService {
         } else {
             throw new IllegalArgumentException("Client or master not found");
         }
-        }
+    }
 
+    /**
+     * Retrieves the average rating of a master based on reviews.
+     *
+     * @param masterId the ID of the master whose rating is to be calculated.
+     * @return the average rating of the master. If there are no reviews, returns 0.
+     */
     @Override
     public double getMasterRating(Long masterId) {
         List<Review> reviews = reviewRepository.findByMasterId(masterId);
@@ -65,7 +89,12 @@ public class ReviewServiceImpl implements ReviewService {
                 .orElse(0);
     }
 
-
+    /**
+     * Deletes a review by its ID.
+     *
+     * @param reviewId the ID of the review to delete.
+     * @throws ReviewNotFoundException if the review with the given ID does not exist.
+     */
     @Override
     public void deleteReview(Long reviewId) {
         Review review = reviewRepository.findById(reviewId)
