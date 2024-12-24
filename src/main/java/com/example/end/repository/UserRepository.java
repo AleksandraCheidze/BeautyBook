@@ -3,8 +3,12 @@ package com.example.end.repository;
 
 import com.example.end.models.User;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
+
+import jakarta.persistence.metamodel.SingularAttribute;
+import org.springframework.data.jpa.domain.AbstractPersistable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,6 +22,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     @Query("SELECT u FROM User u JOIN u.categories c WHERE c.id = :categoryId")
     List<User> findUsersByCategoryId(@Param("categoryId")  Long categoryId);
+
 
 }
 

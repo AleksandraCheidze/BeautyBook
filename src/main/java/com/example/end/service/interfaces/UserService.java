@@ -18,6 +18,8 @@ public interface UserService {
 
     UserDto authenticate(String email, String password);
 
+    UserDto getUserById(Long currentUserId);
+
     UserDetailsDto getById(Long id);
 
     void validateEmail(String email);
@@ -48,7 +50,6 @@ public interface UserService {
 
     List<UserDetailsDto> getAllMasters();
 
-    UserDto getUserById(Long currentUserId);
 
 
 }

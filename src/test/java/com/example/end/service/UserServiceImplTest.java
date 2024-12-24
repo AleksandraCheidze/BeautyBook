@@ -1,6 +1,7 @@
 package com.example.end.service;
 
 import com.example.end.dto.*;
+import com.example.end.exceptions.ProcedureNotFoundException;
 import com.example.end.exceptions.RestException;
 import com.example.end.exceptions.UserNotFoundException;
 import com.example.end.infrastructure.mail.ProjectMailSender;
@@ -10,6 +11,7 @@ import com.example.end.models.User;
 import com.example.end.repository.CategoryRepository;
 import com.example.end.repository.UserRepository;
 import com.example.end.infrastructure.security.sec_servivce.TokenService;
+import com.example.end.service.interfaces.CategoryService;
 import com.example.end.util.TestDataGenerator;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +46,8 @@ public class UserServiceImplTest {
     private UserRepository userRepositoryMocked;
     @Mock
     private CategoryRepository categoryRepositoryMocked;
+    @Mock
+    private CategoryService categoryServiceMocked;
     @Mock
     private UserMapper userMapperMocked;
     @Mock
@@ -299,8 +303,8 @@ public class UserServiceImplTest {
         //TODO after refactoring the method
         @Test
         void updateUserDetails_throws_ProcedureNotFoundException_procedure_not_exist() {
-
         }
+
         //TODO after refactoring the method
         @Test
         void updateUserDetails_return_Updated_UserDetailsDto_successful() {
