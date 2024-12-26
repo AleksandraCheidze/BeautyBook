@@ -38,6 +38,13 @@ logging:
         security: DEBUG
         mail: DEBUG
 
+cloudinary:
+  cloud_name: beautyBook
+  api_key: 276144613127592
+  api_secret: fgM1EQhBV_ewbZ6gR26_sJMoQU0
+
+
+
 # Настройки для Flyway
 flyway:
   baseline-on-migrate: true
