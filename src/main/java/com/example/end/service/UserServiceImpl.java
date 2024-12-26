@@ -112,14 +112,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getMasterById(Long id) {
-        User master = findUserByIdAndRole(id, User.Role.MASTER);
-        return userMapper.toDto(master);
+        // Используем универсальный метод для получения мастера
+        return getUserByIdAndRole(id, User.Role.MASTER);
     }
 
     @Override
     public UserDto getClientById(Long id) {
-        User client = findUserByIdAndRole(id, User.Role.CLIENT);
-        return userMapper.toDto(client);
+        // Используем универсальный метод для получения клиента
+        return getUserByIdAndRole(id, User.Role.CLIENT);
     }
 
     @Override
@@ -217,6 +217,12 @@ public class UserServiceImpl implements UserService {
     public void deleteById(Long id) {
         User user = findUserByIdOrThrow(id);
         userRepository.delete(user);
+    }
+
+    // Новый универсальный метод для получения пользователя по ID и роли
+    private UserDto getUserByIdAndRole(Long userId, User.Role role) {
+        User user = findUserByIdAndRole(userId, role);
+        return userMapper.toDto(user);
     }
 
     private User findUserByIdOrThrow(Long userId) {
