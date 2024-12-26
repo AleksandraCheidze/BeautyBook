@@ -21,6 +21,11 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Implementation of {@link UserService}.
+ * Provides methods for user registration, authentication, and management,
+ * including updating user details, adding images, and fetching users by category or role.
+ */
 @RequiredArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
@@ -37,6 +42,15 @@ public class UserServiceImpl implements UserService {
     @Value("${spring.mail.admin-email}")
     private String adminEmail;
 
+    /**
+     * Registers a new user with the provided details.
+     * If the user is a master, sends a confirmation email and sets the user as inactive.
+     * If the user is a client, sends a registration email and sets the user as active.
+     * Generates access and refresh tokens for the user after registration.
+     *
+     * @param newUserDto the new user details
+     * @return the registered user with access and refresh tokens
+     */
     @Override
     @Transactional
     public UserDto register(NewUserDto newUserDto) {
@@ -64,6 +78,14 @@ public class UserServiceImpl implements UserService {
         return userDto;
     }
 
+    /**
+     * Authenticates a user by validating their email and password.
+     *
+     * @param email    the user's email
+     * @param password the user's password
+     * @return the authenticated user
+     * @throws RestException if authentication fails
+     */
     @Override
     public UserDto authenticate(String email, String password) {
         User user = findUserByEmailOrThrow(email);
@@ -73,12 +95,25 @@ public class UserServiceImpl implements UserService {
         return userMapper.toDto(user);
     }
 
+    /**
+     * Retrieves user details by user ID.
+     *
+     * @param id the user ID
+     * @return user details
+     * @throws UserNotFoundException if the user is not found
+     */
     @Override
     public UserDetailsDto getById(Long id) {
         User user = findUserByIdOrThrow(id);
         return userMapper.userDetailsToDto(user);
     }
 
+    /**
+     * Validates if a user already exists with the given email.
+     *
+     * @param email the email to validate
+     * @throws RestException if the email is already in use
+     */
     @Override
     public void validateEmail(String email) {
         if (userRepository.existsByEmail(email)) {
@@ -86,6 +121,14 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    /**
+     * Updates user details such as description, phone number, address, categories, and procedures.
+     *
+     * @param userId         the user ID
+     * @param userDetailsDto the new user details
+     * @return the updated user details
+     * @throws UserNotFoundException if the user is not found
+     */
     @Override
     @Transactional
     public UserDetailsDto updateUserDetails(Long userId, NewUserDetailsDto userDetailsDto) {
@@ -110,18 +153,36 @@ public class UserServiceImpl implements UserService {
         return responseDto;
     }
 
+    /**
+     * Retrieves a master by their user ID.
+     *
+     * @param id the user ID
+     * @return the master user
+     * @throws UserNotFoundException if the user is not found
+     */
     @Override
     public UserDto getMasterById(Long id) {
-        // Используем универсальный метод для получения мастера
         return getUserByIdAndRole(id, User.Role.MASTER);
     }
 
+    /**
+     * Retrieves a client by their user ID.
+     *
+     * @param id the user ID
+     * @return the client user
+     * @throws UserNotFoundException if the user is not found
+     */
     @Override
     public UserDto getClientById(Long id) {
-        // Используем универсальный метод для получения клиента
         return getUserByIdAndRole(id, User.Role.CLIENT);
     }
 
+    /**
+     * Confirms a master user's registration via email.
+     *
+     * @param email the email of the master user
+     * @throws IllegalStateException if the master user is already active
+     */
     @Override
     @Transactional
     public void confirmMasterByEmail(String email) {
@@ -136,6 +197,13 @@ public class UserServiceImpl implements UserService {
         mailSender.sendRegistrationEmail(masterUser.getEmail());
     }
 
+    /**
+     * Retrieves a master user by their email.
+     *
+     * @param email the email of the master user
+     * @return the master user
+     * @throws UserNotFoundException if the user is not found or not a master
+     */
     @Override
     public User findMasterUserByEmail(String email) {
         User masterUser = findUserByEmailOrThrow(email);
@@ -148,6 +216,13 @@ public class UserServiceImpl implements UserService {
         return masterUser;
     }
 
+    /**
+     * Adds a profile image URL to the user profile.
+     *
+     * @param userId          the user ID
+     * @param profileImageDto the profile image URL
+     * @return the updated user details
+     */
     @Override
     @Transactional
     public UserDetailsDto addProfileImage(Long userId, ProfileImageDto profileImageDto) {
@@ -160,6 +235,13 @@ public class UserServiceImpl implements UserService {
         return userMapper.userDetailsToDto(updatedUser);
     }
 
+    /**
+     * Adds portfolio image URLs to the user profile.
+     *
+     * @param userId           the user ID
+     * @param portfolioImageDto the portfolio image URLs
+     * @return the updated user details
+     */
     @Override
     @Transactional
     public UserDetailsDto addPortfolioImages(Long userId, PortfolioImageDto portfolioImageDto) {
@@ -172,6 +254,11 @@ public class UserServiceImpl implements UserService {
         return userMapper.userDetailsToDto(updatedUser);
     }
 
+    /**
+     * Retrieves all users with the MASTER role.
+     *
+     * @return a list of all master users
+     */
     @Override
     public List<UserDetailsDto> getAllMasters() {
         List<User> masters = userRepository.findAllByRole(User.Role.MASTER);
@@ -180,12 +267,24 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves a user by their user ID.
+     *
+     * @param currentUserId the user ID
+     * @return the user details
+     * @throws UserNotFoundException if the user is not found
+     */
     @Override
     public UserDto getUserById(Long currentUserId) {
         User user = findUserByIdOrThrow(currentUserId);
         return userMapper.toDto(user);
     }
 
+    /**
+     * Retrieves all users.
+     *
+     * @return a list of all users
+     */
     @Override
     public List<UserDetailsDto> getAllUsers() {
         return userRepository.findAll().stream()
@@ -193,6 +292,12 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves all users associated with a specific category.
+     *
+     * @param categoryId the category ID
+     * @return a list of users associated with the category
+     */
     @Override
     public List<UserDetailsDto> findUsersByCategoryId(Long categoryId) {
         List<User> users = userRepository.findUsersByCategoryId(categoryId);
@@ -204,6 +309,12 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Finds a user by their email.
+     *
+     * @param email the user's email
+     * @return an optional containing the user if found
+     */
     @Override
     public Optional<User> findByEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
@@ -212,6 +323,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email);
     }
 
+    /**
+     * Deletes a user by their ID.
+     *
+     * @param id the user ID
+     */
     @Override
     @Transactional
     public void deleteById(Long id) {
@@ -219,7 +335,7 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
-    // Новый универсальный метод для получения пользователя по ID и роли
+    // Helper methods for internal use
     private UserDto getUserByIdAndRole(Long userId, User.Role role) {
         User user = findUserByIdAndRole(userId, role);
         return userMapper.toDto(user);
