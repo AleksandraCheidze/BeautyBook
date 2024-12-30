@@ -1,23 +1,27 @@
 package com.example.end.service;
 
 import com.example.end.dto.*;
-import com.example.end.exceptions.RestException;
-import com.example.end.exceptions.UserNotFoundException;
+import com.example.end.exceptions.*;
+import com.example.end.infrastructure.config.ImageUploadService;
 import com.example.end.infrastructure.mail.ProjectMailSender;
 import com.example.end.mapping.UserMapper;
 import com.example.end.models.*;
 import com.example.end.repository.CategoryRepository;
+import com.example.end.repository.PortfolioPhotoRepository;
 import com.example.end.repository.UserRepository;
 import com.example.end.infrastructure.security.sec_servivce.TokenService;
 import com.example.end.service.interfaces.CategoryService;
 import com.example.end.service.interfaces.UserService;
+import com.example.end.utils.FileValidationUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,6 +42,8 @@ public class UserServiceImpl implements UserService {
     private final ProjectMailSender mailSender;
     private final TokenService tokenService;
     private final SenderService senderService;
+    private final PortfolioPhotoRepository portfolioPhotoRepository;
+    private final ImageUploadService imageUploadService;
 
     @Value("${spring.mail.admin-email}")
     private String adminEmail;
@@ -216,43 +222,85 @@ public class UserServiceImpl implements UserService {
         return masterUser;
     }
 
-    /**
-     * Adds a profile image URL to the user profile.
-     *
-     * @param userId          the user ID
-     * @param profileImageDto the profile image URL
-     * @return the updated user details
-     */
+
     @Override
-    @Transactional
-    public UserDetailsDto addProfileImage(Long userId, ProfileImageDto profileImageDto) {
-        if (profileImageDto == null || profileImageDto.getProfileImageUrl() == null || profileImageDto.getProfileImageUrl().isEmpty()) {
-            throw new IllegalArgumentException("Profile image URL must not be null or empty");
+    public String uploadProfilePhoto(Long userId, MultipartFile file, long maxSize) throws IOException {
+        if (!FileValidationUtils.isValidImage(file)) {
+            throw new InvalidFileException("Only JPEG, PNG, or GIF images are allowed.");
         }
+        if (file.getSize() > maxSize) {
+            throw new InvalidFileException("File size exceeds the maximum allowed size of " + maxSize + " bytes.");
+        }
+
         User user = findUserByIdOrThrow(userId);
-        user.setProfileImageUrl(profileImageDto.getProfileImageUrl());
-        User updatedUser = userRepository.save(user);
-        return userMapper.userDetailsToDto(updatedUser);
+
+        String imageUrl = imageUploadService.uploadImage(file);
+        user.setProfilePhotoUrl(imageUrl);
+        userRepository.save(user);
+        return imageUrl;
     }
 
-    /**
-     * Adds portfolio image URLs to the user profile.
-     *
-     * @param userId           the user ID
-     * @param portfolioImageDto the portfolio image URLs
-     * @return the updated user details
-     */
     @Override
-    @Transactional
-    public UserDetailsDto addPortfolioImages(Long userId, PortfolioImageDto portfolioImageDto) {
+    public List<String> uploadPortfolioPhotos(Long userId, List<MultipartFile> files, long maxSize) throws IOException {
+        for (MultipartFile file : files) {
+            if (!FileValidationUtils.isValidImage(file)) {
+                throw new InvalidFileException("Only JPEG, PNG, or GIF images are allowed.");
+            }
+            if (file.getSize() > maxSize) {
+                throw new InvalidFileException("File size exceeds the maximum allowed size of " + maxSize + " bytes.");
+            }
+        }
+
+        User user = findUserByIdOrThrow(userId);
+        List<String> uploadedUrls = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+            String imageUrl = imageUploadService.uploadImage(file);
+
+            PortfolioPhoto portfolioPhoto = new PortfolioPhoto();
+            portfolioPhoto.setUrl(imageUrl);
+            portfolioPhoto.setUser(user);
+
+            portfolioPhotoRepository.save(portfolioPhoto);
+            uploadedUrls.add(imageUrl);
+        }
+
+        return uploadedUrls;
+    }
+
+
+
+    @Override
+    public void deleteProfilePhoto(Long userId) throws IOException {
         User user = findUserByIdOrThrow(userId);
 
-        Set<String> portfolioImageUrls = new HashSet<>(portfolioImageDto.getPortfolioImageUrls());
-        user.setPortfolioImageUrls(portfolioImageUrls);
+        String profilePhotoUrl = user.getProfilePhotoUrl();
+        if (profilePhotoUrl != null) {
 
-        User updatedUser = userRepository.save(user);
-        return userMapper.userDetailsToDto(updatedUser);
+            String publicId = imageUploadService.extractPublicId(profilePhotoUrl);
+            imageUploadService.deleteImage(publicId);
+
+            user.setProfilePhotoUrl(null);
+            userRepository.save(user);
+        }
     }
+
+    @Override
+    public void deletePortfolioPhoto(Long userId, Long photoId) throws IOException {
+        User user = findUserByIdOrThrow(userId);
+
+        PortfolioPhoto photo = portfolioPhotoRepository.findById(photoId)
+                .orElseThrow(() -> PhotoNotFoundException.forId(photoId));
+
+        if (!photo.getUser().getId().equals(user.getId())) {
+            throw PhotoOwnershipException.notBelongToUser(photoId, userId);
+        }
+
+        String publicId = imageUploadService.extractPublicId(photo.getUrl());
+        imageUploadService.deleteImage(publicId);
+        portfolioPhotoRepository.delete(photo);
+    }
+
 
     /**
      * Retrieves all users with the MASTER role.
@@ -355,4 +403,21 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByIdAndRole(userId, role)
                 .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId + " with role: " + role));
     }
+
+    public boolean isValidImage(MultipartFile file, long maxSize) {
+
+        String contentType = file.getContentType();
+        if (contentType == null ||
+                !(contentType.equals("image/jpeg") ||
+                        contentType.equals("image/png") ||
+                        contentType.equals("image/gif"))) {
+            return false;
+        }
+
+        if (file.getSize() > maxSize) {
+            return false;
+        }
+        return true;
+    }
+
 }

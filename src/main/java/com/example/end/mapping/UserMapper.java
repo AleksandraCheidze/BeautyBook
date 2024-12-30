@@ -1,11 +1,8 @@
 package com.example.end.mapping;
 
-import com.example.end.models.Review;
+import com.example.end.models.*;
 import com.example.end.dto.UserDetailsDto;
 import com.example.end.dto.UserDto;
-import com.example.end.models.User;
-import com.example.end.models.Category;
-import com.example.end.models.Procedure;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -39,7 +36,6 @@ public class UserMapper {
     }
 
     public UserDetailsDto userDetailsToDto(User user) {
-
         return UserDetailsDto.builder()
                 .id(user.getId())
                 .phoneNumber(user.getPhoneNumber())
@@ -49,11 +45,19 @@ public class UserMapper {
                 .lastName(user.getLastName())
                 .email(user.getEmail())
                 .role(user.getRole())
-                .profileImageUrl(user.getProfileImageUrl())
-                .portfolioImageUrls(new ArrayList<>(user.getPortfolioImageUrls()))
-                .categoryIds(user.getCategories().stream().map(Category::getId).collect(Collectors.toList()))
-                .procedureIds(user.getProcedures().stream().map(Procedure::getId).collect(Collectors.toList()))
-                .reviewIds(user.getReviewsAsMaster().stream().map(Review::getId).collect(Collectors.toList()))
+                .profileImageUrl(user.getProfilePhotoUrl())
+                .portfolioImageUrls(user.getPortfolioPhotos().stream()
+                        .map(PortfolioPhoto::getUrl)
+                        .collect(Collectors.toList()))
+                .categoryIds(user.getCategories().stream()
+                        .map(Category::getId)
+                        .collect(Collectors.toList()))
+                .procedureIds(user.getProcedures().stream()
+                        .map(Procedure::getId)
+                        .collect(Collectors.toList()))
+                .reviewIds(user.getReviewsAsMaster().stream()
+                        .map(Review::getId)
+                        .collect(Collectors.toList()))
                 .build();
     }
 }

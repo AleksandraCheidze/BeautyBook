@@ -82,12 +82,11 @@ public class User {
     )
     private Set<Procedure> procedures;
 
-    private  String profileImageUrl;
 
-    @ElementCollection
-    @CollectionTable(name = "user_portfolio_images", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "image_url")
-    private Set<String> portfolioImageUrls;
+    private String profilePhotoUrl;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PortfolioPhoto> portfolioPhotos;
 
     public User(Long id, String firstName, String lastName, String email, boolean isActive, Role role) {
         this.id = id;
