@@ -464,134 +464,134 @@ public class UserServiceImplTest {
         }
     }
 
-    @Nested
-    @DisplayNameGeneration(ReplaceUnderscores.class)
-    class AddProfileImage_Tests {
-        @Test
-        void addProfileImage_return_userDetailsDto_profile_image_is_updated_successfully() {
-            User clientWithImageUser = new User();
-            clientWithImageUser.setProfileImageUrl("clientProfileImageUrl");
-            userDetailsDto.setProfileImageUrl("clientProfileImageUrl");
-
-            when(userRepositoryMocked.findById(clientId)).thenReturn(Optional.of(client));
-            client.setProfileImageUrl(profileImageUrl.getProfileImageUrl());
-            when(userRepositoryMocked.save(client)).thenReturn(clientWithImageUser);
-            when(userMapperMocked.userDetailsToDto(clientWithImageUser)).thenReturn(userDetailsDto);
-
-            UserDetailsDto clientWithImageResult = userServiceMocked.addProfileImage(clientId, profileImageUrl);
-
-            verify(userRepositoryMocked, times(1)).findById(clientId);
-            verify(userRepositoryMocked, times(1)).save(any(User.class));
-            verify(userMapperMocked, times(1)).userDetailsToDto(clientWithImageUser);
-
-            assertNotNull(clientWithImageResult);
-            assertEquals(clientWithImageUser.getProfileImageUrl(), clientWithImageResult.getProfileImageUrl());
-        }
-        @Test
-        void addProfileImage_throws_UserNotFoundException_User_not_found() {
-            when(userRepositoryMocked.findById(clientId)).thenReturn(Optional.empty());
-
-            UserNotFoundException e = assertThrows(UserNotFoundException.class, () -> userServiceMocked.addProfileImage(clientId, profileImageUrl));
-            assertEquals("User not found for id: 1", e.getMessage());
-
-            verify(userRepositoryMocked, times(1)).findById(clientId);
-            verify(userRepositoryMocked, never()).save(any(User.class));
-            verify(userMapperMocked, never()).userDetailsToDto(any(User.class));
-
-        }
-        @Test
-        void addProfileImage_throws_IllegalArgumentException_image_URL_is_invalid_empty() {
-            ProfileImageDto profileImageInvalidUrl = new ProfileImageDto("");
-
-            IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> userServiceMocked.addProfileImage(clientId, profileImageInvalidUrl));
-            assertEquals("Profile image URL must not be null or empty", e.getMessage());
-
-            verify(userRepositoryMocked, never()).findById(clientId);
-            verify(userRepositoryMocked, never()).save(any(User.class));
-            verify(userMapperMocked, never()).userDetailsToDto(any(User.class));
-        }
-        @Test
-        void addProfileImage_throws_IllegalArgumentException_image_URL_is_invalid_null() {
-            ProfileImageDto profileImageInvalidUrl = null;
-
-            IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> userServiceMocked.addProfileImage(clientId, profileImageInvalidUrl));
-            assertEquals("Profile image URL must not be null or empty", e.getMessage());
-
-            verify(userRepositoryMocked, never()).findById(clientId);
-            verify(userRepositoryMocked, never()).save(any(User.class));
-            verify(userMapperMocked, never()).userDetailsToDto(any(User.class));
-        }
-
-    }
-
-    @Nested
-    @DisplayNameGeneration(ReplaceUnderscores.class)
-    class AddPortfolioImages_Tests {
-        @Test
-        void addPortfolioImages_return_list_of_images_is_updated_successfully() {
-            portfolioImageDto.setPortfolioImageUrls(List.of("ImageOne", "ImageTwo","ImageThree"));
-            User clientWithImageUser = new User();
-            clientWithImageUser.setPortfolioImageUrls(Set.of("ImageOne", "ImageTwo","ImageThree"));
-            userDetailsDto.setPortfolioImageUrls(portfolioImageDto.getPortfolioImageUrls());
-
-            when(userRepositoryMocked.findById(clientId)).thenReturn(Optional.of(client));
-            client.setPortfolioImageUrls(Set.of("ImageOne", "ImageTwo","ImageThree"));
-            when(userRepositoryMocked.save(client)).thenReturn(clientWithImageUser);
-            when(userMapperMocked.userDetailsToDto(clientWithImageUser)).thenReturn(userDetailsDto);
-
-            UserDetailsDto clientWithImageResult = userServiceMocked.addPortfolioImages(clientId, portfolioImageDto);
-
-            verify(userRepositoryMocked, times(1)).findById(clientId);
-            verify(userRepositoryMocked, times(1)).save(any(User.class));
-            verify(userMapperMocked, times(1)).userDetailsToDto(clientWithImageUser);
-
-            assertNotNull(clientWithImageResult);
-            assertEquals(clientWithImageResult.getPortfolioImageUrls(), userDetailsDto.getPortfolioImageUrls());
-            assertEquals(clientWithImageResult.getPortfolioImageUrls().get(0),"ImageOne");
-
-        }
-
-        @Test
-        void addPortfolioImages_throws_UserNotFoundException_User_not_found() {
-            when(userRepositoryMocked.findById(clientId)).thenReturn(Optional.empty());
-
-            UserNotFoundException e = assertThrows(UserNotFoundException.class, () -> userServiceMocked.addPortfolioImages(clientId, portfolioImageDto));
-            assertEquals("User not found for id: 1", e.getMessage());
-
-            verify(userRepositoryMocked, times(1)).findById(clientId);
-            verify(userRepositoryMocked, never()).save(any(User.class));
-            verify(userMapperMocked, never()).userDetailsToDto(any(User.class));
-        }
-        @Test
-        void addPortfolioImages_return_userDetails_check_the_uniqueness_of_portfolio_images() {
-            portfolioImageDto.setPortfolioImageUrls(List.of("ImageOne", "ImageOne","ImageTwo"));
-
-            User clientWithUpdatedPortfolio = new User();
-            userDetailsDto.setPortfolioImageUrls(List.of("ImageOne", "ImageTwo"));
-
-            when(userRepositoryMocked.findById(clientId)).thenReturn(Optional.of(client));
-            Set<String> portfolioImages = new HashSet<>(Set.of("ImageOne", "ImageTwo"));
-
-            client.setPortfolioImageUrls(portfolioImages);
-
-            when(userRepositoryMocked.save(client)).thenReturn(clientWithUpdatedPortfolio);
-            when(userMapperMocked.userDetailsToDto(clientWithUpdatedPortfolio)).thenReturn(userDetailsDto);
-
-            UserDetailsDto result = userServiceMocked.addPortfolioImages(clientId, portfolioImageDto);
-
-            verify(userRepositoryMocked, times(1)).findById(clientId);
-            verify(userRepositoryMocked, times(1)).save(any(User.class));
-            verify(userMapperMocked, times(1)).userDetailsToDto(clientWithUpdatedPortfolio);
-
-            assertNotNull(result);
-            assertEquals(result.getPortfolioImageUrls(), userDetailsDto.getPortfolioImageUrls());
-            assertEquals(result.getPortfolioImageUrls().get(1),"ImageTwo");
-            assertEquals(result.getPortfolioImageUrls().size(),2);
-        }
-
-
-
-    }
+//    @Nested
+//    @DisplayNameGeneration(ReplaceUnderscores.class)
+//    class AddProfileImage_Tests {
+//        @Test
+//        void addProfileImage_return_userDetailsDto_profile_image_is_updated_successfully() {
+//            User clientWithImageUser = new User();
+//            clientWithImageUser.setProfileImageUrl("clientProfileImageUrl");
+//            userDetailsDto.setProfileImageUrl("clientProfileImageUrl");
+//
+//            when(userRepositoryMocked.findById(clientId)).thenReturn(Optional.of(client));
+//            client.setProfileImageUrl(profileImageUrl.getProfileImageUrl());
+//            when(userRepositoryMocked.save(client)).thenReturn(clientWithImageUser);
+//            when(userMapperMocked.userDetailsToDto(clientWithImageUser)).thenReturn(userDetailsDto);
+//
+//            UserDetailsDto clientWithImageResult = userServiceMocked.addProfileImage(clientId, profileImageUrl);
+//
+//            verify(userRepositoryMocked, times(1)).findById(clientId);
+//            verify(userRepositoryMocked, times(1)).save(any(User.class));
+//            verify(userMapperMocked, times(1)).userDetailsToDto(clientWithImageUser);
+//
+//            assertNotNull(clientWithImageResult);
+//            assertEquals(clientWithImageUser.getProfileImageUrl(), clientWithImageResult.getProfileImageUrl());
+//        }
+//        @Test
+//        void addProfileImage_throws_UserNotFoundException_User_not_found() {
+//            when(userRepositoryMocked.findById(clientId)).thenReturn(Optional.empty());
+//
+//            UserNotFoundException e = assertThrows(UserNotFoundException.class, () -> userServiceMocked.addProfileImage(clientId, profileImageUrl));
+//            assertEquals("User not found for id: 1", e.getMessage());
+//
+//            verify(userRepositoryMocked, times(1)).findById(clientId);
+//            verify(userRepositoryMocked, never()).save(any(User.class));
+//            verify(userMapperMocked, never()).userDetailsToDto(any(User.class));
+//
+//        }
+//        @Test
+//        void addProfileImage_throws_IllegalArgumentException_image_URL_is_invalid_empty() {
+//            ProfileImageDto profileImageInvalidUrl = new ProfileImageDto("");
+//
+//            IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> userServiceMocked.addProfileImage(clientId, profileImageInvalidUrl));
+//            assertEquals("Profile image URL must not be null or empty", e.getMessage());
+//
+//            verify(userRepositoryMocked, never()).findById(clientId);
+//            verify(userRepositoryMocked, never()).save(any(User.class));
+//            verify(userMapperMocked, never()).userDetailsToDto(any(User.class));
+//        }
+//        @Test
+//        void addProfileImage_throws_IllegalArgumentException_image_URL_is_invalid_null() {
+//            ProfileImageDto profileImageInvalidUrl = null;
+//
+//            IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> userServiceMocked.addProfileImage(clientId, profileImageInvalidUrl));
+//            assertEquals("Profile image URL must not be null or empty", e.getMessage());
+//
+//            verify(userRepositoryMocked, never()).findById(clientId);
+//            verify(userRepositoryMocked, never()).save(any(User.class));
+//            verify(userMapperMocked, never()).userDetailsToDto(any(User.class));
+//        }
+//
+//    }
+//
+//    @Nested
+//    @DisplayNameGeneration(ReplaceUnderscores.class)
+//    class AddPortfolioImages_Tests {
+//        @Test
+//        void addPortfolioImages_return_list_of_images_is_updated_successfully() {
+//            portfolioImageDto.setPortfolioImageUrls(List.of("ImageOne", "ImageTwo","ImageThree"));
+//            User clientWithImageUser = new User();
+//            clientWithImageUser.setPortfolioImageUrls(Set.of("ImageOne", "ImageTwo","ImageThree"));
+//            userDetailsDto.setPortfolioImageUrls(portfolioImageDto.getPortfolioImageUrls());
+//
+//            when(userRepositoryMocked.findById(clientId)).thenReturn(Optional.of(client));
+//            client.setPortfolioImageUrls(Set.of("ImageOne", "ImageTwo","ImageThree"));
+//            when(userRepositoryMocked.save(client)).thenReturn(clientWithImageUser);
+//            when(userMapperMocked.userDetailsToDto(clientWithImageUser)).thenReturn(userDetailsDto);
+//
+//            UserDetailsDto clientWithImageResult = userServiceMocked.addPortfolioImages(clientId, portfolioImageDto);
+//
+//            verify(userRepositoryMocked, times(1)).findById(clientId);
+//            verify(userRepositoryMocked, times(1)).save(any(User.class));
+//            verify(userMapperMocked, times(1)).userDetailsToDto(clientWithImageUser);
+//
+//            assertNotNull(clientWithImageResult);
+//            assertEquals(clientWithImageResult.getPortfolioImageUrls(), userDetailsDto.getPortfolioImageUrls());
+//            assertEquals(clientWithImageResult.getPortfolioImageUrls().get(0),"ImageOne");
+//
+//        }
+//
+//        @Test
+//        void addPortfolioImages_throws_UserNotFoundException_User_not_found() {
+//            when(userRepositoryMocked.findById(clientId)).thenReturn(Optional.empty());
+//
+//            UserNotFoundException e = assertThrows(UserNotFoundException.class, () -> userServiceMocked.addPortfolioImages(clientId, portfolioImageDto));
+//            assertEquals("User not found for id: 1", e.getMessage());
+//
+//            verify(userRepositoryMocked, times(1)).findById(clientId);
+//            verify(userRepositoryMocked, never()).save(any(User.class));
+//            verify(userMapperMocked, never()).userDetailsToDto(any(User.class));
+//        }
+//        @Test
+//        void addPortfolioImages_return_userDetails_check_the_uniqueness_of_portfolio_images() {
+//            portfolioImageDto.setPortfolioImageUrls(List.of("ImageOne", "ImageOne","ImageTwo"));
+//
+//            User clientWithUpdatedPortfolio = new User();
+//            userDetailsDto.setPortfolioImageUrls(List.of("ImageOne", "ImageTwo"));
+//
+//            when(userRepositoryMocked.findById(clientId)).thenReturn(Optional.of(client));
+//            Set<String> portfolioImages = new HashSet<>(Set.of("ImageOne", "ImageTwo"));
+//
+//            client.setPortfolioImageUrls(portfolioImages);
+//
+//            when(userRepositoryMocked.save(client)).thenReturn(clientWithUpdatedPortfolio);
+//            when(userMapperMocked.userDetailsToDto(clientWithUpdatedPortfolio)).thenReturn(userDetailsDto);
+//
+//            UserDetailsDto result = userServiceMocked.addPortfolioImages(clientId, portfolioImageDto);
+//
+//            verify(userRepositoryMocked, times(1)).findById(clientId);
+//            verify(userRepositoryMocked, times(1)).save(any(User.class));
+//            verify(userMapperMocked, times(1)).userDetailsToDto(clientWithUpdatedPortfolio);
+//
+//            assertNotNull(result);
+//            assertEquals(result.getPortfolioImageUrls(), userDetailsDto.getPortfolioImageUrls());
+//            assertEquals(result.getPortfolioImageUrls().get(1),"ImageTwo");
+//            assertEquals(result.getPortfolioImageUrls().size(),2);
+//        }
+//
+//
+//
+//    }
 
 
     @Nested

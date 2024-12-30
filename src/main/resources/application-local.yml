@@ -3,6 +3,11 @@ spring:
     url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 30MB
+      max-request-size: 30MB
   jpa:
     hibernate:
       ddl-auto: update
@@ -12,9 +17,9 @@ spring:
         format_sql: true
 
   mail:
-    username: Beautybooking@gmx.de  # Ваш адрес электронной почты GMX
-    password: USGCY7UA7TQUYHCUQELM  # Ваш пароль для электронной почты GMX
-    host: mail.gmx.net  # SMTP-сервер
+    username: Beautybooking@gmx.de
+    password: USGCY7UA7TQUYHCUQELM
+    host: mail.gmx.net
     port: 587
     properties:
       mail:
@@ -23,7 +28,7 @@ spring:
           auth: true
           starttls:
             enable: true
-    admin-email: Beautybooking@gmx.de  # Адрес вашей электронной почты для администратора
+    admin-email: Beautybooking@gmx.de
 
 jwt:
   access:
@@ -39,13 +44,10 @@ logging:
         mail: DEBUG
 
 cloudinary:
-  cloud_name: beautyBook
+  cloud_name: beautybook
   api_key: 276144613127592
   api_secret: fgM1EQhBV_ewbZ6gR26_sJMoQU0
 
-
-
-# Настройки для Flyway
 flyway:
   baseline-on-migrate: true
   locations: classpath:db/migration
