@@ -27,4 +27,18 @@ public class ImageUploadService {
     public String extractPublicId(String url) {
         return url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
     }
+
+    // Новый метод для проверки существования изображения на Cloudinary
+    public boolean exists(String publicId) {
+        try {
+            // Пытаемся получить ресурс по publicId
+            Map<String, Object> resource = cloudinary.api().resource(publicId, ObjectUtils.emptyMap());
+            return resource != null && !resource.isEmpty();
+        } catch (IOException e) {
+            // Если файл не найден, выбрасываем исключение
+            return false;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

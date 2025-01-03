@@ -7,6 +7,7 @@ import com.example.end.models.User;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,14 +48,15 @@ public interface UserService {
 
     User findMasterUserByEmail(String email);
 
-    String uploadProfilePhoto(Long userId, MultipartFile file, long maxSize) throws IOException;
+    @jakarta.transaction.Transactional
+    String uploadProfilePhoto(Long userId, MultipartFile file, long maxSize) throws IOException, ExecutionException, InterruptedException;
 
+    @jakarta.transaction.Transactional
+    List<String> uploadPortfolioPhotos(Long userId, List<MultipartFile> files, long maxSize) throws IOException, ExecutionException, InterruptedException;
 
-    List<String> uploadPortfolioPhotos(Long userId, List<MultipartFile> files, long maxSize) throws IOException;
+    void deleteProfilePhoto(Long userId) throws IOException, ExecutionException, InterruptedException;
 
-    void deleteProfilePhoto(Long userId) throws IOException;
-
-    void deletePortfolioPhoto(Long userId, Long photoId) throws IOException;
+    void deletePortfolioPhoto(Long userId, Long photoId) throws IOException, ExecutionException, InterruptedException;
 
     List<UserDetailsDto> getAllMasters();
 

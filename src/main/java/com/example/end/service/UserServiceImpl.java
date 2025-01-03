@@ -234,14 +234,20 @@ public class UserServiceImpl implements UserService {
 
         User user = findUserByIdOrThrow(userId);
 
-        String imageUrl = imageUploadService.uploadImage(file);
-        user.setProfilePhotoUrl(imageUrl);
-        userRepository.save(user);
-        return imageUrl;
+        try {
+            String imageUrl = imageUploadService.uploadImage(file);
+            user.setProfilePhotoUrl(imageUrl);
+            userRepository.save(user);
+            return imageUrl;
+        } catch (Exception e) {
+            throw new ImageUploadException("Error during image upload.", e);
+        }
     }
+
 
     @Override
     public List<String> uploadPortfolioPhotos(Long userId, List<MultipartFile> files, long maxSize) throws IOException {
+        // Проверка файлов
         for (MultipartFile file : files) {
             if (!FileValidationUtils.isValidImage(file)) {
                 throw new InvalidFileException("Only JPEG, PNG, or GIF images are allowed.");
@@ -251,18 +257,29 @@ public class UserServiceImpl implements UserService {
             }
         }
 
+        // Поиск пользователя
         User user = findUserByIdOrThrow(userId);
         List<String> uploadedUrls = new ArrayList<>();
 
+        // Загрузка изображений
         for (MultipartFile file : files) {
-            String imageUrl = imageUploadService.uploadImage(file);
+            try {
+                String imageUrl = imageUploadService.uploadImage(file); // Могут быть ошибки при загрузке изображения
+                PortfolioPhoto portfolioPhoto = new PortfolioPhoto();
+                portfolioPhoto.setUrl(imageUrl);
+                portfolioPhoto.setUser(user);
 
-            PortfolioPhoto portfolioPhoto = new PortfolioPhoto();
-            portfolioPhoto.setUrl(imageUrl);
-            portfolioPhoto.setUser(user);
+                // Сохранение фотографии
+                try {
+                    portfolioPhotoRepository.save(portfolioPhoto);  // Могут быть ошибки при сохранении
+                } catch (Exception e) {
+                    throw new PortfolioPhotoSaveException("Error saving portfolio photo for user " + userId, e);
+                }
 
-            portfolioPhotoRepository.save(portfolioPhoto);
-            uploadedUrls.add(imageUrl);
+                uploadedUrls.add(imageUrl);
+            } catch (ImageUploadException e) {
+                throw new ImageUploadException("Error uploading image for user " + userId, e); // Ловим исключение загрузки изображения
+            }
         }
 
         return uploadedUrls;
@@ -270,35 +287,54 @@ public class UserServiceImpl implements UserService {
 
 
 
+
     @Override
     public void deleteProfilePhoto(Long userId) throws IOException {
-        User user = findUserByIdOrThrow(userId);
+        User user = findUserByIdOrThrow(userId);  // Также стоит выбрасывать кастомное исключение, если пользователь не найден
 
         String profilePhotoUrl = user.getProfilePhotoUrl();
         if (profilePhotoUrl != null) {
+            try {
+                String publicId = imageUploadService.extractPublicId(profilePhotoUrl);
+                if (imageUploadService.exists(publicId)) {
+                    imageUploadService.deleteImage(publicId);
+                } else {
+                    throw new ImageNotFoundException("Image not found for deletion.");
+                }
 
-            String publicId = imageUploadService.extractPublicId(profilePhotoUrl);
-            imageUploadService.deleteImage(publicId);
-
-            user.setProfilePhotoUrl(null);
-            userRepository.save(user);
+                user.setProfilePhotoUrl(null);
+                userRepository.save(user);
+            } catch (Exception e) {
+                throw new ImageUploadException("Error during image deletion.", e);
+            }
         }
     }
 
+
     @Override
     public void deletePortfolioPhoto(Long userId, Long photoId) throws IOException {
+
         User user = findUserByIdOrThrow(userId);
 
         PortfolioPhoto photo = portfolioPhotoRepository.findById(photoId)
-                .orElseThrow(() -> PhotoNotFoundException.forId(photoId));
+                .orElseThrow(() -> new PhotoNotFoundException("Photo with ID " + photoId + " not found."));
 
         if (!photo.getUser().getId().equals(user.getId())) {
-            throw PhotoOwnershipException.notBelongToUser(photoId, userId);
+            throw new PhotoOwnershipException("Photo " + photoId + " does not belong to user " + userId);
         }
 
-        String publicId = imageUploadService.extractPublicId(photo.getUrl());
-        imageUploadService.deleteImage(publicId);
-        portfolioPhotoRepository.delete(photo);
+        try {
+            String publicId = imageUploadService.extractPublicId(photo.getUrl());
+            imageUploadService.deleteImage(publicId);
+        } catch (Exception e) {
+            throw new ImageDeleteException("Error deleting image with ID " + photoId, e);
+        }
+
+        try {
+            portfolioPhotoRepository.delete(photo);
+        } catch (Exception e) {
+            throw new PortfolioPhotoDeleteException("Error deleting portfolio photo with ID " + photoId, e);
+        }
     }
 
 
