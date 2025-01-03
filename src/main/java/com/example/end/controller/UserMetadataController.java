@@ -1,10 +1,10 @@
 package com.example.end.controller;
-import org.springframework.http.MediaType;
 
+import com.example.end.controller.api.UserMetadataApi;
 import com.example.end.dto.UserDetailsDto;
+import com.example.end.dto.ErrorResponse;
 import com.example.end.exceptions.InvalidFileException;
 import com.example.end.service.interfaces.UserService;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -12,71 +12,72 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/metadata/{userId}")
-public class UserMetadataController {
+public class UserMetadataController implements UserMetadataApi {
 
     private final UserService userService;
 
-    @PostMapping(value = "/profileImage", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Override
+    @PostMapping(value = "/{userId}/profileImage", consumes = "multipart/form-data")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDetailsDto uploadProfilePhoto(
-            @PathVariable Long userId,
-            @RequestPart("file") MultipartFile file) {
+    public UserDetailsDto uploadProfilePhoto(@PathVariable Long userId, @RequestPart("file") MultipartFile file) throws IOException {
         try {
-            long maxSize = 30 * 1024 * 1024; // Максимальный размер файла: 5 МБ
-
+            long maxSize = 30 * 1024 * 1024; // 30 MB
             String imageUrl = userService.uploadProfilePhoto(userId, file, maxSize);
-
             return UserDetailsDto.builder()
                     .id(userId)
                     .profileImageUrl(imageUrl)
                     .build();
         } catch (InvalidFileException e) {
             throw new InvalidFileException("Invalid file format or size.");
-        } catch (IOException e) {
+        } catch (IOException | ExecutionException | InterruptedException e) {
             throw new RuntimeException("Error during file upload", e);
         }
     }
 
-    @PostMapping("/portfolioImages")
+    // Загружаем фотографии портфолио
+    @Override
+    @PostMapping(value = "/{userId}/portfolioImages", consumes = "multipart/form-data")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDetailsDto uploadPortfolioPhotos(@PathVariable Long userId, @RequestPart("files") List<MultipartFile> files) {
+    public UserDetailsDto uploadPortfolioPhotos(@PathVariable Long userId, @RequestPart("files") List<MultipartFile> files) throws IOException {
         try {
-            long maxSize = 30 * 1024 * 1024; // 5 МБ
-
+            long maxSize = 30 * 1024 * 1024; // 30 MB
             List<String> uploadedUrls = userService.uploadPortfolioPhotos(userId, files, maxSize);
-
             return UserDetailsDto.builder()
                     .id(userId)
                     .portfolioImageUrls(uploadedUrls)
                     .build();
         } catch (InvalidFileException e) {
             throw new InvalidFileException("Invalid file format or size.");
-        } catch (IOException e) {
+        } catch (IOException | ExecutionException | InterruptedException e) {
             throw new RuntimeException("Error during file upload", e);
         }
     }
 
-    @DeleteMapping("/profileImage")
+    // Удаляем профильную фотографию
+    @Override
+    @DeleteMapping("/{userId}/profileImage")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteProfilePhoto(@PathVariable Long userId) {
+    public void deleteProfilePhoto(@PathVariable Long userId) throws IOException {
         try {
             userService.deleteProfilePhoto(userId);
-        } catch (IOException e) {
+        } catch (IOException | ExecutionException | InterruptedException e) {
             throw new RuntimeException("Error deleting profile image", e);
         }
     }
 
-    @DeleteMapping("/portfolioImage/{photoId}")
+    // Удаляем фотографию из портфолио
+    @Override
+    @DeleteMapping("/{userId}/portfolioImage/{photoId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletePortfolioPhoto(@PathVariable Long userId, @PathVariable Long photoId) {
+    public void deletePortfolioPhoto(@PathVariable Long userId, @PathVariable Long photoId) throws IOException {
         try {
             userService.deletePortfolioPhoto(userId, photoId);
-        } catch (IOException e) {
+        } catch (IOException | ExecutionException | InterruptedException e) {
             throw new RuntimeException("Error deleting portfolio image", e);
         }
     }
