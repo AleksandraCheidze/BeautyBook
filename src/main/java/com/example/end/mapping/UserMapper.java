@@ -1,5 +1,6 @@
 package com.example.end.mapping;
 
+import com.example.end.dto.PortfolioImageDto;
 import com.example.end.models.*;
 import com.example.end.dto.UserDetailsDto;
 import com.example.end.dto.UserDto;
@@ -47,7 +48,10 @@ public class UserMapper {
                 .role(user.getRole())
                 .profileImageUrl(user.getProfilePhotoUrl())
                 .portfolioImageUrls(user.getPortfolioPhotos().stream()
-                        .map(PortfolioPhoto::getUrl)
+                        .map(photo -> PortfolioImageDto.builder()
+                                .id(photo.getId())
+                                .url(photo.getUrl())
+                                .build())
                         .collect(Collectors.toList()))
                 .categoryIds(user.getCategories().stream()
                         .map(Category::getId)
@@ -60,5 +64,6 @@ public class UserMapper {
                         .collect(Collectors.toList()))
                 .build();
     }
+
 }
 

@@ -53,7 +53,7 @@ public interface UserService {
     String uploadProfilePhoto(Long userId, MultipartFile file, long maxSize) throws IOException, ExecutionException, InterruptedException;
 
     @jakarta.transaction.Transactional
-    List<String> uploadPortfolioPhotos(Long userId, List<MultipartFile> files, long maxSize) throws IOException, ExecutionException, InterruptedException;
+    List<PortfolioImageDto> uploadPortfolioPhotos(Long userId, List<MultipartFile> files, long maxSize) throws IOException, ExecutionException, InterruptedException;
 
     void deleteProfilePhoto(Long userId) throws IOException, ExecutionException, InterruptedException;
 
@@ -62,8 +62,6 @@ public interface UserService {
 
     List<UserDetailsDto> getAllMasters();
 
-
-    List<PortfolioPhoto> getPortfolioPhotos(Long userId);
 }
 
 

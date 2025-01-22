@@ -69,7 +69,7 @@ public class UserDetailsDto {
     private String profileImageUrl;
 
     @Schema(description = "Portfolio image URLs of the user", example = "https://example.com/portfolio-image1.jpg,https://example.com/portfolio-image2.jpg")
-    private List<String> portfolioImageUrls;
+    private List<PortfolioImageDto> portfolioImageUrls;
 
 
 }

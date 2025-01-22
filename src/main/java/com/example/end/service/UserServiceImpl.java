@@ -246,8 +246,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public List<String> uploadPortfolioPhotos(Long userId, List<MultipartFile> files, long maxSize) throws IOException {
-        // Проверка файлов
+    public List<PortfolioImageDto> uploadPortfolioPhotos(Long userId, List<MultipartFile> files, long maxSize) throws IOException {
         for (MultipartFile file : files) {
             if (!FileValidationUtils.isValidImage(file)) {
                 throw new InvalidFileException("Only JPEG, PNG, or GIF images are allowed.");
@@ -258,8 +257,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = findUserByIdOrThrow(userId);
-        List<String> uploadedUrls = new ArrayList<>();
-
+        List<PortfolioImageDto> uploadedPhotos = new ArrayList<>();
 
         for (MultipartFile file : files) {
             try {
@@ -269,22 +267,23 @@ public class UserServiceImpl implements UserService {
                 portfolioPhoto.setUser(user);
 
                 try {
-                    portfolioPhotoRepository.save(portfolioPhoto);
+                    PortfolioPhoto savedPhoto = portfolioPhotoRepository.save(portfolioPhoto); // Сохраняем фото и получаем объект с ID
+                    uploadedPhotos.add(
+                            PortfolioImageDto.builder()
+                                    .id(savedPhoto.getId())
+                                    .url(savedPhoto.getUrl())
+                                    .build()
+                    );
                 } catch (Exception e) {
                     throw new PortfolioPhotoSaveException("Error saving portfolio photo for user " + userId, e);
                 }
-
-                uploadedUrls.add(imageUrl);
             } catch (ImageUploadException e) {
                 throw new ImageUploadException("Error uploading image for user " + userId, e);
             }
         }
 
-        return uploadedUrls;
+        return uploadedPhotos;
     }
-
-
-
 
     @Override
     public void deleteProfilePhoto(Long userId) throws IOException {
@@ -416,7 +415,7 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
-    // Helper methods for internal use
+
     private UserDto getUserByIdAndRole(Long userId, User.Role role) {
         User user = findUserByIdAndRole(userId, role);
         return userMapper.toDto(user);
@@ -452,11 +451,4 @@ public class UserServiceImpl implements UserService {
         }
         return true;
     }
-    @Override
-    public List<PortfolioPhoto> getPortfolioPhotos(Long userId) {
-        User user = findUserByIdOrThrow(userId);
-        return portfolioPhotoRepository.findAllByUser(user);
-    }
-
-
 }

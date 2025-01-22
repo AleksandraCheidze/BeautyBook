@@ -46,7 +46,7 @@ public class UserMetadataController implements UserMetadataApi {
     public UserDetailsDto uploadPortfolioPhotos(@PathVariable Long userId, @RequestPart("files") List<MultipartFile> files) {
         try {
             long maxSize = 30 * 1024 * 1024; // 30 MB
-            List<String> uploadedUrls = userService.uploadPortfolioPhotos(userId, files, maxSize);
+            List<PortfolioImageDto> uploadedUrls = userService.uploadPortfolioPhotos(userId, files, maxSize);
             return UserDetailsDto.builder()
                     .id(userId)
                     .portfolioImageUrls(uploadedUrls)
@@ -79,15 +79,6 @@ public class UserMetadataController implements UserMetadataApi {
             throw new RuntimeException("Error deleting portfolio image", e);
         }
     }
-    @GetMapping("/{userId}/portfolio-photos")
-    public List<PortfolioImageDto> getPortfolioPhotos(@PathVariable Long userId) {
-        return userService.getPortfolioPhotos(userId)
-                .stream()
-                .map(photo -> PortfolioImageDto.builder()
-                        .id(photo.getId())
-                        .url(photo.getUrl())
-                        .build())
-                .collect(Collectors.toList());
-    }
+
 
 }
