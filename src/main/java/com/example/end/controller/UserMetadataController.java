@@ -1,8 +1,8 @@
 package com.example.end.controller;
 
 import com.example.end.controller.api.UserMetadataApi;
+import com.example.end.dto.PortfolioImageDto;
 import com.example.end.dto.UserDetailsDto;
-import com.example.end.dto.ErrorResponse;
 import com.example.end.exceptions.InvalidFileException;
 import com.example.end.service.interfaces.UserService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
@@ -24,7 +25,7 @@ public class UserMetadataController implements UserMetadataApi {
     @Override
     @PostMapping(value = "/{userId}/profileImage", consumes = "multipart/form-data")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDetailsDto uploadProfilePhoto(@PathVariable Long userId, @RequestPart("file") MultipartFile file) throws IOException {
+    public UserDetailsDto uploadProfilePhoto(@PathVariable Long userId, @RequestPart("file") MultipartFile file) {
         try {
             long maxSize = 30 * 1024 * 1024; // 30 MB
             String imageUrl = userService.uploadProfilePhoto(userId, file, maxSize);
@@ -39,11 +40,10 @@ public class UserMetadataController implements UserMetadataApi {
         }
     }
 
-    // Загружаем фотографии портфолио
     @Override
     @PostMapping(value = "/{userId}/portfolioImages", consumes = "multipart/form-data")
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDetailsDto uploadPortfolioPhotos(@PathVariable Long userId, @RequestPart("files") List<MultipartFile> files) throws IOException {
+    public UserDetailsDto uploadPortfolioPhotos(@PathVariable Long userId, @RequestPart("files") List<MultipartFile> files) {
         try {
             long maxSize = 30 * 1024 * 1024; // 30 MB
             List<String> uploadedUrls = userService.uploadPortfolioPhotos(userId, files, maxSize);
@@ -58,11 +58,10 @@ public class UserMetadataController implements UserMetadataApi {
         }
     }
 
-    // Удаляем профильную фотографию
     @Override
     @DeleteMapping("/{userId}/profileImage")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteProfilePhoto(@PathVariable Long userId) throws IOException {
+    public void deleteProfilePhoto(@PathVariable Long userId){
         try {
             userService.deleteProfilePhoto(userId);
         } catch (IOException | ExecutionException | InterruptedException e) {
@@ -70,15 +69,25 @@ public class UserMetadataController implements UserMetadataApi {
         }
     }
 
-    // Удаляем фотографию из портфолио
     @Override
     @DeleteMapping("/{userId}/portfolioImage/{photoId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletePortfolioPhoto(@PathVariable Long userId, @PathVariable Long photoId) throws IOException {
+    public void deletePortfolioPhoto(@PathVariable Long userId, @PathVariable Long photoId) {
         try {
             userService.deletePortfolioPhoto(userId, photoId);
-        } catch (IOException | ExecutionException | InterruptedException e) {
+        } catch (IOException e) {
             throw new RuntimeException("Error deleting portfolio image", e);
         }
     }
+    @GetMapping("/{userId}/portfolio-photos")
+    public List<PortfolioImageDto> getPortfolioPhotos(@PathVariable Long userId) {
+        return userService.getPortfolioPhotos(userId)
+                .stream()
+                .map(photo -> PortfolioImageDto.builder()
+                        .id(photo.getId())
+                        .url(photo.getUrl())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
 }

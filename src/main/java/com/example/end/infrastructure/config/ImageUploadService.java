@@ -1,6 +1,7 @@
 package com.example.end.infrastructure.config;
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.api.ApiResponse;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ public class ImageUploadService {
     private Cloudinary cloudinary;
 
     public String uploadImage(MultipartFile file) throws IOException {
-        Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
         return uploadResult.get("url").toString();
     }
 
@@ -28,14 +29,11 @@ public class ImageUploadService {
         return url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
     }
 
-    // Новый метод для проверки существования изображения на Cloudinary
     public boolean exists(String publicId) {
         try {
-            // Пытаемся получить ресурс по publicId
-            Map<String, Object> resource = cloudinary.api().resource(publicId, ObjectUtils.emptyMap());
+            ApiResponse resource = cloudinary.api().resource(publicId, ObjectUtils.emptyMap());
             return resource != null && !resource.isEmpty();
         } catch (IOException e) {
-            // Если файл не найден, выбрасываем исключение
             return false;
         } catch (Exception e) {
             throw new RuntimeException(e);

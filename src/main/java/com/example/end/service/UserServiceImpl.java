@@ -257,28 +257,26 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        // Поиск пользователя
         User user = findUserByIdOrThrow(userId);
         List<String> uploadedUrls = new ArrayList<>();
 
-        // Загрузка изображений
+
         for (MultipartFile file : files) {
             try {
-                String imageUrl = imageUploadService.uploadImage(file); // Могут быть ошибки при загрузке изображения
+                String imageUrl = imageUploadService.uploadImage(file);
                 PortfolioPhoto portfolioPhoto = new PortfolioPhoto();
                 portfolioPhoto.setUrl(imageUrl);
                 portfolioPhoto.setUser(user);
 
-                // Сохранение фотографии
                 try {
-                    portfolioPhotoRepository.save(portfolioPhoto);  // Могут быть ошибки при сохранении
+                    portfolioPhotoRepository.save(portfolioPhoto);
                 } catch (Exception e) {
                     throw new PortfolioPhotoSaveException("Error saving portfolio photo for user " + userId, e);
                 }
 
                 uploadedUrls.add(imageUrl);
             } catch (ImageUploadException e) {
-                throw new ImageUploadException("Error uploading image for user " + userId, e); // Ловим исключение загрузки изображения
+                throw new ImageUploadException("Error uploading image for user " + userId, e);
             }
         }
 
@@ -290,8 +288,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteProfilePhoto(Long userId) throws IOException {
-        User user = findUserByIdOrThrow(userId);  // Также стоит выбрасывать кастомное исключение, если пользователь не найден
-
+        User user = findUserByIdOrThrow(userId);
         String profilePhotoUrl = user.getProfilePhotoUrl();
         if (profilePhotoUrl != null) {
             try {
@@ -455,5 +452,11 @@ public class UserServiceImpl implements UserService {
         }
         return true;
     }
+    @Override
+    public List<PortfolioPhoto> getPortfolioPhotos(Long userId) {
+        User user = findUserByIdOrThrow(userId);
+        return portfolioPhotoRepository.findAllByUser(user);
+    }
+
 
 }

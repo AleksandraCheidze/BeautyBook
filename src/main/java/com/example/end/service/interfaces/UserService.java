@@ -2,6 +2,7 @@ package com.example.end.service.interfaces;
 
 
 import com.example.end.dto.*;
+import com.example.end.models.PortfolioPhoto;
 import com.example.end.models.User;
 
 import java.io.IOException;
@@ -56,12 +57,13 @@ public interface UserService {
 
     void deleteProfilePhoto(Long userId) throws IOException, ExecutionException, InterruptedException;
 
-    void deletePortfolioPhoto(Long userId, Long photoId) throws IOException, ExecutionException, InterruptedException;
+
+    void deletePortfolioPhoto(Long userId, Long photoId) throws IOException;
 
     List<UserDetailsDto> getAllMasters();
 
 
-
+    List<PortfolioPhoto> getPortfolioPhotos(Long userId);
 }
 
 
