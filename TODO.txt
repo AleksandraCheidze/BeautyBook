@@ -1,5 +1,0 @@
-UserService
-
-1. mail senders - put in a separate class, service
-
-2. method createUser -> NewUserDto

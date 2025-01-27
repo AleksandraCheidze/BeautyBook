@@ -1,43 +1,45 @@
 package com.example.end.infrastructure.security.sec_servivce;
 
-
 import com.example.end.models.User;
-import com.example.end.repository.UserRepository;
 import com.example.end.infrastructure.security.sec_dto.AuthInfo;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.Nonnull;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Date;
+import java.util.Set;
 
 @Service
 public class TokenService {
 
-    private UserRepository userRepository;
     private final SecretKey accessKey;
     private final SecretKey refreshKey;
 
+    private static final String ACCESS_KEY_BASE64 = "X30INcpL2Yzf80ArITEdwLegdAFT2dkeq1hxlR7waOk=";
+    private static final String REFRESH_KEY_BASE64 = "u1vxX56P6a+4tWS2RLt0qIG9yF8DbW6d1pv4JUQI+dk=";
 
-    public TokenService(
-            @Value("${jwt.access.key}") String accessKey,
-            @Value("${jwt.refresh.key}") String refreshKey
+    public TokenService() {
+        this.accessKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(ACCESS_KEY_BASE64));
+        this.refreshKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(REFRESH_KEY_BASE64));
+    }
 
-    ) {
-        this.userRepository = userRepository;
-        this.accessKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessKey));
-        this.refreshKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshKey));
-
+    @PostConstruct
+    public void logConfig() {
+        try {
+            System.out.println("JWT Access Key: " + accessKey);
+            System.out.println("JWT Refresh Key: " + refreshKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error occurred during key validation.");
+        }
     }
 
     public String generateAccessToken(@Nonnull User user) {
@@ -50,13 +52,12 @@ public class TokenService {
                 .expiration(expirationDate)
                 .signWith(accessKey)
                 .claim("user_id", user.getId())
-                .claim("roles", "ROLE_" + user.getRole().name()) // Добавляем префикс ROLE_
+                .claim("roles", "ROLE_" + user.getRole().name())
                 .claim("firstName", user.getFirstName())
                 .claim("lastName", user.getLastName())
                 .claim("email", user.getEmail())
                 .compact();
     }
-
 
     public String generateRefreshToken(@Nonnull User user) {
         LocalDateTime currentDate = LocalDateTime.now();
@@ -89,6 +90,7 @@ public class TokenService {
             return false;
         }
     }
+
     public Claims getAccessClaims(@Nonnull String accessToken) {
         return getClaims(accessToken, accessKey);
     }
@@ -109,6 +111,6 @@ public class TokenService {
         String username = claims.getSubject();
         String roleString = claims.get("roles", String.class);
         User.Role role = User.Role.valueOf(roleString.replace("ROLE_", ""));
-        return new AuthInfo(username, Set.of(role)); // Оборачиваем в Set
+        return new AuthInfo(username, Set.of(role));
     }
 }

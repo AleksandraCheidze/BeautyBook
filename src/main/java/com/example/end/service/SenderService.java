@@ -14,8 +14,8 @@ public class SenderService {
 
     private final ProjectMailSender mailSender;
 
-    @Value("${spring.mail.admin-email}")
-    private String adminEmail;
+
+    private String adminEmail= "Beautybooking@gmx.de";
 
     /**
      * Sends a message to the administrator with details provided by the user.

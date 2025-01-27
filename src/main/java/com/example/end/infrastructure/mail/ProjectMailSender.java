@@ -2,6 +2,7 @@ package com.example.end.infrastructure.mail;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -17,8 +18,7 @@ public class ProjectMailSender {
 
     private final JavaMailSender javaMailSender;
 
-    @Value("${spring.mail.username}")
-    private String senderEmail;
+    private String senderEmail = "Beautybooking@gmx.de";
 
     /**
      * Sends an email to the specified recipient.

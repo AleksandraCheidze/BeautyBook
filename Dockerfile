@@ -1,12 +1,23 @@
-FROM docker.io/maven:3.8.3-openjdk-17 AS build
-COPY . /home/src
-WORKDIR /home/src
-RUN mvn clean package -DskipTests
+# Используем официальный образ OpenJDK
+FROM openjdk:17-jdk-slim
 
-FROM openjdk:17-slim
-EXPOSE 8080
+# Устанавливаем Maven
+RUN apt-get update && apt-get install -y maven
 
-RUN mkdir /app
-COPY --from=build /home/src/target/*.jar /app/project.jar
+# Устанавливаем рабочую директорию
+WORKDIR /app
 
-ENTRYPOINT ["java", "-jar", "/app/project.jar"]
+# Копируем файл pom.xml и загружаем зависимости
+COPY pom.xml .
+
+# Скачиваем зависимости
+RUN mvn dependency:go-offline
+
+# Копируем весь проект в контейнер
+COPY . .
+
+# Собираем проект
+RUN mvn clean install
+
+# Указываем команду для запуска приложения
+CMD ["java", "-jar", "target/com-example-end-0.0.1-SNAPSHOT.jar"]

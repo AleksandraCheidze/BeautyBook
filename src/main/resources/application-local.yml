@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:mysql://localhost:3306/beauty_book
+    username: root
+    password: Iplari22!
   servlet:
     multipart:
       enabled: true
@@ -17,10 +17,10 @@ spring:
         format_sql: true
 
   mail:
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
-    host: ${MAIL_HOST}
-    port: ${MAIL_PORT}
+    username: Beautybooking@gmx.de
+    password: Paroljotemaila007!
+    host: mail.gmx.net
+    port: 587
     properties:
       mail:
         debug: true
@@ -28,13 +28,13 @@ spring:
           auth: true
           starttls:
             enable: true
-    admin-email: ${MAIL_ADMIN_EMAIL}
+    admin-email: Beautybooking@gmx.de
 
 jwt:
   access:
-    key: ${JWT_ACCESS_KEY}
+    key: X30INcpL2Yzf80ArITEdwLegdAFT2dkeq1hxlR7waOk=
   refresh:
-    key: ${JWT_REFRESH_KEY}
+    key: u1vxX56P6a+4tWS2RLt0qIG9yF8DbW6d1pv4JUQI+dk=
 
 logging:
   level:
@@ -44,9 +44,9 @@ logging:
         mail: DEBUG
 
 cloudinary:
-  cloud_name: ${CLOUDINARY_CLOUD_NAME}
-  api_key: ${CLOUDINARY_API_KEY}
-  api_secret: ${CLOUDINARY_API_SECRET}
+  cloud_name: beautybook
+  api_key: 276144613127592
+  api_secret: fgM1EQhBV_ewbZ6gR26_sJMoQU0
 
 flyway:
   baseline-on-migrate: true

@@ -32,10 +32,8 @@ public class TokenFilter extends GenericFilterBean {
         if (token != null && service.validateAccessToken(token)) {
             Claims claims = service.getAccessClaims(token);
 
-            // Генерация AuthInfo из Claims
             AuthInfo authInfo = service.generateAuthInfo(claims);
 
-            // Устанавливаем аутентификацию
             authInfo.setAuthenticated(true);
             SecurityContextHolder.getContext().setAuthentication(authInfo);
         }
@@ -43,9 +41,6 @@ public class TokenFilter extends GenericFilterBean {
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
-
-
-    // Теперь считываем токен не только из заголовка запроса, но и из куки.
     private String getTokenFromRequest(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
 

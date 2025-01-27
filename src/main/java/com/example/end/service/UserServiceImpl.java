@@ -45,8 +45,8 @@ public class UserServiceImpl implements UserService {
     private final PortfolioPhotoRepository portfolioPhotoRepository;
     private final ImageUploadService imageUploadService;
 
-    @Value("${spring.mail.admin-email}")
-    private String adminEmail;
+
+    private String adminEmail = "Beautybooking@gmx.de";
 
     /**
      * Registers a new user with the provided details.
