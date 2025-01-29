@@ -149,7 +149,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.example.MainApplication</mainClass>
+                    <mainClass>com.example.end.BeautyProjectApplication</mainClass>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
@@ -157,6 +157,7 @@
                         </exclude>
                     </excludes>
                 </configuration>
+
                 <executions>
                     <execution>
                         <goals>
