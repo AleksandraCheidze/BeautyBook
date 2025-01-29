@@ -42,10 +42,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
+        http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults()) // Новый способ включения CORS
+                .cors(Customizer.withDefaults())
                 .sessionManagement(x -> x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(x -> x
                         .requestMatchers(HttpMethod.GET, "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
@@ -60,16 +60,24 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated())
                 .addFilterAfter(filter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+                .exceptionHandling(config -> config
+                        .authenticationEntryPoint(SecurityExceptionHandlers.ENTRY_POINT)
+                        .accessDeniedHandler(SecurityExceptionHandlers.ACCESS_DENIED_HANDLER))
+                .formLogin(form -> form
+                        .successHandler(SecurityExceptionHandlers.LOGIN_SUCCESS_HANDLER)
+                        .failureHandler(SecurityExceptionHandlers.LOGIN_FAILURE_HANDLER)
+                );
+
+        return http.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:3000"); // Укажите разрешённый источник
-        configuration.addAllowedMethod("*"); // Разрешаем все методы
-        configuration.addAllowedHeader("*"); // Разрешаем все заголовки
-        configuration.setAllowCredentials(true); // Разрешаем отправку куки (если нужно)
+        configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.addAllowedMethod("*");
+        configuration.addAllowedHeader("*");
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

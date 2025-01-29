@@ -8,6 +8,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -31,21 +32,11 @@ public class TokenService {
         this.refreshKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(REFRESH_KEY_BASE64));
     }
 
-    @PostConstruct
-    public void logConfig() {
-        try {
-            System.out.println("JWT Access Key: " + accessKey);
-            System.out.println("JWT Refresh Key: " + refreshKey);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Error occurred during key validation.");
-        }
-    }
-
     public String generateAccessToken(@Nonnull User user) {
         LocalDateTime currentDate = LocalDateTime.now();
         Instant expirationInstant = currentDate.plusDays(1).atZone(ZoneId.systemDefault()).toInstant();
         Date expirationDate = Date.from(expirationInstant);
+
 
         return Jwts.builder()
                 .subject(user.getEmail())
@@ -58,6 +49,7 @@ public class TokenService {
                 .claim("email", user.getEmail())
                 .compact();
     }
+
 
     public String generateRefreshToken(@Nonnull User user) {
         LocalDateTime currentDate = LocalDateTime.now();
@@ -90,7 +82,6 @@ public class TokenService {
             return false;
         }
     }
-
     public Claims getAccessClaims(@Nonnull String accessToken) {
         return getClaims(accessToken, accessKey);
     }
@@ -111,6 +102,6 @@ public class TokenService {
         String username = claims.getSubject();
         String roleString = claims.get("roles", String.class);
         User.Role role = User.Role.valueOf(roleString.replace("ROLE_", ""));
-        return new AuthInfo(username, Set.of(role));
+        return new AuthInfo(username, Set.of(role)); // Оборачиваем в Set
     }
 }

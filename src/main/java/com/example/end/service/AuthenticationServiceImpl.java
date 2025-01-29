@@ -59,12 +59,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (userOptional.isPresent()) {
             User foundUser = userOptional.get();
 
-            // Verify if the password matches
+
             if (encoder.matches(loginRequest.getHashPassword(), foundUser.getHashPassword())) {
                 String accessToken = tokenService.generateAccessToken(foundUser);
                 String refreshToken = tokenService.generateRefreshToken(foundUser);
 
-                // Store the refresh token for the user
+
                 refreshStorage.put(email, refreshToken);
                 return new TokenResponseDto(accessToken, refreshToken);
             } else {

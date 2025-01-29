@@ -1,22 +1,2 @@
 
 
-### Регистрация пользователя
-
-POST localhost:8080/api/users/register
-Content-Type: application/json
-
-{ "firstName": "Aleksandra",
-  "lastName": "Cheidze",
-  "email": "cxeidze@gmail.com",
-  "password": "Qwerty007!"
-}
-
-### Получение пользователя по ID
-
-GET localhost:8080/categories
-
-### Оставить отзыв
-
-POST localhost:8080/api/users/login
-
-

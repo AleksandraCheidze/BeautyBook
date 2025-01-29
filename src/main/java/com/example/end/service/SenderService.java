@@ -14,7 +14,6 @@ public class SenderService {
 
     private final ProjectMailSender mailSender;
 
-
     private String adminEmail= "Beautybooking@gmx.de";
 
     /**
