@@ -17,8 +17,8 @@ import jakarta.mail.internet.MimeMessage;
 public class ProjectMailSender {
 
     private final JavaMailSender javaMailSender;
-
-    private String senderEmail = "Beautybooking@gmx.de";
+    @Value("${MAIL_USERNAME}")
+    private String senderEmail;
 
     /**
      * Sends an email to the specified recipient.

@@ -1,13 +1,13 @@
 package com.example.end.infrastructure.security.sec_servivce;
 
-import com.example.end.models.User;
+
 import com.example.end.infrastructure.security.sec_dto.AuthInfo;
+import com.example.end.models.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.Nonnull;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -24,19 +24,16 @@ public class TokenService {
     private final SecretKey accessKey;
     private final SecretKey refreshKey;
 
-    private static final String ACCESS_KEY_BASE64 = "X30INcpL2Yzf80ArITEdwLegdAFT2dkeq1hxlR7waOk=";
-    private static final String REFRESH_KEY_BASE64 = "u1vxX56P6a+4tWS2RLt0qIG9yF8DbW6d1pv4JUQI+dk=";
-
-    public TokenService() {
-        this.accessKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(ACCESS_KEY_BASE64));
-        this.refreshKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(REFRESH_KEY_BASE64));
+    public TokenService(@Value("${JWT_ACCESS_KEY}") String accessKeyBase64,
+                        @Value("${JWT_REFRESH_KEY}") String refreshKeyBase64) {
+        this.accessKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessKeyBase64));
+        this.refreshKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshKeyBase64));
     }
 
     public String generateAccessToken(@Nonnull User user) {
         LocalDateTime currentDate = LocalDateTime.now();
         Instant expirationInstant = currentDate.plusDays(1).atZone(ZoneId.systemDefault()).toInstant();
         Date expirationDate = Date.from(expirationInstant);
-
 
         return Jwts.builder()
                 .subject(user.getEmail())
@@ -49,7 +46,6 @@ public class TokenService {
                 .claim("email", user.getEmail())
                 .compact();
     }
-
 
     public String generateRefreshToken(@Nonnull User user) {
         LocalDateTime currentDate = LocalDateTime.now();
@@ -82,6 +78,7 @@ public class TokenService {
             return false;
         }
     }
+
     public Claims getAccessClaims(@Nonnull String accessToken) {
         return getClaims(accessToken, accessKey);
     }
@@ -102,6 +99,6 @@ public class TokenService {
         String username = claims.getSubject();
         String roleString = claims.get("roles", String.class);
         User.Role role = User.Role.valueOf(roleString.replace("ROLE_", ""));
-        return new AuthInfo(username, Set.of(role)); // Оборачиваем в Set
+        return new AuthInfo(username, Set.of(role));
     }
 }
