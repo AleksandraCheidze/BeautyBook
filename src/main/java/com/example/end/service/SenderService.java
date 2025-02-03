@@ -14,8 +14,8 @@ public class SenderService {
 
     private final ProjectMailSender mailSender;
 
-    @Value("${MAIL_ADMIN_EMAIL}")
-    private String adminEmail;
+
+    private String adminEmail="Beautybooking@gmx.de";
 
     /**
      * Sends a message to the administrator with details provided by the user.

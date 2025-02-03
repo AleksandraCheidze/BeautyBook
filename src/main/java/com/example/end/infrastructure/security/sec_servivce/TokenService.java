@@ -24,8 +24,10 @@ public class TokenService {
     private final SecretKey accessKey;
     private final SecretKey refreshKey;
 
-    public TokenService(@Value("${JWT_ACCESS_KEY}") String accessKeyBase64,
-                        @Value("${JWT_REFRESH_KEY}") String refreshKeyBase64) {
+    public TokenService() {
+        String accessKeyBase64 = "X30INcpL2Yzf80ArITEdwLegdAFT2dkeq1hxlR7waOk=";
+        String refreshKeyBase64 = "u1vxX56P6a+4tWS2RLt0qIG9yF8DbW6d1pv4JUQI+dk=";
+
         this.accessKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessKeyBase64));
         this.refreshKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshKeyBase64));
     }

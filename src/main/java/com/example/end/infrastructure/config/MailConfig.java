@@ -1,5 +1,6 @@
 package com.example.end.infrastructure.config;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,11 +12,14 @@ import java.util.Properties;
 @Configuration
 public class MailConfig {
 
-    @Value("${MAIL_USERNAME}")
-    private String mailUsername;
+    private String mailUsername = "Beautybooking@gmx.de";
 
-    @Value("${MAIL_PASSWORD}")
-    private String mailPassword;
+    private String mailPassword = "Paroljotemaila007!";
+
+    @PostConstruct
+    public void checkEnvVars() {
+        System.out.println("Mail Username: " + mailUsername);
+    }
 
     @Bean
     public JavaMailSender javaMailSender() {
