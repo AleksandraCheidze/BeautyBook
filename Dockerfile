@@ -19,6 +19,6 @@ COPY . .
 # Собираем проект
 RUN mvn clean install
 
-# Указываем команду для запуска приложения
-CMD ["java", "-jar", "target/com-example-end-0.0.1-SNAPSHOT.jar"]
+
+
 
