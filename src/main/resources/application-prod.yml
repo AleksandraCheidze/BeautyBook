@@ -4,6 +4,16 @@ spring:
     username: ${PROD_DB_USERNAME}
     password: ${PROD_DB_PASSWORD}
     name: beauty-book
+
+  # Настройки JPA и Hibernate
+  jpa:
+    hibernate:
+      ddl-auto: update  # Попробуйте 'create' для чистой инициализации
+    show-sql: true       # Для логирования SQL-запросов
+    properties:
+      hibernate:
+        format_sql: true  # Для форматирования SQL-запросов
+
   sql:
     init:
       mode: always
