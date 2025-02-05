@@ -8,11 +8,12 @@ spring:
   # Настройки JPA и Hibernate
   jpa:
     hibernate:
-      ddl-auto: update  # Попробуйте 'create' для чистой инициализации
+      ddl-auto: create  # Попробуйте 'create' для чистой инициализации
     show-sql: true       # Для логирования SQL-запросов
     properties:
       hibernate:
         format_sql: true  # Для форматирования SQL-запросов
+
 
   sql:
     init:
