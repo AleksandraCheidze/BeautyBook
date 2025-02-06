@@ -25,9 +25,6 @@ springdoc:
     config-url: /v3/api-docs/swagger-config
     url: /v3/api-docs
     path: /swagger-ui.html
-server:
-  ssl:
-    enabled: true
 
 logging:
   level:
