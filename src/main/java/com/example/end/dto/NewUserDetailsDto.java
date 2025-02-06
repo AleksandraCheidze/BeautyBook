@@ -17,8 +17,6 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class NewUserDetailsDto {
-
-    @NotBlank(message = "Description cannot be blank")
     @Schema(description = "Description of the user", example = "I am a manicure master with 10 years of experience")
     @Size(max = 255, message = "Description cannot be longer than 255 characters")
     private String description;
