@@ -10,7 +10,6 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -45,7 +44,7 @@ public class SecurityConfig {
         http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(x -> x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(x -> x
                         .requestMatchers(HttpMethod.GET, "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
@@ -62,11 +61,7 @@ public class SecurityConfig {
                 .addFilterAfter(filter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(config -> config
                         .authenticationEntryPoint(SecurityExceptionHandlers.ENTRY_POINT)
-                        .accessDeniedHandler(SecurityExceptionHandlers.ACCESS_DENIED_HANDLER))
-                .formLogin(form -> form
-                        .successHandler(SecurityExceptionHandlers.LOGIN_SUCCESS_HANDLER)
-                        .failureHandler(SecurityExceptionHandlers.LOGIN_FAILURE_HANDLER)
-                );
+                        .accessDeniedHandler(SecurityExceptionHandlers.ACCESS_DENIED_HANDLER));
 
         return http.build();
     }
@@ -75,7 +70,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedOrigin("http://localhost:3000");
-        configuration.addAllowedOrigin("https://beauty-book-3-0-p1gxmmzr1-dmitrys-projects-94e99932.vercel.app");
+        configuration.addAllowedOrigin("https://beauty-book-3-0.vercel.app");
         configuration.addAllowedMethod("*");
         configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);
