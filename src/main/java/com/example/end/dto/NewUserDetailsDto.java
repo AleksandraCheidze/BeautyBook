@@ -23,15 +23,16 @@ public class NewUserDetailsDto {
     @Size(max = 255, message = "Description cannot be longer than 255 characters")
     private String description;
 
-    @NotBlank(message = "Phone number cannot be blank")
+    @NotBlank(message = "Phone number cannot be empty")
     @Schema(description = "Phone number of the user", example = "+49 176 44545615")
-    @Pattern(regexp = "\\+?\\d{1,3}[-\\.\\s]?\\(?(\\d{2,3})\\)?[-\\.\\s]?\\d{1,4}[-\\.\\s]?\\d{1,4}",
+    @Pattern(
+            regexp = "^\\+?[1-9]\\d{1,14}$",
             message = "Invalid phone number format")
     private String phoneNumber;
 
     @NotBlank(message = "Address cannot be blank")
     @Schema(description = "Address of the user", example = "Berlin, Salvador straße 88, 13446")
-    @Size(max = 255, message = "Address cannot be longer than 255 characters")
+    @Size(max = 50, message = "Address cannot be longer than 50 characters")
     private String address;
 
     @NotEmpty(message = "List of categories cannot be blank")
