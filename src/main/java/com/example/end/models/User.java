@@ -1,8 +1,6 @@
 package com.example.end.models;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -86,6 +84,7 @@ public class User {
     private String profilePhotoUrl;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
     private List<PortfolioPhoto> portfolioPhotos;
 
     public User(Long id, String firstName, String lastName, String email, boolean isActive, Role role) {
