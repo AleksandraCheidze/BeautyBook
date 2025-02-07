@@ -1,7 +1,7 @@
 
-PROD_DB_HOST=postgres-oaqq.railway.internal
+PROD_DB_HOST=postgres.railway.internal
 PROD_DB_PORT=5432
 PROD_DB_NAME=railway
 PROD_DB_USERNAME=postgres
-PROD_DB_PASSWORD=nhuDprRWXpIQYJSQjXPnuiYtxHjBsZws
+PROD_DB_PASSWORD=GyKnOkBOuGHZuTjTvxyxgKhPkNWDJYIE
 spring.profiles.active=prod
