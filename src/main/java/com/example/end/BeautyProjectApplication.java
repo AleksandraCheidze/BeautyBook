@@ -11,9 +11,6 @@ public class BeautyProjectApplication {
 
 
 	public static void main(String[] args) {
-		System.out.println("Database URL: " + System.getenv("PROD_DB_HOST"));
-		System.out.println("Database Port: " + System.getenv("PROD_DB_PORT"));
-
 		SpringApplication.run(BeautyProjectApplication.class, args);
 	}
 
