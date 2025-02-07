@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -21,6 +22,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
+import java.util.Collections;
 
 
 @Configuration
@@ -93,8 +97,10 @@ public class SecurityConfig {
                 .info(new Info().title("Beauty-Book")
                         .version("1.0.0")
                         .license(new License()
-                                .url("https://beauty-book-3-0.vercel.app/")));
+                                .url("https://beauty-book-3-0.vercel.app/")))
+                .servers(Collections.singletonList(new Server().url("https://beautybook-production-c53c.up.railway.app")));
     }
+
 
     private SecurityScheme createAPIKeyScheme() {
         return new SecurityScheme()
