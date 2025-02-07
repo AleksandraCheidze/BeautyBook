@@ -148,6 +148,15 @@
                     <target>17</target>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.example.end.BeautyProjectApplication</mainClass>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
 </project>
