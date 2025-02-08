@@ -23,7 +23,7 @@ spring:
     host: smtp.gmx.net
     port: 587
     username: Beautybooking@gmx.de
-    password: USGCY7UA7TQUYHCUQELM
+    password: NZECQVQLBZGGA63RBQUG
     properties:
       mail.smtp.auth: true
       mail.smtp.starttls.enable: true
