@@ -19,11 +19,12 @@ spring:
     init:
       mode: always
 
+
   mail:
-    host: smtp.gmx.net
-    port: 587
-    username: Beautybooking@gmx.de
-    password: "WAZSI25UVE5YLBUEX4EX"
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
     properties:
       mail:
         debug: true
@@ -31,6 +32,16 @@ spring:
           auth: true
           starttls:
             enable: true
+cloudinary:
+  cloud_name: ${CLOUDINARY_CLOUD_NAME}
+  api_key: ${CLOUDINARY_API_KEY}
+  api_secret: ${CLOUDINARY_API_SECRET}
+
+jwt:
+  access:
+    key: ${ACCESS_KEY}
+  refresh:
+    key: ${REFRESH_KEY}
 
 logging:
   level:

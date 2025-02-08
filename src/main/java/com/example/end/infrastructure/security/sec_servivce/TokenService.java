@@ -3,6 +3,7 @@ package com.example.end.infrastructure.security.sec_servivce;
 
 import com.example.end.infrastructure.security.sec_dto.AuthInfo;
 import com.example.end.models.User;
+import com.example.end.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;

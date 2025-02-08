@@ -12,9 +12,17 @@ import java.util.Properties;
 @Configuration
 public class MailConfig {
 
-    private String mailUsername = "Beautybooking@gmx.de";
+    @Value("${spring.mail.username}")
+    private String mailUsername;
 
-    private String mailPassword = "Paroljotemaila007!";
+    @Value("${spring.mail.password}")
+    private String mailPassword;
+
+    @Value("${spring.mail.host}")
+    private String mailHost;
+
+    @Value("${spring.mail.port}")
+    private int mailPort;
 
     @PostConstruct
     public void checkEnvVars() {
@@ -24,8 +32,8 @@ public class MailConfig {
     @Bean
     public JavaMailSender javaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("mail.gmx.net");
-        mailSender.setPort(587);
+        mailSender.setHost(mailHost);
+        mailSender.setPort(mailPort);
         mailSender.setUsername(mailUsername);
         mailSender.setPassword(mailPassword);
 

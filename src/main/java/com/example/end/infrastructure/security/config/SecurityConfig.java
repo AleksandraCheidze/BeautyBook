@@ -44,13 +44,12 @@ public class SecurityConfig {
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
+        return http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(x -> x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(x -> x
-                        .requestMatchers(HttpMethod.GET, "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/access").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/masters").permitAll()
@@ -59,19 +58,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/procedures/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated())
                 .addFilterAfter(filter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(config -> config
-                        .authenticationEntryPoint(SecurityExceptionHandlers.ENTRY_POINT)
-                        .accessDeniedHandler(SecurityExceptionHandlers.ACCESS_DENIED_HANDLER))
-                .formLogin(form -> form
-                        .successHandler(SecurityExceptionHandlers.LOGIN_SUCCESS_HANDLER)
-                        .failureHandler(SecurityExceptionHandlers.LOGIN_FAILURE_HANDLER)
-                );
-
-        return http.build();
+                .build();
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

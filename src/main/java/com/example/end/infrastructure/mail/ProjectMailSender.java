@@ -18,7 +18,8 @@ public class ProjectMailSender {
 
     private final JavaMailSender javaMailSender;
 
-    private String senderEmail="Beautybooking@gmx.de";
+    @Value("${spring.mail.username}")
+    private String senderEmail;
 
     /**
      * Sends an email to the specified recipient.
