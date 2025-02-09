@@ -14,7 +14,7 @@ public class SenderService {
 
     private final ProjectMailSender mailSender;
 
-    @Value("${spring.mail.username}")
+    @Value("${SPRING_MAIL_USERNAME}")
     private String adminEmail;
 
     /**

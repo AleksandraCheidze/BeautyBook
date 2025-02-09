@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
     private final PortfolioPhotoRepository portfolioPhotoRepository;
     private final ImageUploadService imageUploadService;
 
-    @Value("${spring.mail.username}")
+    @Value("${SPRING_MAIL_USERNAME}")
     private String adminEmail;
 
     /**

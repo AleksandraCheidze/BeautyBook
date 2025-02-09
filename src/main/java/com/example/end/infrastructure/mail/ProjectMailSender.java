@@ -18,7 +18,7 @@ public class ProjectMailSender {
 
     private final JavaMailSender javaMailSender;
 
-    @Value("${spring.mail.username}")
+    @Value("${SPRING_MAIL_USERNAME}$")
     private String senderEmail;
 
     /**

@@ -23,8 +23,8 @@ spring:
 
 
   mail:
-    username: ${spring_mail_username}
-    password: ${spring_mail_password}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
     host: mail.gmx.net
     port: 587
     properties:
