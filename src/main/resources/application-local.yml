@@ -19,10 +19,9 @@ spring:
     init:
       mode: always
 
-
   mail:
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
     host: mail.gmx.net
     port: 587
     properties:
@@ -39,10 +38,9 @@ cloudinary:
 
 jwt:
   access:
-    key: "X30INcpL2Yzf80ArITEdwLegdAFT2dkeq1hxlR7waOk="
+    key: ${ACCESS_KEY}
   refresh:
-    key: "u1vxX56P6a+4tWS2RLt0qIG9yF8DbW6d1pv4JUQI+dk="
-
+    key: ${REFRESH_KEY}
 
 logging:
   level:

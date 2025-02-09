@@ -25,13 +25,14 @@ public class TokenService {
     private final SecretKey accessKey;
     private final SecretKey refreshKey;
 
-    public TokenService() {
-        String accessKeyBase64 = "X30INcpL2Yzf80ArITEdwLegdAFT2dkeq1hxlR7waOk=";
-        String refreshKeyBase64 = "u1vxX56P6a+4tWS2RLt0qIG9yF8DbW6d1pv4JUQI+dk=";
-
+    public TokenService(
+            @Value("${jwt.access.key}") String accessKeyBase64,
+            @Value("${jwt.refresh.key}") String refreshKeyBase64
+    ) {
         this.accessKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessKeyBase64));
         this.refreshKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshKeyBase64));
     }
+
 
     public String generateAccessToken(@Nonnull User user) {
         LocalDateTime currentDate = LocalDateTime.now();
