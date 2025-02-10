@@ -44,36 +44,42 @@ public class SecurityConfig {
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
-                .httpBasic(AbstractHttpConfigurer::disable) // Отключаем базовую аутентификацию
-                .csrf(AbstractHttpConfigurer::disable) // Отключаем CSRF защиту (если не используешь)
-                .sessionManagement(x -> x.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Без сессий
+        http
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(x -> x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(x -> x
-                        .requestMatchers(HttpMethod.GET, "/swagger-ui/**", "/v3/api-docs/**").permitAll() // Swagger доступен всем
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/access").permitAll() // Логин и доступ
-                        .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll() // Регистрация доступна всем
-                        .requestMatchers(HttpMethod.GET, "/api/users/masters").permitAll() // Доступ к мастерам
-                        .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll() // Доступ к пользователям
-                        .requestMatchers(HttpMethod.GET, "/api/users/by-category/{categoryId}").permitAll() // Доступ к пользователям по категории
-                        .requestMatchers(HttpMethod.GET, "/api/procedures/**").permitAll() // Доступ к процедурам
-                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll() // Доступ к категориям
-                        .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll() // Доступ к отзывам
-                        .anyRequest().authenticated()) // Все остальные запросы требуют аутентификации
-                .addFilterAfter(filter, UsernamePasswordAuthenticationFilter.class) // Добавляем фильтр после стандартного фильтра аутентификации
-                .build();
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // Разрешаем OPTIONS запросы
+                        .requestMatchers(HttpMethod.GET, "/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/access").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/masters").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/by-category/{categoryId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/procedures/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterAfter(filter, UsernamePasswordAuthenticationFilter.class);
+
+        // CORS конфигурация
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+
+        return http.build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:3000");
-        configuration.addAllowedOrigin("https://beauty-book-3-0.vercel.app");
-        configuration.addAllowedMethod("*");
-        configuration.addAllowedHeader("*");
-        configuration.setAllowCredentials(true);
+        configuration.addAllowedOrigin("http://localhost:3000");  // Локальный фронтенд
+        configuration.addAllowedOrigin("https://beauty-book-3-0.vercel.app");  // Деплой на Vercel
+        configuration.addAllowedMethod("*");  // Разрешаем все методы
+        configuration.addAllowedHeader("*");  // Разрешаем все заголовки
+        configuration.setAllowCredentials(true);  // Разрешаем куки и авторизацию
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", configuration);  // Разрешаем CORS для всех запросов
         return source;
     }
 
