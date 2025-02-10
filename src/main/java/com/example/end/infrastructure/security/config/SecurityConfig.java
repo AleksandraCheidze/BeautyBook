@@ -89,7 +89,7 @@ public class SecurityConfig {
                         .license(new License()
                                 .url("https://beauty-book-3-0.vercel.app/")))
                 .servers(Arrays.asList(
-                        new Server().url("https://localhost:8080").description("Local Server"),
+                        new Server().url("http://localhost:8080").description("Local Server"),
                         new Server().url("https://beautybook-production-c53c.up.railway.app").description("Production Server")
                 ));
     }
