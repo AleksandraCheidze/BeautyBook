@@ -45,24 +45,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(x -> x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .httpBasic(AbstractHttpConfigurer::disable) // Отключаем базовую аутентификацию
+                .csrf(AbstractHttpConfigurer::disable) // Отключаем CSRF защиту (если не используешь)
+                .sessionManagement(x -> x.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Без сессий
                 .authorizeHttpRequests(x -> x
-                        .requestMatchers(HttpMethod.GET, "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/access").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users/masters").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users/by-category/{categoryId}").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/procedures/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
-                        .anyRequest().authenticated())
-                .addFilterAfter(filter, UsernamePasswordAuthenticationFilter.class)
+                        .requestMatchers(HttpMethod.GET, "/swagger-ui/**", "/v3/api-docs/**").permitAll() // Swagger доступен всем
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/access").permitAll() // Логин и доступ
+                        .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll() // Регистрация доступна всем
+                        .requestMatchers(HttpMethod.GET, "/api/users/masters").permitAll() // Доступ к мастерам
+                        .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll() // Доступ к пользователям
+                        .requestMatchers(HttpMethod.GET, "/api/users/by-category/{categoryId}").permitAll() // Доступ к пользователям по категории
+                        .requestMatchers(HttpMethod.GET, "/api/procedures/**").permitAll() // Доступ к процедурам
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll() // Доступ к категориям
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll() // Доступ к отзывам
+                        .anyRequest().authenticated()) // Все остальные запросы требуют аутентификации
+                .addFilterAfter(filter, UsernamePasswordAuthenticationFilter.class) // Добавляем фильтр после стандартного фильтра аутентификации
                 .build();
     }
-
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
