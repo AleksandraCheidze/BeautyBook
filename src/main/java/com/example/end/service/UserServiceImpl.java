@@ -225,7 +225,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String uploadProfilePhoto(Long userId, MultipartFile file, long maxSize) throws IOException {
-        if (!FileValidationUtils.isValidImage(file)) {
+        if (FileValidationUtils.isValidImage(file)) {
             throw new InvalidFileException("Only JPEG, PNG, or GIF images are allowed.");
         }
         if (file.getSize() > maxSize) {
@@ -248,7 +248,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<PortfolioImageDto> uploadPortfolioPhotos(Long userId, List<MultipartFile> files, long maxSize) throws IOException {
         for (MultipartFile file : files) {
-            if (!FileValidationUtils.isValidImage(file)) {
+            if (FileValidationUtils.isValidImage(file)) {
                 throw new InvalidFileException("Only JPEG, PNG, or GIF images are allowed.");
             }
             if (file.getSize() > maxSize) {
