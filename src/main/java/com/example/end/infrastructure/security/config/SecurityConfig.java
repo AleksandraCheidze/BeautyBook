@@ -7,7 +7,6 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -42,44 +41,34 @@ public class SecurityConfig {
     public BCryptPasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
+        return http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(x -> x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(x -> x
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // Разрешаем OPTIONS запросы
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/access").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/users/register", "/users/register").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users/masters").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/users/by-category/{categoryId}").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/procedures/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .addFilterAfter(filter, UsernamePasswordAuthenticationFilter.class);
-
-        // CORS конфигурация
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
-
-        return http.build();
+                        .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
+                        .anyRequest().authenticated())
+                .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOrigin("http://localhost:3000");  // Локальный фронтенд
-        configuration.addAllowedOrigin("https://beauty-book-3-0.vercel.app");  // Деплой на Vercel
-        configuration.addAllowedMethod("*");  // Разрешаем все методы
-        configuration.addAllowedHeader("*");  // Разрешаем все заголовки
-        configuration.setAllowCredentials(true);  // Разрешаем куки и авторизацию
+        configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.addAllowedOrigin("https://beauty-book-3-0.vercel.app");
+        configuration.addAllowedMethod("*");
+        configuration.addAllowedHeader("*");
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);  // Разрешаем CORS для всех запросов
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
@@ -92,14 +81,8 @@ public class SecurityConfig {
                 .info(new Info().title("Beauty-Book")
                         .version("1.0.0")
                         .license(new License()
-                                .url("https://beauty-book-3-0.vercel.app/")))
-                .servers(Arrays.asList(
-                        new Server().url("http://localhost:8080").description("Local Server"),
-                        new Server().url("https://beautybook-production-c53c.up.railway.app").description("Production Server")
-                ));
+                                .url("https://beauty-book-3-0.vercel.app/")));
     }
-
-
 
     private SecurityScheme createAPIKeyScheme() {
         return new SecurityScheme()
@@ -108,4 +91,3 @@ public class SecurityConfig {
                 .scheme("bearer");
     }
 }
-
