@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -23,7 +24,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.Collections;
+
 
 
 @Configuration
@@ -41,7 +42,6 @@ public class SecurityConfig {
     public BCryptPasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
     }
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -49,10 +49,16 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(x -> x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(x -> x
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Разрешаем OPTIONS запросы
                         .requestMatchers(HttpMethod.GET, "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/access").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/masters").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/by-category/{categoryId}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/procedures/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
                 .build();
@@ -81,8 +87,14 @@ public class SecurityConfig {
                 .info(new Info().title("Beauty-Book")
                         .version("1.0.0")
                         .license(new License()
-                                .url("https://beauty-book-3-0.vercel.app/")));
+                                .url("https://beauty-book-3-0.vercel.app/")))
+                .servers(Arrays.asList(
+                        new Server().url("https://localhost:8080").description("Local Server"),
+                        new Server().url("https://beautybook-production-c53c.up.railway.app").description("Production Server")
+                ));
     }
+
+
 
     private SecurityScheme createAPIKeyScheme() {
         return new SecurityScheme()
@@ -91,3 +103,4 @@ public class SecurityConfig {
                 .scheme("bearer");
     }
 }
+
