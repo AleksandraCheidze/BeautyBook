@@ -23,8 +23,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
-
+import java.util.Collections;
 
 
 @Configuration
@@ -88,8 +87,8 @@ public class SecurityConfig {
                         .version("1.0.0")
                         .license(new License()
                                 .url("https://beauty-book-3-0.vercel.app/")))
-                .servers(Arrays.asList(
-                        new Server().url("http://localhost:8080").description("Local Server"),
+                .servers(Collections.singletonList(
+//                        new Server().url("https://localhost:8080").description("Local Server"),
                         new Server().url("https://beautybook-production-c53c.up.railway.app").description("Production Server")
                 ));
     }
