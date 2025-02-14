@@ -79,7 +79,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     /**
-     * Cancels an existing booking by updating its status to CANCELED.
+     * Cancels an existing booking by updating its status to CANCEL.
      *
      * @param bookingId the ID of the booking to cancel.
      */

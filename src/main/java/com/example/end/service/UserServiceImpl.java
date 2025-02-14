@@ -2,6 +2,7 @@ package com.example.end.service;
 
 import com.example.end.dto.*;
 import com.example.end.exceptions.*;
+
 import com.example.end.infrastructure.config.ImageUploadService;
 import com.example.end.infrastructure.mail.ProjectMailSender;
 import com.example.end.mapping.UserMapper;
@@ -15,6 +16,7 @@ import com.example.end.service.interfaces.UserService;
 import com.example.end.utils.FileValidationUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,6 +43,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final ProjectMailSender mailSender;
     private final TokenService tokenService;
+    @Autowired
     private final SenderService senderService;
     private final PortfolioPhotoRepository portfolioPhotoRepository;
     private final ImageUploadService imageUploadService;
@@ -203,24 +206,6 @@ public class UserServiceImpl implements UserService {
         mailSender.sendRegistrationEmail(masterUser.getEmail());
     }
 
-    /**
-     * Retrieves a master user by their email.
-     *
-     * @param email the email of the master user
-     * @return the master user
-     * @throws UserNotFoundException if the user is not found or not a master
-     */
-    @Override
-    public User findMasterUserByEmail(String email) {
-        User masterUser = findUserByEmailOrThrow(email);
-        if (masterUser.getRole() != User.Role.MASTER) {
-            throw UserNotFoundException.notMaster(email);
-        }
-        if (masterUser.isActive()) {
-            throw UserNotFoundException.alreadyActive(email);
-        }
-        return masterUser;
-    }
 
 
     @Override
@@ -371,6 +356,24 @@ public class UserServiceImpl implements UserService {
                 .map(userMapper::userDetailsToDto)
                 .collect(Collectors.toList());
     }
+    /**
+     * Retrieves a master user by their email.
+     *
+     * @param email the email of the master user
+     * @return the master user
+     * @throws UserNotFoundException if the user is not found or not a master
+     */
+    @Override
+    public User findMasterUserByEmail(String email) {
+        User masterUser = findUserByEmailOrThrow(email);
+        if (masterUser.getRole() != User.Role.MASTER) {
+            throw UserNotFoundException.notMaster(email);
+        }
+        if (masterUser.isActive()) {
+            throw UserNotFoundException.alreadyActive(email);
+        }
+        return masterUser;
+    }
 
     /**
      * Retrieves all users associated with a specific category.
@@ -428,27 +431,11 @@ public class UserServiceImpl implements UserService {
 
     private User findUserByEmailOrThrow(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RestException(HttpStatus.UNAUTHORIZED, "Invalid email <" + email + ">"));
+                .orElseThrow(() -> new UserNotFoundException("User not found for email: " + email));
     }
 
     private User findUserByIdAndRole(Long userId, User.Role role) {
         return userRepository.findByIdAndRole(userId, role)
                 .orElseThrow(() -> new UserNotFoundException("User not found for id: " + userId + " with role: " + role));
-    }
-
-    public boolean isValidImage(MultipartFile file, long maxSize) {
-
-        String contentType = file.getContentType();
-        if (contentType == null ||
-                !(contentType.equals("image/jpeg") ||
-                        contentType.equals("image/png") ||
-                        contentType.equals("image/gif"))) {
-            return false;
-        }
-
-        if (file.getSize() > maxSize) {
-            return false;
-        }
-        return true;
     }
 }
