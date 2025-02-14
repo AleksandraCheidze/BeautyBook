@@ -13,9 +13,9 @@ spring:
         format_sql: true
 
   mail:
-    username: beauty-booking@gmx.net  # Ваш адрес электронной почты GMX
-    password: Qwerty007!     # Ваш пароль для электронной почты GMX
-    host: smtp.gmx.net   # SMTP-сервер
+    username: beauty-booking@gmx.net
+    password: Qwerty007!
+    host: smtp.gmx.net
     port: 587
     properties:
       mail:
@@ -37,7 +37,7 @@ logging:
         security: DEBUG
         mail: DEBUG
 
-# Настройки для Flyway
+
 flyway:
   baseline-on-migrate: true
   locations: classpath:db/migration

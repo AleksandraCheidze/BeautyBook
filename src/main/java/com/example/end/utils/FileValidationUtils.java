@@ -13,7 +13,7 @@ public class FileValidationUtils {
     private static final List<String> ALLOWED_EXTENSIONS = Arrays.asList("jpg", "jpeg", "png", "gif");
 
     // Увеличим размер до 50 МБ
-    private static final long MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
+    private static final long MAX_FILE_SIZE = 50 * 1024 * 1024;
 
     public static boolean isValidImage(MultipartFile file) {
 

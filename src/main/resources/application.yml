@@ -1,7 +1,7 @@
 spring:
   servlet:
     multipart:
-      max-file-size: 50MB        # Максимальный размер одного файла (50MB)
+      max-file-size: 50MB
       max-request-size: 500MB
   profiles:
     active: prod
@@ -52,5 +52,5 @@ jwt:
 
 logging:
   level:
-    org.springframework.security: DEBUG  # Включение отладки для Spring Security
-    org.springframework.mail: DEBUG      # Включение отладки для почтовых операций
+    org.springframework.security: DEBUG
+    org.springframework.mail: DEBUG
