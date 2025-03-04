@@ -1,4 +1,5 @@
-![logo](logo3.png) ## BeautyBook – A platform for connecting beauty service providers with customers
+<img src="logo3.png" alt="Logo" width="200" />
+ ## BeautyBook – A platform for connecting beauty service providers with customers
 
 You can check out the live version of the project 🌐 [BeautyBook](https://beauty-book-3-0.vercel.app/) 🌐
 
