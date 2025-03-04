@@ -6,7 +6,7 @@ BeautyBook is a platform designed to simplify the booking process for beauty ser
 You can check out the live version of the project [here](https://beauty-book-3-0.vercel.app/).
 
 📺 **Application Demo**
-![Demo](Untitledvideo-MadewithClipchamp2-ezgif.com-crop.gif.gif)
+![Demo](Untitledvideo-MadewithClipchamp2-ezgif.com-crop.gif)
 
 🔧 Tech Stack
 Language : Java 17
