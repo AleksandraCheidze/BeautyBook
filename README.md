@@ -11,13 +11,15 @@ BeautyBook is a platform designed to simplify the booking process for beauty ser
 
 
 ### 🔧 **Tech Stack**
-- **Language**: Java 17+
-- **Framework**: [Spring Boot](https://spring.io/projects/spring-boot)
-- **Database**: [PostgreSQL](https://www.postgresql.org/)
-- **Authentication**: [JWT](https://jwt.io/)
-- **API Documentation**: [OpenAPI (Swagger UI)](http://localhost:8080/swagger-ui/index.html)
-- **File Storage**: [Cloudinary](https://cloudinary.com/)
-- **Testing**: [JUnit 5](https://junit.org/junit5/), [Spring Security Test](https://docs.spring.io/spring-security/reference/test.html)
+
+- **Language**: ![Java](https://img.shields.io/badge/Java-ED8B00?style=flat&logo=openjdk&logoColor=white) 
+- **Framework**: ![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat&logo=spring-boot&logoColor=white) 
+- **Database**: ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=flat&logo=postgresql&logoColor=white)
+- **Authentication**: ![JWT](https://img.shields.io/badge/JWT-000000?style=flat&logo=json-web-tokens&logoColor=white) 
+- **API Documentation**: ![Swagger UI](https://img.shields.io/badge/Swagger_UI-85EA2D?style=flat&logo=swagger&logoColor=black) 
+- **File Storage**: ![Cloudinary](https://img.shields.io/badge/Cloudinary-FF6600?style=flat&logo=cloudinary&logoColor=white)
+- **Testing**: ![JUnit 5](https://img.shields.io/badge/JUnit_5-25A162?style=flat&logo=junit5&logoColor=white), ![Spring Security Test](https://img.shields.io/badge/Spring_Security_Test-6DB33F?style=flat&logo=spring-boot&logoColor=white)
+
   
 ### 📌 **API Features**
 
