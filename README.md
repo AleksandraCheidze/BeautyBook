@@ -1,62 +1,12 @@
 ## BeautyBook – A platform for connecting beauty service providers with customers
 
 BeautyBook is a platform designed to simplify the booking process for beauty services. Customers can easily find and book beauty professionals based on location, services offered, and availability. 
-📌  **Technologies used:**
-- Backend: Java, Spring Boot, REST API
-- Frontend: React, JavaScript, Next.js [repository](https://github.com/Loginofff/Beauty-book-3.0.git). 
-- Database: PostgreSQL
-- Deployment: Vercel, Railway
 
 **Demo:**  
 You can check out the live version of the project [here](https://beauty-book-3-0.vercel.app/).
 
-📺 **Application Interface**
-![Application Demo](https://drive.google.com/file/d/1z8wacAdJRirYDUMFukMb0qmqHzYXMI3E/view?usp=sharing) 
-
-## 📌 API Features  
-### 🔹 Booking Management  
-✅ Create, update, and cancel bookings (authorized users)  
-✅ Find bookings by user ID and status  
-✅ Admin can update booking status  
-
-### 🔹 Category & Procedure Management  
-✅ Get all categories and procedures  
-✅ Find procedures by category  
-✅ Admin can create, update, and delete categories/procedures  
-
-### 🔹 Review & Rating System  
-✅ Clients can add reviews for professionals  
-✅ Get reviews and ratings by master ID  
-✅ Admin can delete reviews  
-
-### 🔹 User Management  
-✅ Register new users & authentication (JWT)  
-✅ Get and update user details  
-✅ Find professionals by category  
-✅ Admin can manage users (delete, confirm masters)  
-
-### 🔹 File Management  
-✅ Upload/delete profile and portfolio photos  
-
-profile
-Qwen2.5-Plus
-1:28 pm
-Here’s a professional and comprehensive README for your project based on the provided code and details:
-
-BeautyBook Backend
-📌 Spring Boot | PostgreSQL | REST API | JWT | Docker
-
-🚀 Project Description
-BeautyBook is a backend platform that connects clients with beauty professionals. The project provides an extensive RESTful API for user registration, booking management, category handling, review systems, metadata management, and more
-
-Live Demo : https://beautybook-api.example.com
-Please refer to the documentation for available endpoints
-
-📺 Application Interface
-Add a screenshot or video demo of the application interface here:
-Screenshot
-or
-Video Demo
+📺 **Application Demo**
+![Demo](Untitledvideo-MadewithClipchamp2-ezgif.com-crop.gif.gif)
 
 🔧 Tech Stack
 Language : Java 17
@@ -119,18 +69,6 @@ Messaging
 📩 Add SMS notifications for bookings : Send SMS reminders to clients and professionals about upcoming appointments
 📊 Provide analytics and reports for professionals and admins : Generate detailed reports on bookings, revenue, and customer feedback
 💬 Integrate an AI Chatbot : Develop an AI-powered chatbot to assist users with inquiries, booking confirmations, and providing general support
-
-📑 Project Structure
-📂 beautybook-backend
- ┣ 📂 src/main/java/com/beautybook
- ┃ ┣ 📂 controllers     # REST controllers
- ┃ ┣ 📂 services        # Business logic
- ┃ ┣ 📂 repositories    # Spring Data JPA repositories
- ┃ ┣ 📂 models          # Entities (User, Professional, Booking)
- ┃ ┗ 📂 config          # Configuration (Security, CORS, Swagger)
- ┣ 📜 Dockerfile        # Docker image configuration
- ┣ 📜 application.yml   # Spring Boot settings
- ┗ 📜 README.md         # Documentation
  
 🔌 How to Run Locally?
 1️⃣ Install Dependencies
@@ -149,7 +87,7 @@ mvn spring-boot:run
 
 🛠 API Testing
 Swagger UI is available at:
-http://localhost:8080/swagger-ui/index.html
+[here](http://localhost:8080/swagger-ui/index.html)
 
 ## 📑 Project Structure  
 ```
