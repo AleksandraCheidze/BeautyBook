@@ -10,102 +10,37 @@ BeautyBook is a platform designed to simplify the booking process for beauty ser
 ![Demo](Untitledvideo-MadewithClipchamp2-ezgif.com-crop.gif)
 
 
-🔧 Tech Stack
+### 🔧 **Tech Stack**
 
-Language : Java 17
+- **Language**: Java 17+
+- 
+- **Framework**: [Spring Boot](https://spring.io/projects/spring-boot)
+- 
+- **Database**: [PostgreSQL](https://www.postgresql.org/)
+- 
+- **Authentication**: [JWT](https://jwt.io/)
+- 
+- **API Documentation**: [OpenAPI (Swagger UI)](http://localhost:8080/swagger-ui/index.html)
+- 
+- **File Storage**: [Cloudinary](https://cloudinary.com/)
+- 
+- **Testing**: [JUnit 5](https://junit.org/junit5/), [Spring Security Test](https://docs.spring.io/spring-security/reference/test.html)
+  
 
-Framework : Spring Boot (3.2.1)
+### 📌 **API Features**
 
-Database : PostgreSQL
+#### Booking Management
+- ✅ Create, Update, Cancel bookings
+- ✅ Find bookings by user ID and status
 
-Authentication : JWT (JSON Web Tokens)
+#### Category Management
+- ✅ Create, update, and delete categories (ADMIN only)
 
-API Documentation : OpenAPI (Swagger UI)
+#### Procedure Management
+- ✅ Get all procedures, create, update, delete procedures (ADMIN only)
 
-File Storage : Cloudinary
-
-Data Validation : Bean Validation
-
-Testing Frameworks : JUnit 5, Spring Security Test, Spring Boot Test
-
-Other Libraries : Lombok, JavaFaker
-
-Deployment: Railway
-
-📌 API Features
-Booking Management
-
-✅ Create bookings (available to all authorized users)
-
-✅ Update booking status (available to ADMIN)
-
-✅ Cancel bookings (available to all authorized users)
-
-✅ Find bookings by user ID and status (available to all authorized users)
-
-
-Category Management
-
-✅ Get all categories (available to all users)
-
-✅ Get a specific category by ID (available to all users)
-
-✅ Create, update, and delete categories (available to ADMIN)
-
-
-Procedure Management
-
-✅ Create, update, and delete procedures (available to ADMIN)
-
-✅ Get all procedures (available to all users)
-
-✅ Find procedures by category ID (available to all users)
-
-
-Review System
-
-✅ Get reviews by master ID (available to all users)
-
-✅ Add reviews (available to authorized clients)
-
-✅ Delete reviews (available to ADMIN)
-
-✅ Get master ratings (available to all users)
-
-
-User Management
-
-✅ Get user details by ID (available to all users)
-
-✅ Register new users (available to all users)
-
-✅ Update or add user details (available to authorized masters)
-
-✅ Find users by category ID (available to all users)
-
-✅ Get all users (available to ADMIN)
-
-✅ Get all masters (available to all users)
-
-✅ Delete users by ID (available to ADMIN)
-
-✅ Confirm masters by email (available to ADMIN)
-
-
-Metadata Management
-
-✅ Upload profile photos (available to authorized users)
-
-✅ Upload portfolio photos (available to authorized users)
-
-✅ Delete profile photos (available to authorized users)
-
-✅ Delete specific portfolio photos (available to authorized users)
-
-
-Messaging
-
-✅ Send messages to admin (available to all users)
+#### User Management
+- ✅ Register, update, and delete users (with roles)
 
 🏗 Planned Features
 
@@ -173,16 +108,7 @@ Swagger UI is available at:
  ┃ ┃ ┃ ┣ 📂 service        # Business logic
  ┃ ┃ ┃ ┣ 📂 utils          # Utility classes
  ┃ ┃ ┃ ┗ 📂 validation     # Validation logic
- ┃ ┃ ┃ ┗ 📄 BeautyProjectApplication.java  # Main Spring Boot application
- ┃ ┣ 📂 resources          # Configuration files
- ┃ ┣ 📂 test
- ┃ ┃ ┣ 📂 java/com.example.end
- ┃ ┃ ┃ ┣ 📂 service
- ┃ ┃ ┃ ┃ ┗ 📄 UserServiceImplTest.java  # Unit tests for service layer
- ┃ ┃ ┃ ┗ 📂 util
- ┃ ┗ 📂 resources
- ┣ 📄 application.yml   # Spring Boot settings
- ┗ 📄 README.md         # Documentation
+ 
 
 
 
