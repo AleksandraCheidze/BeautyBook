@@ -83,6 +83,10 @@ Swagger UI is available at:
 
 [Swagger](http://localhost:8080/swagger-ui/index.html)
 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ## 📑 Project Structure  
 
 ```
