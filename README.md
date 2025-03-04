@@ -11,22 +11,14 @@ BeautyBook is a platform designed to simplify the booking process for beauty ser
 
 
 ### 🔧 **Tech Stack**
-
 - **Language**: Java 17+
-- 
 - **Framework**: [Spring Boot](https://spring.io/projects/spring-boot)
-- 
 - **Database**: [PostgreSQL](https://www.postgresql.org/)
-- 
 - **Authentication**: [JWT](https://jwt.io/)
-- 
 - **API Documentation**: [OpenAPI (Swagger UI)](http://localhost:8080/swagger-ui/index.html)
-- 
 - **File Storage**: [Cloudinary](https://cloudinary.com/)
-- 
 - **Testing**: [JUnit 5](https://junit.org/junit5/), [Spring Security Test](https://docs.spring.io/spring-security/reference/test.html)
   
-
 ### 📌 **API Features**
 
 #### Booking Management
