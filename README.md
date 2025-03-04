@@ -9,7 +9,9 @@ BeautyBook is a platform designed to simplify the booking process for beauty ser
 
 ![Demo](Untitledvideo-MadewithClipchamp2-ezgif.com-crop.gif)
 
+
 🔧 Tech Stack
+
 Language : Java 17
 
 Framework : Spring Boot (3.2.1)
