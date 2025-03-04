@@ -1,6 +1,6 @@
 ## BeautyBook – A platform for connecting beauty service providers with customers
 
-You can check out the live version of the project 🌐💻📱🖥️🌍💡 [here](https://beauty-book-3-0.vercel.app/)
+You can check out the live version of the project 🌐 [here](https://beauty-book-3-0.vercel.app/) 🌐
 
 BeautyBook is a platform designed to simplify the booking process for beauty services. Customers can easily find and book beauty professionals based on location, services offered, and availability. 
 
