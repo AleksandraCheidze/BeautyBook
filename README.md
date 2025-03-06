@@ -18,6 +18,7 @@ BeautyBook is a platform designed to simplify the booking process for beauty ser
 - **Authentication**: ![JWT](https://img.shields.io/badge/JWT-000000?style=flat&logo=json-web-tokens&logoColor=white) 
 - **API Documentation**: ![Swagger UI](https://img.shields.io/badge/Swagger_UI-85EA2D?style=flat&logo=swagger&logoColor=black) 
 - **File Storage**: ![Cloudinary](https://img.shields.io/badge/Cloudinary-FF6600?style=flat&logo=cloudinary&logoColor=white)
+- **Email Service**: ![Java Mail Sender](https://img.shields.io/badge/Java_Mail_Sender-26A153?style=flat&logo=java&logoColor=white)  
 - **Testing**: ![JUnit 5](https://img.shields.io/badge/JUnit_5-25A162?style=flat&logo=junit5&logoColor=white), ![Spring Security Test](https://img.shields.io/badge/Spring_Security_Test-6DB33F?style=flat&logo=spring-boot&logoColor=white)
 
   
