@@ -3,6 +3,14 @@
 You can check out the live version of the project <img src="logo3.png" alt="Logo" width="20" /> [BeautyBook](https://beauty-book-3-0.vercel.app/) <img src="logo3.png" alt="Logo" width="20" />
 
 BeautyBook is a platform designed to simplify the booking process for beauty services. Customers can easily find and book beauty professionals based on location, services offered, and availability 
+This is the backend module for the BeautyBook project. 
+
+## 🌐 Frontend
+
+The frontend of the BeautyBook project is developed by [Dmitrijs Loginovs](https://github.com/Loginofff)
+
+You can check out the frontend code here:
+[Frontend GitHub Repository](git@github.com:Loginofff/Beauty-book-3.0.git)
 
 📺 **Application Demo**
 
