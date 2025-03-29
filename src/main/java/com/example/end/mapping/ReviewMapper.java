@@ -2,22 +2,20 @@ package com.example.end.mapping;
 
 import com.example.end.dto.ReviewDto;
 import com.example.end.models.Review;
-import org.springframework.stereotype.Service;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-@Service
-public class ReviewMapper {
-    public ReviewDto toDto(Review review) {
-        return ReviewDto.builder()
-                .id(review.getId())
-                .clientId(review.getClient().getId())
-                .masterId(review.getMaster().getId())
-                .content(review.getContent())
-                .rating(review.getRating())
-                .createdAt(String.valueOf(review.getCreatedAt()))
-                .build();
-    }
+@Mapper(componentModel = "spring")
+public interface ReviewMapper {
+    @Mapping(source = "master.id", target = "masterId")
+    @Mapping(source = "client.id", target = "clientId")
+    @Mapping(source = "content", target = "comment")
+    ReviewDto toDto(Review review);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "master.id", source = "masterId")
+    @Mapping(target = "client.id", source = "clientId")
+    @Mapping(target = "content", source = "comment")
+    Review toEntity(ReviewDto reviewDto);
 }
-
-
-
-

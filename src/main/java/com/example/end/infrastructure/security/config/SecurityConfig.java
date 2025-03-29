@@ -49,14 +49,20 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(x -> x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(x -> x
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Разрешаем OPTIONS запросы
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/access").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/users/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/masters").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/by-category/{categoryId}").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/procedures/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/procedures").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/procedures/{id}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/procedures/by-category/{categoryId}").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/procedures").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/procedures/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/procedures/**").hasRole("ADMIN")
+                        .requestMatchers("/api/users/*/metadata/**").hasRole("MASTER")
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
                         .anyRequest().authenticated())
@@ -89,7 +95,7 @@ public class SecurityConfig {
                         .license(new License()
                                 .url("https://beauty-book-3-0.vercel.app/")))
                 .servers(Arrays.asList(
-                        new Server().url("http://localhost:8080").description("Local Server"),
+                        new Server().url("http://localhost:8081").description("Local Server"),
                         new Server().url("https://beautybook-production-c53c.up.railway.app").description("Production Server")
                 ));
     }

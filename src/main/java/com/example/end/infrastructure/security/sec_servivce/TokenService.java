@@ -1,6 +1,5 @@
 package com.example.end.infrastructure.security.sec_servivce;
 
-
 import com.example.end.infrastructure.security.sec_dto.AuthInfo;
 import com.example.end.models.User;
 import com.example.end.repository.UserRepository;
@@ -27,12 +26,10 @@ public class TokenService {
 
     public TokenService(
             @Value("${jwt.access.key}") String accessKeyBase64,
-            @Value("${jwt.refresh.key}") String refreshKeyBase64
-    ) {
+            @Value("${jwt.refresh.key}") String refreshKeyBase64) {
         this.accessKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessKeyBase64));
         this.refreshKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshKeyBase64));
     }
-
 
     public String generateAccessToken(@Nonnull User user) {
         LocalDateTime currentDate = LocalDateTime.now();
@@ -44,7 +41,7 @@ public class TokenService {
                 .expiration(expirationDate)
                 .signWith(accessKey)
                 .claim("user_id", user.getId())
-                .claim("roles", "ROLE_" + user.getRole().name())
+                .claim("roles", user.getRole().name())
                 .claim("firstName", user.getFirstName())
                 .claim("lastName", user.getLastName())
                 .claim("email", user.getEmail())

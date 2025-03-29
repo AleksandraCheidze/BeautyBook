@@ -1,6 +1,5 @@
 package com.example.end.models;
 
-
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
@@ -16,18 +15,26 @@ import java.util.Set;
 @ToString
 @Builder
 @Entity
-@Table(name = "procedures")
+@Table(name = "procedures", uniqueConstraints = {
+        @UniqueConstraint(columnNames = "name")
+})
 public class Procedure {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Pattern(regexp = "[A-Z][a-z]{3,}")
+    @Column(nullable = false)
     private String name;
 
-    private double price;
+    @Column(length = 1000)
+    private String description;
 
+    @Column(nullable = false)
+    private Double price;
+
+    @Column(nullable = false)
+    private boolean isActive = true;
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
@@ -46,18 +53,26 @@ public class Procedure {
 
     @Override
     public final boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
-        if (thisEffectiveClass != oEffectiveClass) return false;
+        if (this == o)
+            return true;
+        if (o == null)
+            return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy
+                ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass()
+                : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy
+                ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass()
+                : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass)
+            return false;
         Procedure procedure = (Procedure) o;
         return getId() != null && Objects.equals(getId(), procedure.getId());
     }
 
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+        return this instanceof HibernateProxy
+                ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode()
+                : getClass().hashCode();
     }
 }
-

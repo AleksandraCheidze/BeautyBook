@@ -15,32 +15,33 @@ public class FileValidationUtils {
     // Увеличим размер до 50 МБ
     private static final long MAX_FILE_SIZE = 50 * 1024 * 1024;
 
-    public static boolean isValidImage(MultipartFile file) {
-
+    public static String validateImage(MultipartFile file) {
         if (file == null) {
             logger.warn("File is null.");
-            return true;
+            return "File cannot be null";
         }
 
         String fileName = file.getOriginalFilename();
         if (fileName == null) {
             logger.warn("File name is null.");
-            return true;
+            return "File name cannot be null";
         }
 
         String fileExtension = getFileExtension(fileName).toLowerCase();
         if (!ALLOWED_EXTENSIONS.contains(fileExtension)) {
             logger.warn("Invalid file extension: {}", fileExtension);
-            return true;
+            return String.format("Invalid file format. Allowed formats are: %s", String.join(", ", ALLOWED_EXTENSIONS));
         }
 
         if (file.getSize() > MAX_FILE_SIZE) {
-            logger.warn("File size exceeds the limit: {} bytes. Max allowed size is {} bytes.", file.getSize(), MAX_FILE_SIZE);
-            return true;
+            logger.warn("File size exceeds the limit: {} bytes. Max allowed size is {} bytes.", file.getSize(),
+                    MAX_FILE_SIZE);
+            return String.format("File size exceeds the limit. Maximum allowed size is %d MB",
+                    MAX_FILE_SIZE / (1024 * 1024));
         }
 
         logger.info("File validation passed for file: {}", fileName);
-        return false;
+        return null;
     }
 
     private static String getFileExtension(String fileName) {

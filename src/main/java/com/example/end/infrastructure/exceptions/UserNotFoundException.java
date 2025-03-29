@@ -1,6 +1,4 @@
-package com.example.end.exceptions;
-
-import org.springframework.http.HttpStatus;
+package com.example.end.infrastructure.exceptions;
 
 /**
  * Custom exception to indicate that a user was not found or does not meet specific conditions.

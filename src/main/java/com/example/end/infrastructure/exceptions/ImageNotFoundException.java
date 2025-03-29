@@ -1,4 +1,4 @@
-package com.example.end.exceptions;
+package com.example.end.infrastructure.exceptions;
 
 public class ImageNotFoundException extends RuntimeException {
     public ImageNotFoundException(String message) {

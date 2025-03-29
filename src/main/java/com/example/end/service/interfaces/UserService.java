@@ -1,8 +1,6 @@
 package com.example.end.service.interfaces;
 
-
 import com.example.end.dto.*;
-import com.example.end.models.PortfolioPhoto;
 import com.example.end.models.User;
 
 import java.io.IOException;
@@ -10,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,51 +16,60 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public interface UserService {
 
-    @Transactional
-    UserDto register(NewUserDto newUserDto);
+        @Transactional
+        UserDto register(NewUserDto newUserDto);
 
-    UserDto authenticate(String email, String password);
+        UserDto authenticate(String email, String password);
 
+        UserDetailsDto getById(Long id);
 
-    UserDetailsDto getById(Long id);
+        void validateEmail(String email);
 
-    void validateEmail(String email);
+        @jakarta.transaction.Transactional
+        UserDetailsDto updateUserDetails(Long userId, NewUserDetailsDto userDetailsDto);
 
-    @jakarta.transaction.Transactional
-    UserDetailsDto updateUserDetails(Long userId, NewUserDetailsDto userDetailsDto);
+        UserDto getMasterById(Long id);
 
-    UserDto getMasterById(Long id);
+        UserDto getClientById(Long id);
 
-    UserDto getClientById(Long id);
+        void confirmMasterByEmail(String email);
 
-    void confirmMasterByEmail(String email);
+        List<UserDetailsDto> findUsersByCategoryId(Long categoryId);
 
-    List<UserDetailsDto> findUsersByCategoryId(Long categoryId);
+        Optional<User> findByEmail(String email);
 
-    Optional<User> findByEmail(String email);
+        @Cacheable(value = "userById", key = "#currentUserId")
+        UserDto getUserById(Long currentUserId);
 
+        List<UserDetailsDto> getAllUsers();
 
-    UserDto getUserById(Long currentUserId);
+        void deleteById(Long id);
 
-    List<UserDetailsDto> getAllUsers();
+        User findMasterUserByEmail(String email);
 
-    void deleteById(Long id);
+        @jakarta.transaction.Transactional
+        String uploadProfilePhoto(Long userId, MultipartFile file, long maxSize)
+                throws IOException, ExecutionException, InterruptedException;
 
-    User findMasterUserByEmail(String email);
+        @jakarta.transaction.Transactional
+        List<PortfolioImageDto> uploadPortfolioPhotos(Long userId, List<MultipartFile> files, long maxSize)
+                throws IOException, ExecutionException, InterruptedException;
 
-    @jakarta.transaction.Transactional
-    String uploadProfilePhoto(Long userId, MultipartFile file, long maxSize) throws IOException, ExecutionException, InterruptedException;
+        @jakarta.transaction.Transactional
+        void deleteProfilePhoto(Long userId)
+                throws IOException, ExecutionException, InterruptedException;
 
-    @jakarta.transaction.Transactional
-    List<PortfolioImageDto> uploadPortfolioPhotos(Long userId, List<MultipartFile> files, long maxSize) throws IOException, ExecutionException, InterruptedException;
+        @jakarta.transaction.Transactional
+        void deletePortfolioPhoto(Long userId, Long photoId) throws IOException;
 
-    void deleteProfilePhoto(Long userId) throws IOException, ExecutionException, InterruptedException;
+        List<UserDetailsDto> getAllMasters();
 
+        @jakarta.transaction.Transactional
+        String getProfilePhoto(Long userId) throws IOException;
 
-    void deletePortfolioPhoto(Long userId, Long photoId) throws IOException;
+        @jakarta.transaction.Transactional
+        String getPortfolioPhoto(Long userId, Long photoId) throws IOException;
 
-    List<UserDetailsDto> getAllMasters();
-
+        @jakarta.transaction.Transactional
+        List<PortfolioImageDto> getAllPortfolioPhotos(Long userId) throws IOException;
 }
-
-

@@ -25,4 +25,7 @@ public class NewProcedureDto {
     @Schema(description = "Price of the procedure", example = "50.0")
     private double price;
 
+    @NotNull(message = "Category ID cannot be null")
+    @Schema(description = "ID of the category this procedure belongs to", example = "1")
+    private Long categoryId;
 }

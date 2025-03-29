@@ -10,6 +10,8 @@ import io.jsonwebtoken.Claims;
 import jakarta.annotation.Nonnull;
 import jakarta.security.auth.message.AuthException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,14 +33,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final TokenService tokenService;
 
     /**
-     * Constructor to initialize the AuthenticationServiceImpl with required dependencies.
+     * Constructor to initialize the AuthenticationServiceImpl with required
+     * dependencies.
      *
-     * @param userService the service to interact with user data
-     * @param encoder the password encoder used for password verification
-     * @param tokenService the service used to handle token generation and validation
+     * @param userService  the service to interact with user data
+     * @param encoder      the password encoder used for password verification
+     * @param tokenService the service used to handle token generation and
+     *                     validation
      */
     @Autowired
-    public AuthenticationServiceImpl(UserServiceImpl userService, BCryptPasswordEncoder encoder, TokenService tokenService) {
+    public AuthenticationServiceImpl(UserServiceImpl userService, BCryptPasswordEncoder encoder,
+            TokenService tokenService) {
         this.userService = userService;
         this.refreshStorage = new HashMap<>();
         this.encoder = encoder;
@@ -46,12 +51,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     /**
-     * Authenticates a user based on their login credentials and generates JWT tokens (access and refresh).
+     * Authenticates a user based on their login credentials and generates JWT
+     * tokens (access and refresh).
      *
-     * @param loginRequest the login request containing the user's email and password
+     * @param loginRequest the login request containing the user's email and
+     *                     password
      * @return a TokenResponseDto containing the access and refresh tokens
      * @throws AuthException if the user is not found or the password is incorrect
      */
+    @CacheEvict(value = { "userDetails", "masterById", "clientById" }, key = "#loginRequest.email")
     public TokenResponseDto login(@Nonnull LoginRequestDto loginRequest) throws AuthException {
         String email = loginRequest.getEmail();
         Optional<User> userOptional = userService.findByEmail(email);
@@ -59,11 +67,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (userOptional.isPresent()) {
             User foundUser = userOptional.get();
 
-
             if (encoder.matches(loginRequest.getHashPassword(), foundUser.getHashPassword())) {
                 String accessToken = tokenService.generateAccessToken(foundUser);
                 String refreshToken = tokenService.generateRefreshToken(foundUser);
-
 
                 refreshStorage.put(email, refreshToken);
                 return new TokenResponseDto(accessToken, refreshToken);
@@ -79,8 +85,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      * Retrieves a new access token using a valid refresh token.
      *
      * @param refreshToken the refresh token used to generate a new access token
-     * @return a TokenResponseDto containing the new access token, or null if the refresh token is invalid
+     * @return a TokenResponseDto containing the new access token, or null if the
+     *         refresh token is invalid
      */
+    @Cacheable(value = "accessToken", key = "#refreshToken")
     public TokenResponseDto getAccessToken(@Nonnull String refreshToken) {
         // Validate the refresh token
         if (tokenService.validateRefreshToken(refreshToken)) {

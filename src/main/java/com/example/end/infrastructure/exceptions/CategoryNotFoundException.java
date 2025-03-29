@@ -1,4 +1,4 @@
-package com.example.end.exceptions;
+package com.example.end.infrastructure.exceptions;
 
 public class CategoryNotFoundException extends RuntimeException{
     public CategoryNotFoundException(String message) {

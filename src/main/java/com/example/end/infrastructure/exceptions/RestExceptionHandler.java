@@ -1,4 +1,4 @@
-package com.example.end.exceptions;
+package com.example.end.infrastructure.exceptions;
 
 import com.example.end.dto.StandardResponseDto;
 import org.springframework.http.ResponseEntity;

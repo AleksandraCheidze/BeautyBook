@@ -1,14 +1,18 @@
 package com.example.end.controller;
 
 import com.example.end.controller.api.UserMetadataApi;
+import com.example.end.dto.ImageUrlResponse;
 import com.example.end.dto.PortfolioImageDto;
-import com.example.end.dto.UserDetailsDto;
-import com.example.end.exceptions.InvalidFileException;
+import com.example.end.infrastructure.exceptions.InvalidFileException;
 import com.example.end.service.interfaces.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,89 +23,118 @@ import java.util.concurrent.ExecutionException;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/api/users/{userId}/metadata")
+@Tag(name = "User Metadata", description = "Operations related to user metadata (photos)")
 public class UserMetadataController implements UserMetadataApi {
-
     private static final Logger logger = LoggerFactory.getLogger(UserMetadataController.class);
+    private static final long MAX_FILE_SIZE = 50 * 1024 * 1024; // 50 MB
 
     private final UserService userService;
 
     @Override
-    @PostMapping(value = "/{userId}/profileImage", consumes = "multipart/form-data")
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserDetailsDto uploadProfilePhoto(@PathVariable Long userId, @RequestPart("file") MultipartFile file) {
-        logger.info("Начало загрузки фото профиля для пользователя с ID: {}", userId);
+    @PostMapping(value = "/profile-photo", consumes = "multipart/form-data")
+    @PreAuthorize("hasRole('MASTER')")
+    @Operation(summary = "Upload Profile Photo", description = "Upload a profile photo for the user. Access: Authorized users only")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<ImageUrlResponse> uploadProfilePhoto(
+            @PathVariable Long userId,
+            @RequestPart("file") MultipartFile file) throws IOException {
+
+        logger.info("Starting profile photo upload for user ID: {}", userId);
 
         try {
-            long maxSize = 30 * 1024 * 1024; // 30 MB
-            String imageUrl = userService.uploadProfilePhoto(userId, file, maxSize);
-
-            logger.info("Фото профиля загружено успешно: {}", imageUrl);
-
-            return UserDetailsDto.builder()
-                    .id(userId)
-                    .profileImageUrl(imageUrl)
-                    .build();
+            String imageUrl = userService.uploadProfilePhoto(userId, file, MAX_FILE_SIZE);
+            logger.info("Profile photo uploaded successfully: {}", imageUrl);
+            return ResponseEntity.ok(new ImageUrlResponse(imageUrl));
         } catch (InvalidFileException e) {
-            logger.warn("Некорректный формат или размер файла для пользователя ID: {}", userId);
-            throw new InvalidFileException("Invalid file format or size.");
-        } catch (IOException | ExecutionException | InterruptedException e) {
-            logger.error("Ошибка загрузки фото профиля пользователя ID: {}", userId, e);
+            logger.warn("Invalid file format or size for user ID: {}", userId);
+            throw e;
+        } catch (ExecutionException | InterruptedException e) {
+            logger.error("Error uploading profile photo for user ID: {}", userId, e);
             throw new RuntimeException("Error during file upload", e);
         }
     }
 
     @Override
-    @PostMapping(value = "/{userId}/portfolioImages", consumes = "multipart/form-data")
-    @ResponseStatus(HttpStatus.CREATED)
-    public UserDetailsDto uploadPortfolioPhotos(@PathVariable Long userId, @RequestPart("files") List<MultipartFile> files) {
-        logger.info("Начало загрузки портфолио для пользователя с ID: {}", userId);
+    @GetMapping("/profile-photo")
+    @PreAuthorize("permitAll()")
+    @Operation(summary = "Get Profile Photo", description = "Get user's profile photo. Access: All users")
+    public ResponseEntity<ImageUrlResponse> getProfilePhoto(@PathVariable Long userId) throws IOException {
+        String imageUrl = userService.getProfilePhoto(userId);
+        return ResponseEntity.ok(new ImageUrlResponse(imageUrl));
+    }
+
+    @Override
+    @DeleteMapping("/profile-photo")
+    @PreAuthorize("hasRole('MASTER')")
+    @Operation(summary = "Delete Profile Photo", description = "Delete user's profile photo. Access: Authorized users only")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<Void> deleteProfilePhoto(@PathVariable Long userId)
+            throws IOException, ExecutionException, InterruptedException {
+
+        logger.info("Starting profile photo deletion for user ID: {}", userId);
+        userService.deleteProfilePhoto(userId);
+        logger.info("Profile photo deleted successfully for user ID: {}", userId);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @Override
+    @PostMapping(value = "/portfolio-photos", consumes = "multipart/form-data")
+    @PreAuthorize("hasRole('MASTER')")
+    @Operation(summary = "Upload Portfolio Photos", description = "Upload multiple portfolio photos for the user. Access: Authorized users only")
+    @SecurityRequirement(name = "bearerAuth")
+    public List<PortfolioImageDto> uploadPortfolioPhotos(
+            @PathVariable Long userId,
+            @RequestPart("files") List<MultipartFile> files) throws IOException {
+
+        logger.info("Starting portfolio upload for user ID: {}", userId);
 
         try {
-            long maxSize = 30 * 1024 * 1024; // 30 MB
-            List<PortfolioImageDto> uploadedUrls = userService.uploadPortfolioPhotos(userId, files, maxSize);
-
-            logger.info("Портфолио загружено успешно: {} файлов", uploadedUrls.size());
-
-            return UserDetailsDto.builder()
-                    .id(userId)
-                    .portfolioImageUrls(uploadedUrls)
-                    .build();
+            List<PortfolioImageDto> uploadedUrls = userService.uploadPortfolioPhotos(userId, files, MAX_FILE_SIZE);
+            logger.info("Portfolio uploaded successfully: {} files", uploadedUrls.size());
+            return uploadedUrls;
         } catch (InvalidFileException e) {
-            logger.warn("Некорректный формат или размер файлов для пользователя ID: {}", userId);
-            throw new InvalidFileException("Invalid file format or size.");
-        } catch (IOException | ExecutionException | InterruptedException e) {
-            logger.error("Ошибка загрузки портфолио пользователя ID: {}", userId, e);
+            logger.warn("Invalid file format or size for user ID: {}", userId);
+            throw e;
+        } catch (ExecutionException | InterruptedException e) {
+            logger.error("Error uploading portfolio for user ID: {}", userId, e);
             throw new RuntimeException("Error during file upload", e);
         }
     }
 
     @Override
-    @DeleteMapping("/{userId}/profileImage")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteProfilePhoto(@PathVariable Long userId) {
-        logger.info("Запрос на удаление фото профиля пользователя ID: {}", userId);
-
-        try {
-            userService.deleteProfilePhoto(userId);
-            logger.info("Фото профиля удалено успешно для пользователя ID: {}", userId);
-        } catch (IOException | ExecutionException | InterruptedException e) {
-            logger.error("Ошибка удаления фото профиля пользователя ID: {}", userId, e);
-            throw new RuntimeException("Error deleting profile image", e);
-        }
+    @GetMapping("/portfolio-photos")
+    @PreAuthorize("permitAll()")
+    @Operation(summary = "Get All Portfolio Photos", description = "Get all portfolio photos for the user. Access: All users")
+    public List<PortfolioImageDto> getAllPortfolioPhotos(@PathVariable Long userId) throws IOException {
+        logger.info("Retrieving all portfolio photos for user ID: {}", userId);
+        return userService.getAllPortfolioPhotos(userId);
     }
 
     @Override
-    @DeleteMapping("/{userId}/portfolioImage/{photoId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deletePortfolioPhoto(@PathVariable Long userId, @PathVariable Long photoId) {
-        logger.info("Запрос на удаление фото ID: {} из портфолио пользователя ID: {}", photoId, userId);
+    @GetMapping("/portfolio-photos/{photoId}")
+    @PreAuthorize("permitAll()")
+    @Operation(summary = "Get Portfolio Photo", description = "Get specific portfolio photo. Access: All users")
+    public ResponseEntity<ImageUrlResponse> getPortfolioPhoto(
+            @PathVariable Long userId,
+            @PathVariable Long photoId) throws IOException {
+        String imageUrl = userService.getPortfolioPhoto(userId, photoId);
+        return ResponseEntity.ok(new ImageUrlResponse(imageUrl));
+    }
 
-        try {
-            userService.deletePortfolioPhoto(userId, photoId);
-            logger.info("Фото портфолио ID: {} успешно удалено для пользователя ID: {}", photoId, userId);
-        } catch (IOException e) {
-            logger.error("Ошибка удаления фото портфолио ID: {} пользователя ID: {}", photoId, userId, e);
-            throw new RuntimeException("Error deleting portfolio image", e);
-        }
+    @Override
+    @DeleteMapping("/portfolio-photos/{photoId}")
+    @PreAuthorize("hasRole('MASTER')")
+    @Operation(summary = "Delete Portfolio Photo", description = "Delete specific portfolio photo. Access: Authorized users only")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<Void> deletePortfolioPhoto(
+            @PathVariable Long userId,
+            @PathVariable Long photoId) throws IOException {
+        logger.info("Starting portfolio photo deletion for user ID: {} and photo ID: {}", userId, photoId);
+        userService.deletePortfolioPhoto(userId, photoId);
+        logger.info("Portfolio photo deleted successfully for user ID: {} and photo ID: {}", userId, photoId);
+
+        return ResponseEntity.ok().build();
     }
 }

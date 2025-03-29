@@ -1,8 +1,16 @@
-## BeautyBook – A platform for connecting beauty service providers with customers
+## <img src="logo3.png" alt="Logo" width="50" /> BeautyBook – A platform for connecting beauty service providers with customers, featuring a booking system for easy appointment scheduling
 
-You can check out the live version of the project 🌐 [BeautyBook](https://beauty-book-3-0.vercel.app/) 🌐
+You can check out the live version of the project <img src="logo3.png" alt="Logo" width="20" /> [BeautyBook](https://beauty-book-3-0.vercel.app/) <img src="logo3.png" alt="Logo" width="20" />
 
 BeautyBook is a platform designed to simplify the booking process for beauty services. Customers can easily find and book beauty professionals based on location, services offered, and availability 
+This is the backend module for the BeautyBook project. 
+
+## 🌐 Frontend
+
+The frontend of the BeautyBook project is developed by [Dmitrijs Loginovs](https://github.com/Loginofff)
+
+You can check out the frontend code here:
+[BeautyBook Frontend](https://github.com/Loginofff/Beauty-book-3.0.git)
 
 📺 **Application Demo**
 
@@ -10,102 +18,32 @@ BeautyBook is a platform designed to simplify the booking process for beauty ser
 ![Demo](Untitledvideo-MadewithClipchamp2-ezgif.com-crop.gif)
 
 
-🔧 Tech Stack
+### 🔧 **Tech Stack**
 
-Language : Java 17
+- **Language**: ![Java](https://img.shields.io/badge/Java-ED8B00?style=flat&logo=openjdk&logoColor=white) 
+- **Framework**: ![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=flat&logo=spring-boot&logoColor=white) 
+- **Database**: ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=flat&logo=postgresql&logoColor=white)
+- **Authentication**: ![JWT](https://img.shields.io/badge/JWT-000000?style=flat&logo=json-web-tokens&logoColor=white) 
+- **API Documentation**: ![Swagger UI](https://img.shields.io/badge/Swagger_UI-85EA2D?style=flat&logo=swagger&logoColor=black) 
+- **File Storage**: ![Cloudinary](https://img.shields.io/badge/Cloudinary-FF6600?style=flat&logo=cloudinary&logoColor=white)
+- **Email Service**: ![Java Mail Sender](https://img.shields.io/badge/Java_Mail_Sender-26A153?style=flat&logo=java&logoColor=white)  
+- **Testing**: ![JUnit 5](https://img.shields.io/badge/JUnit_5-25A162?style=flat&logo=junit5&logoColor=white), ![Spring Security Test](https://img.shields.io/badge/Spring_Security_Test-6DB33F?style=flat&logo=spring-boot&logoColor=white)
 
-Framework : Spring Boot (3.2.1)
+  
+### 📌 **API Features**
 
-Database : PostgreSQL
+#### Booking Management
+- ✅ Create, Update, Cancel bookings
+- ✅ Find bookings by user ID and status
 
-Authentication : JWT (JSON Web Tokens)
+#### Category Management
+- ✅ Create, update, and delete categories (ADMIN only)
 
-API Documentation : OpenAPI (Swagger UI)
+#### Procedure Management
+- ✅ Get all procedures, create, update, delete procedures (ADMIN only)
 
-File Storage : Cloudinary
-
-Data Validation : Bean Validation
-
-Testing Frameworks : JUnit 5, Spring Security Test, Spring Boot Test
-
-Other Libraries : Lombok, JavaFaker
-
-Deployment: Railway
-
-📌 API Features
-Booking Management
-
-✅ Create bookings (available to all authorized users)
-
-✅ Update booking status (available to ADMIN)
-
-✅ Cancel bookings (available to all authorized users)
-
-✅ Find bookings by user ID and status (available to all authorized users)
-
-
-Category Management
-
-✅ Get all categories (available to all users)
-
-✅ Get a specific category by ID (available to all users)
-
-✅ Create, update, and delete categories (available to ADMIN)
-
-
-Procedure Management
-
-✅ Create, update, and delete procedures (available to ADMIN)
-
-✅ Get all procedures (available to all users)
-
-✅ Find procedures by category ID (available to all users)
-
-
-Review System
-
-✅ Get reviews by master ID (available to all users)
-
-✅ Add reviews (available to authorized clients)
-
-✅ Delete reviews (available to ADMIN)
-
-✅ Get master ratings (available to all users)
-
-
-User Management
-
-✅ Get user details by ID (available to all users)
-
-✅ Register new users (available to all users)
-
-✅ Update or add user details (available to authorized masters)
-
-✅ Find users by category ID (available to all users)
-
-✅ Get all users (available to ADMIN)
-
-✅ Get all masters (available to all users)
-
-✅ Delete users by ID (available to ADMIN)
-
-✅ Confirm masters by email (available to ADMIN)
-
-
-Metadata Management
-
-✅ Upload profile photos (available to authorized users)
-
-✅ Upload portfolio photos (available to authorized users)
-
-✅ Delete profile photos (available to authorized users)
-
-✅ Delete specific portfolio photos (available to authorized users)
-
-
-Messaging
-
-✅ Send messages to admin (available to all users)
+#### User Management
+- ✅ Register, update, and delete users (with roles)
 
 🏗 Planned Features
 
@@ -156,6 +94,10 @@ Swagger UI is available at:
 
 [Swagger](http://localhost:8080/swagger-ui/index.html)
 
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
 ## 📑 Project Structure  
 
 ```
@@ -173,16 +115,68 @@ Swagger UI is available at:
  ┃ ┃ ┃ ┣ 📂 service        # Business logic
  ┃ ┃ ┃ ┣ 📂 utils          # Utility classes
  ┃ ┃ ┃ ┗ 📂 validation     # Validation logic
- ┃ ┃ ┃ ┗ 📄 BeautyProjectApplication.java  # Main Spring Boot application
- ┃ ┣ 📂 resources          # Configuration files
- ┃ ┣ 📂 test
- ┃ ┃ ┣ 📂 java/com.example.end
- ┃ ┃ ┃ ┣ 📂 service
- ┃ ┃ ┃ ┃ ┗ 📄 UserServiceImplTest.java  # Unit tests for service layer
- ┃ ┃ ┃ ┗ 📂 util
- ┃ ┗ 📂 resources
- ┣ 📄 application.yml   # Spring Boot settings
- ┗ 📄 README.md         # Documentation
+ 
+
+## Environment Variables Setup
+
+The application uses environment variables for configuration. To set them up:
+
+1. Create a `.env` file at the root of the project
+2. Copy the contents from `.env.example` and fill in your values
+3. The app will automatically load these variables at startup
+
+Required environment variables:
+- `ACCESS_KEY` - JWT access token secret key
+- `REFRESH_KEY` - JWT refresh token secret key
+- `CLOUDINARY_API_KEY` - Cloudinary API key
+- `CLOUDINARY_API_SECRET` - Cloudinary API secret
+- `CLOUDINARY_CLOUD_NAME` - Cloudinary cloud name
+- `SPRING_DATASOURCE_URL` - Database connection URL
+- `SPRING_DATASOURCE_USERNAME` - Database username
+- `SPRING_DATASOURCE_PASSWORD` - Database password
+- `SPRING_MAIL_USERNAME` - Email service username
+- `SPRING_MAIL_PASSWORD` - Email service password
+- `SPRING_REDIS_URL` - Redis connection URL
+
+## Redis Caching
+
+Redis is used to enhance API performance through caching, significantly reducing response times.
+
+### Local Development
+
+#### Windows
+1. Download Redis for Windows from [GitHub](https://github.com/tporadowski/redis/releases)
+2. Install and start the Redis server
+3. Redis runs on port 6379 by default
+
+#### Linux/Mac
+```bash
+# For Ubuntu/Debian
+sudo apt update
+sudo apt install redis-server
+sudo systemctl start redis-server
+
+# For Mac OS X via Homebrew
+brew install redis
+brew services start redis
+```
+
+### Production (Railway)
+In production environment on Railway, the Redis instance is provided by the platform. The connection URL is automatically passed to the application through the `SPRING_REDIS_URL` environment variable.
+
+### Configuration
+Redis is configured automatically when the application starts with the following parameters:
+- **Local development**: redis://localhost:6379
+- **Production**: Redis on Railway using the URL from environment variable
+- **Cache TTL**: 1 hour for general cache, with custom settings for different cache types:
+  - Categories cache: 30 minutes
+  - Procedures cache: 20 minutes
+
+### Verifying Redis Status
+```bash
+redis-cli ping
+```
+If Redis is running, it will respond with "PONG".
 
 
 

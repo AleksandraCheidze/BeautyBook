@@ -1,6 +1,5 @@
 package com.example.end.dto;
 
-
 import com.example.end.models.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
@@ -11,12 +10,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-
-@Getter
-@Setter
+@Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Schema(description = "DTO representing a user")
 public class UserDto {
 
@@ -39,7 +36,6 @@ public class UserDto {
     @Schema(description = "Email address of the user", example = "john.doe@example.com")
     private String email;
 
-
     @Schema(description = "Set of roles assigned to the user")
     @NotNull(message = "Role cannot be null")
     private User.Role role;
@@ -50,6 +46,4 @@ public class UserDto {
     @Schema(description = "Refresh token of the user")
     private String refreshToken;
 
-
 }
-

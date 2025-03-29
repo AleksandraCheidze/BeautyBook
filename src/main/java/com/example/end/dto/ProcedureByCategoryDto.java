@@ -2,16 +2,18 @@ package com.example.end.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
-@AllArgsConstructor
+import java.io.Serializable;
+
+@Getter
+@Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Builder
-public class ProcedureByCategoryDto {
+public class ProcedureByCategoryDto implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Unique identifier of the procedure", example = "1")
     private Long id;
 
@@ -25,7 +27,7 @@ public class ProcedureByCategoryDto {
     @Max(value = 500, message = "Price must be at most 500")
     @NotNull(message = "Price cannot be null")
     @Schema(description = "Price of the procedure", example = "50.0")
-    private double price;
+    private Double price;
 
     @NotNull(message = "Category ID cannot be null")
     @Schema(description = "Category ID associated with the procedure", example = "1")

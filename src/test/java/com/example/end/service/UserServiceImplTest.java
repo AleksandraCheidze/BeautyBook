@@ -1,8 +1,8 @@
 package com.example.end.service;
 
 import com.example.end.dto.*;
-import com.example.end.exceptions.RestException;
-import com.example.end.exceptions.UserNotFoundException;
+import com.example.end.infrastructure.exceptions.RestException;
+import com.example.end.infrastructure.exceptions.UserNotFoundException;
 import com.example.end.infrastructure.mail.ProjectMailSender;
 import com.example.end.mapping.UserMapper;
 import com.example.end.models.Category;
