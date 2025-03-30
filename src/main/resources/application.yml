@@ -17,11 +17,18 @@ spring:
       on-profile: local
   data:
     redis:
-      url: ${SPRING_REDIS_URL:redis://localhost:6379}
+      url: ${SPRING_REDIS_URL}
+      connect-timeout: 30000
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 2
+          max-wait: -1ms
   cache:
     type: redis
     redis:
-      time-to-live: 3600000
+      time-to-live: 86400000
       cache-null-values: false
   datasource:
     url: ${SPRING_DATASOURCE_URL}
@@ -92,15 +99,13 @@ spring:
   data:
     redis:
       url: ${SPRING_REDIS_URL}
-      ssl:
-        enabled: true
-      timeout: 10000
+      connect-timeout: 30000
       lettuce:
-        shutdown-timeout: 200ms
         pool:
-          max-active: 20
-          max-idle: 10
-          min-idle: 5
+          max-active: 8
+          max-idle: 8
+          min-idle: 2
+          max-wait: -1ms
   cache:
     type: redis
     redis:
