@@ -34,6 +34,7 @@ public class Procedure {
     private Double price;
 
     @Column(nullable = false)
+    @Builder.Default
     private boolean isActive = true;
 
     @ToString.Exclude
