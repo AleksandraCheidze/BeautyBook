@@ -99,18 +99,8 @@ spring:
   data:
     redis:
       url: ${SPRING_REDIS_URL}
-      connect-timeout: 30000
-      lettuce:
-        pool:
-          max-active: 8
-          max-idle: 8
-          min-idle: 2
-          max-wait: -1ms
   cache:
-    type: redis
-    redis:
-      time-to-live: 86400000
-      cache-null-values: false
+    type: none
   jpa:
     hibernate:
       ddl-auto: none
