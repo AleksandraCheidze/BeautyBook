@@ -1,28 +1,26 @@
-FROM openjdk:17-slim AS builder
-WORKDIR /app
+FROM maven:3.9.6-eclipse-temurin-17 AS builder
 
-# Установка Maven
-RUN apt-get update && \
-    apt-get install -y maven && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+WORKDIR /app
 
 # Копируем только файлы, необходимые для загрузки зависимостей
 COPY pom.xml .
+COPY .mvn/ .mvn/
+COPY mvnw .
+COPY mvnw.cmd .
 
-# Загружаем зависимости и кэшируем их
-RUN mvn dependency:go-offline && \
-    mkdir -p /root/.m2/repository && \
-    chmod -R 777 /root/.m2
+# Загружаем зависимости
+RUN --mount=type=cache,target=/root/.m2 mvn dependency:go-offline
 
 # Копируем исходный код
 COPY src ./src
 
-# Собираем приложение
-RUN mvn clean package -DskipTests
+# Собираем приложение с подробным выводом
+RUN --mount=type=cache,target=/root/.m2 mvn clean package -DskipTests -X
 
-FROM openjdk:17-slim
+FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
+
+ENV JAVA_OPTS="-Xms512m -Xmx1024m"
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
