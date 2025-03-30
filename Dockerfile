@@ -2,6 +2,10 @@ FROM maven:3.9.6-eclipse-temurin-17 AS builder
 
 WORKDIR /app
 
+# Создаем и настраиваем директорию для кэша Maven
+RUN mkdir -p /root/.m2 && \
+    chmod -R 777 /root/.m2
+
 # Копируем только файлы, необходимые для загрузки зависимостей
 COPY pom.xml .
 COPY .mvn/ .mvn/
@@ -9,13 +13,13 @@ COPY mvnw .
 COPY mvnw.cmd .
 
 # Загружаем зависимости
-RUN --mount=type=cache,id=railway-cache-maven,target=/root/.m2 mvn dependency:go-offline
+RUN mvn dependency:go-offline
 
 # Копируем исходный код
 COPY src ./src
 
 # Собираем приложение с подробным выводом
-RUN --mount=type=cache,id=railway-cache-maven,target=/root/.m2 mvn clean package -DskipTests -X
+RUN mvn clean package -DskipTests -X
 
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
