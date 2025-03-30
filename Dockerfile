@@ -9,13 +9,13 @@ COPY mvnw .
 COPY mvnw.cmd .
 
 # Загружаем зависимости
-RUN --mount=type=cache,id=maven-cache,target=/root/.m2 mvn dependency:go-offline
+RUN --mount=type=cache,id=railway-cache-maven,target=/root/.m2 mvn dependency:go-offline
 
 # Копируем исходный код
 COPY src ./src
 
 # Собираем приложение с подробным выводом
-RUN --mount=type=cache,id=maven-cache,target=/root/.m2 mvn clean package -DskipTests -X
+RUN --mount=type=cache,id=railway-cache-maven,target=/root/.m2 mvn clean package -DskipTests -X
 
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
