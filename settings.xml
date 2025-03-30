@@ -5,9 +5,9 @@
     
     <mirrors>
         <mirror>
-            <id>google-maven-central</id>
-            <name>Google Maven Central</name>
-            <url>https://maven.google.com/</url>
+            <id>jboss-public-repository</id>
+            <name>JBoss Public Maven Repository Group</name>
+            <url>https://repository.jboss.org/nexus/content/groups/public/</url>
             <mirrorOf>central</mirrorOf>
         </mirror>
         <mirror>
