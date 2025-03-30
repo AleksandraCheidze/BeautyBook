@@ -11,4 +11,9 @@ logs/
 README.md
 Dockerfile
 .dockerignore
+node_modules/
+dist/
+build/
+tmp/
+temp/
 

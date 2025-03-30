@@ -1,5 +1,11 @@
-FROM maven:3.9-eclipse-temurin-17 AS builder
+FROM openjdk:17-slim AS builder
 WORKDIR /app
+
+# Установка Maven
+RUN apt-get update && \
+    apt-get install -y maven && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Копируем только файлы, необходимые для загрузки зависимостей
 COPY pom.xml .
@@ -15,7 +21,7 @@ COPY src ./src
 # Собираем приложение
 RUN mvn clean package -DskipTests
 
-FROM eclipse-temurin:17-jre-alpine
+FROM openjdk:17-slim
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 EXPOSE 8080
