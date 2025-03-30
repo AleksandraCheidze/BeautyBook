@@ -258,7 +258,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @CacheEvict(value = { "userDetails", "masterById" }, key = "#userId")
     public List<PortfolioImageDto> uploadPortfolioPhotos(Long userId, List<MultipartFile> files, long maxSize)
-            throws IOException, ExecutionException, InterruptedException {
+    {
         for (MultipartFile file : files) {
             String validationError = FileValidationUtils.validateImage(file);
             if (validationError != null) {
@@ -498,6 +498,10 @@ public class UserServiceImpl implements UserService {
         }
 
         List<User> users = userRepository.findUsersByCategoryId(categoryId);
+        if (users.isEmpty()) {
+            throw new ResourceNotFoundException("User for category with ID " + categoryId + " not found.");
+        }
+
         return users.stream()
                 .map(userMapper::userDetailsToDto)
                 .collect(Collectors.toList());
@@ -534,11 +538,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void deleteById(Long id) {
         User user = findUserByIdOrThrow(id);
-
-        if (!isCurrentUserOrAdmin(user)) {
-            throw new ForbiddenException("You don't have permission to delete this user");
-        }
-
         userRepository.delete(user);
         log.info("User with id {} has been deleted", id);
     }
@@ -552,17 +551,18 @@ public class UserServiceImpl implements UserService {
 
     private User findUserByIdOrThrow(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found for id: " + userId));
     }
 
     private User findUserByEmailOrThrow(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User", email));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found for email: " + email));
     }
 
     private User findUserByIdAndRole(Long userId, User.Role role) {
         return userRepository.findByIdAndRole(userId, role)
-                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User not found for id: " + userId + " with role: " + role));
     }
 
     private boolean isCurrentUserOrAdmin(User user) {
