@@ -2,18 +2,25 @@ FROM amazoncorretto:17 AS builder
 
 WORKDIR /app
 
-# Устанавливаем Maven
-RUN yum install -y maven && \
+# Устанавливаем Maven и необходимые инструменты
+RUN yum update -y && \
+    yum install -y maven wget && \
     yum clean all && \
     mkdir -p /root/.m2 && \
     chmod -R 777 /root/.m2
+
+# Проверяем версии
+RUN java -version && mvn -version
 
 # Копируем файлы проекта
 COPY pom.xml .
 COPY src ./src
 
-# Собираем приложение
-RUN mvn clean package -DskipTests
+# Загружаем зависимости отдельно
+RUN mvn dependency:resolve -B -X
+
+# Собираем приложение с подробным логированием
+RUN mvn clean package -B -X -DskipTests
 
 FROM amazoncorretto:17-alpine
 WORKDIR /app
