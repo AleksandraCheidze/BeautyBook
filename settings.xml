@@ -5,6 +5,12 @@
     
     <mirrors>
         <mirror>
+            <id>google-maven-central</id>
+            <name>Google Maven Central</name>
+            <url>https://maven.google.com/</url>
+            <mirrorOf>central</mirrorOf>
+        </mirror>
+        <mirror>
             <id>maven-default-http-blocker</id>
             <mirrorOf>external:http:*</mirrorOf>
             <name>Pseudo repository to mirror external repositories initially using HTTP.</name>
