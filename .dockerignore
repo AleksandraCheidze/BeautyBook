@@ -1,24 +1,29 @@
+# Git
 .git
 .gitignore
-.env
-.env.*
-target/
+
+# IDE
 .idea/
 .vscode/
 *.iml
+.cursor/
+
+# Logs
 logs/
-README.md
-node_modules/
-dist/
-build/
-tmp/
-temp/
-*.class
 *.log
-.settings/
-.project
-.classpath
-.factorypath
-*.jar
+
+# Build
+target/
 !target/*.jar
 
+# Environment
+.env
+.env.*
+!.env.example
+
+# Other
+README.md
+LICENSE
+*.md
+*.png
+*.gif 
