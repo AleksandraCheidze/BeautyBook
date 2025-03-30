@@ -1,9 +1,11 @@
-FROM adoptopenjdk/maven-openjdk17:latest AS builder
+FROM amazoncorretto:17 AS builder
 
 WORKDIR /app
 
-# Создаем и настраиваем директорию для кэша Maven
-RUN mkdir -p /root/.m2 && \
+# Устанавливаем Maven
+RUN yum install -y maven && \
+    yum clean all && \
+    mkdir -p /root/.m2 && \
     chmod -R 777 /root/.m2
 
 # Копируем только файлы, необходимые для загрузки зависимостей
@@ -21,10 +23,10 @@ COPY src ./src
 # Собираем приложение с подробным выводом
 RUN mvn clean package -DskipTests -X
 
-FROM adoptopenjdk/openjdk17:alpine-jre
+FROM amazoncorretto:17-alpine
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 
 ENV JAVA_OPTS="-Xms512m -Xmx1024m"
 EXPOSE 8080
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"] 
