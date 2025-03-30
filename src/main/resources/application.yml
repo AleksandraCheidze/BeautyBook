@@ -78,7 +78,7 @@ logging:
 spring:
   config:
     activate:
-      on-profile: prod
+      on-profile: production
   datasource:
     url: jdbc:postgresql://${PROD_DB_HOST}:${PROD_DB_PORT}/${PROD_DB_NAME}
     username: ${PROD_DB_USERNAME}
@@ -92,10 +92,19 @@ spring:
   data:
     redis:
       url: ${SPRING_REDIS_URL}
+      ssl:
+        enabled: true
+      timeout: 10000
+      lettuce:
+        shutdown-timeout: 200ms
+        pool:
+          max-active: 20
+          max-idle: 10
+          min-idle: 5
   cache:
     type: redis
     redis:
-      time-to-live: 3600000
+      time-to-live: 86400000
       cache-null-values: false
   jpa:
     hibernate:
