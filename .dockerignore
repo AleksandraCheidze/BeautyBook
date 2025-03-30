@@ -9,4 +9,6 @@ target/
 .mvn/
 logs/
 README.md
+Dockerfile
+.dockerignore
 
