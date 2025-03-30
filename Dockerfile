@@ -1,8 +1,11 @@
-FROM amazoncorretto:17 AS builder
-
+# Этап 1: Кэширование зависимостей Maven
+FROM amazoncorretto:17 AS maven-cache
 WORKDIR /app
 
-# Устанавливаем Maven 3.9.6
+# Копируем файлы Maven
+COPY pom.xml .
+COPY settings.xml /root/.m2/
+
 RUN yum update -y && \
     yum install -y wget && \
     wget https://dlcdn.apache.org/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.tar.gz && \
@@ -11,27 +14,20 @@ RUN yum update -y && \
     yum clean all && \
     rm -f apache-maven-3.9.6-bin.tar.gz
 
-# Настраиваем переменные окружения для Maven
 ENV MAVEN_HOME=/opt/maven
 ENV PATH=${MAVEN_HOME}/bin:${PATH}
+ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+RUN mvn dependency:go-offline -B
 
-# Создаем и настраиваем директорию для кэша Maven
-RUN mkdir -p /root/.m2 && chmod -R 777 /root/.m2
-
-# Проверяем версии
-RUN java -version && mvn -version
-
-# Копируем файлы проекта
-COPY pom.xml .
+# Этап 2: Сборка приложения
+FROM maven-cache AS builder
 COPY src ./src
+RUN mvn package -B -DskipTests -T 1C
 
-# Собираем приложение с подробным логированием
-RUN mvn clean package -B -DskipTests
-
+# Этап 3: Финальный образ
 FROM amazoncorretto:17-alpine
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
-
 ENV JAVA_OPTS="-Xms512m -Xmx1024m"
 EXPOSE 8080
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]

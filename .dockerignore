@@ -8,11 +8,17 @@ target/
 *.iml
 logs/
 README.md
-Dockerfile
-.dockerignore
 node_modules/
 dist/
 build/
 tmp/
 temp/
+*.class
+*.log
+.settings/
+.project
+.classpath
+.factorypath
+*.jar
+!target/*.jar
 
