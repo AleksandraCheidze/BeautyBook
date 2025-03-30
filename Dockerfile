@@ -1,27 +1,21 @@
-FROM adoptopenjdk/maven-openjdk17:latest AS builder
+FROM amazoncorretto:17 AS builder
 
 WORKDIR /app
 
-# Создаем и настраиваем директорию для кэша Maven
-RUN mkdir -p /root/.m2 && \
+# Устанавливаем Maven
+RUN yum install -y maven && \
+    yum clean all && \
+    mkdir -p /root/.m2 && \
     chmod -R 777 /root/.m2
 
-# Копируем только файлы, необходимые для загрузки зависимостей
+# Копируем файлы проекта
 COPY pom.xml .
-COPY .mvn/ .mvn/
-COPY mvnw .
-COPY mvnw.cmd .
-
-# Загружаем зависимости
-RUN mvn dependency:go-offline
-
-# Копируем исходный код
 COPY src ./src
 
-# Собираем приложение с подробным выводом
-RUN mvn clean package -DskipTests -X
+# Собираем приложение
+RUN mvn clean package -DskipTests
 
-FROM adoptopenjdk/openjdk17:alpine-jre
+FROM amazoncorretto:17-alpine
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 
