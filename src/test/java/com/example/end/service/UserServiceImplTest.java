@@ -6,7 +6,6 @@ import com.example.end.infrastructure.exceptions.RestException;
 import com.example.end.infrastructure.exceptions.UserNotFoundException;
 import com.example.end.infrastructure.mail.ProjectMailSender;
 import com.example.end.mapping.UserMapper;
-import com.example.end.models.Category;
 import com.example.end.models.User;
 import com.example.end.repository.CategoryRepository;
 import com.example.end.repository.UserRepository;
@@ -29,7 +28,6 @@ import static org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
