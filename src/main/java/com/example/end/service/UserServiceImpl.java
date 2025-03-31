@@ -429,7 +429,11 @@ public class UserServiceImpl implements UserService {
     @Cacheable(value = "allMasters")
     public List<UserDetailsDto> getAllMasters() {
         List<User> masters = userRepository.findAllByRole(User.Role.MASTER);
+        if (masters == null || masters.isEmpty()) {
+            return Collections.emptyList();
+        }
         return masters.stream()
+                .filter(User::isActive)
                 .map(userMapper::userDetailsToDto)
                 .collect(Collectors.toList());
     }

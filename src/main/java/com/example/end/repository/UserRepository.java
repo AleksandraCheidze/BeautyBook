@@ -18,14 +18,14 @@ public interface UserRepository extends JpaRepository<User,Long> {
     Optional<User> findByEmail(String email);
     boolean existsByEmail(String email);
     Optional<User> findByIdAndRole(Long id, User.Role role);
+    
+    @Query("SELECT DISTINCT u FROM User u WHERE u.role = 'MASTER' AND u.isActive = true")
     List<User> findAllByRole(User.Role role);
 
     @Query("SELECT DISTINCT u FROM User u " +
-           "LEFT JOIN FETCH u.categories c " +
+           "JOIN u.categories c " +
            "LEFT JOIN FETCH u.procedures " +
-           "LEFT JOIN FETCH u.portfolioPhotos " +
-           "LEFT JOIN FETCH u.reviewsAsMaster " +
-           "WHERE c.id = :categoryId")
+           "WHERE c.id = :categoryId AND u.role = 'MASTER' AND u.isActive = true")
     List<User> findUsersByCategoryId(@Param("categoryId") Long categoryId);
 
 }
