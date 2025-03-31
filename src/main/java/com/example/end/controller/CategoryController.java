@@ -17,7 +17,6 @@ import java.util.List;
  * Controller for managing categories.
  * Provides endpoints for creating, updating, deleting, and retrieving categories.
  */
-@CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/categories")
