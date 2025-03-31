@@ -20,9 +20,13 @@ public interface UserRepository extends JpaRepository<User,Long> {
     Optional<User> findByIdAndRole(Long id, User.Role role);
     List<User> findAllByRole(User.Role role);
 
-    @Query("SELECT u FROM User u JOIN u.categories c WHERE c.id = :categoryId")
-    List<User> findUsersByCategoryId(@Param("categoryId")  Long categoryId);
-
+    @Query("SELECT DISTINCT u FROM User u " +
+           "LEFT JOIN FETCH u.categories c " +
+           "LEFT JOIN FETCH u.procedures " +
+           "LEFT JOIN FETCH u.portfolioPhotos " +
+           "LEFT JOIN FETCH u.reviewsAsMaster " +
+           "WHERE c.id = :categoryId")
+    List<User> findUsersByCategoryId(@Param("categoryId") Long categoryId);
 
 }
 
