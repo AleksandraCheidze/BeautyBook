@@ -43,13 +43,19 @@ public class JpaConfig {
         em.setPackagesToScan("com.example.end.models");
 
         HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        vendorAdapter.setShowSql(Boolean.parseBoolean(env.getProperty("spring.jpa.show-sql", "false")));
+        vendorAdapter.setGenerateDdl(false);
+        vendorAdapter.setDatabasePlatform(env.getProperty("spring.jpa.database-platform"));
         em.setJpaVendorAdapter(vendorAdapter);
 
         Properties properties = new Properties();
-        properties.setProperty("hibernate.hbm2ddl.auto", env.getProperty("spring.jpa.hibernate.ddl-auto", "update"));
+        properties.setProperty("hibernate.hbm2ddl.auto", env.getProperty("spring.jpa.hibernate.ddl-auto", "none"));
         properties.setProperty("hibernate.show_sql", env.getProperty("spring.jpa.show-sql", "false"));
         properties.setProperty("hibernate.format_sql", env.getProperty("spring.jpa.properties.hibernate.format_sql", "false"));
-        properties.setProperty("hibernate.dialect", env.getProperty("spring.jpa.properties.hibernate.dialect"));
+        properties.setProperty("hibernate.dialect", env.getProperty("spring.jpa.database-platform"));
+        properties.setProperty("hibernate.temp.use_jdbc_metadata_defaults", "false");
+        properties.setProperty("hibernate.physical_naming_strategy", "org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl");
+        properties.setProperty("hibernate.implicit_naming_strategy", "org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl");
 
         em.setJpaProperties(properties);
 
