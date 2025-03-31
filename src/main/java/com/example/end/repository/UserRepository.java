@@ -32,6 +32,8 @@ public interface UserRepository extends JpaRepository<User,Long> {
     @Query("SELECT DISTINCT u FROM User u " +
            "LEFT JOIN FETCH u.categories " +
            "LEFT JOIN FETCH u.procedures " +
+           "LEFT JOIN FETCH u.reviewsAsMaster " +
+           "LEFT JOIN FETCH u.portfolioPhotos " +
            "WHERE u.role = 'MASTER' AND u.isActive = true")
     List<User> findAllActiveMasters();
 }

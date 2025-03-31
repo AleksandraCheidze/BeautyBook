@@ -428,13 +428,29 @@ public class UserServiceImpl implements UserService {
     @Override
     @Cacheable(value = "allMasters")
     public List<UserDetailsDto> getAllMasters() {
-        List<User> masters = userRepository.findAllActiveMasters();
-        if (masters == null || masters.isEmpty()) {
+        log.debug("Fetching all active masters");
+        try {
+            List<User> masters = userRepository.findAllActiveMasters();
+            if (masters == null || masters.isEmpty()) {
+                log.debug("No active masters found");
+                return Collections.emptyList();
+            }
+            log.debug("Found {} active masters", masters.size());
+            return masters.stream()
+                    .map(master -> {
+                        try {
+                            return userMapper.userDetailsToDto(master);
+                        } catch (Exception e) {
+                            log.error("Error mapping master with ID {} to DTO: {}", master.getId(), e.getMessage(), e);
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("Error fetching all masters: {}", e.getMessage(), e);
             return Collections.emptyList();
         }
-        return masters.stream()
-                .map(userMapper::userDetailsToDto)
-                .collect(Collectors.toList());
     }
 
     /**

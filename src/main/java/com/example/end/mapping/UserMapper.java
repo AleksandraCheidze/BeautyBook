@@ -7,7 +7,7 @@ import com.example.end.dto.UserDto;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,21 +47,21 @@ public class UserMapper {
                 .email(user.getEmail())
                 .role(user.getRole())
                 .profileImageUrl(user.getProfilePhotoUrl())
-                .portfolioImageUrls(user.getPortfolioPhotos().stream()
+                .portfolioImageUrls(user.getPortfolioPhotos() != null ? user.getPortfolioPhotos().stream()
                         .map(photo -> PortfolioImageDto.builder()
                                 .id(photo.getId())
                                 .url(photo.getUrl())
                                 .build())
-                        .collect(Collectors.toList()))
-                .categoryIds(user.getCategories().stream()
+                        .collect(Collectors.toList()) : Collections.emptyList())
+                .categoryIds(user.getCategories() != null ? user.getCategories().stream()
                         .map(Category::getId)
-                        .collect(Collectors.toList()))
-                .procedureIds(user.getProcedures().stream()
+                        .collect(Collectors.toList()) : Collections.emptyList())
+                .procedureIds(user.getProcedures() != null ? user.getProcedures().stream()
                         .map(Procedure::getId)
-                        .collect(Collectors.toList()))
-                .reviewIds(user.getReviewsAsMaster().stream()
+                        .collect(Collectors.toList()) : Collections.emptyList())
+                .reviewIds(user.getReviewsAsMaster() != null ? user.getReviewsAsMaster().stream()
                         .map(Review::getId)
-                        .collect(Collectors.toList()))
+                        .collect(Collectors.toList()) : Collections.emptyList())
                 .build();
     }
 

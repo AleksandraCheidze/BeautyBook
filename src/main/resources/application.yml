@@ -111,7 +111,6 @@ spring:
       time-to-live: 86400000
       cache-null-values: false
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: none
     show-sql: false
@@ -119,9 +118,7 @@ spring:
     properties:
       hibernate:
         format_sql: false
-        jdbc.time_zone: UTC
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        temp.use_jdbc_metadata_defaults: false
+        'jdbc.time_zone': UTC
   sql:
     init:
       mode: never
