@@ -19,15 +19,21 @@ public interface UserRepository extends JpaRepository<User,Long> {
     boolean existsByEmail(String email);
     Optional<User> findByIdAndRole(Long id, User.Role role);
     
-    @Query("SELECT DISTINCT u FROM User u WHERE u.role = 'MASTER' AND u.isActive = true")
-    List<User> findAllByRole(User.Role role);
+    @Query("SELECT DISTINCT u FROM User u WHERE u.role = :role")
+    List<User> findAllByRole(@Param("role") User.Role role);
 
     @Query("SELECT DISTINCT u FROM User u " +
-           "JOIN u.categories c " +
+           "LEFT JOIN FETCH u.categories c " +
            "LEFT JOIN FETCH u.procedures " +
-           "WHERE c.id = :categoryId AND u.role = 'MASTER' AND u.isActive = true")
+           "WHERE u.role = 'MASTER' AND u.isActive = true " +
+           "AND EXISTS (SELECT 1 FROM u.categories cat WHERE cat.id = :categoryId)")
     List<User> findUsersByCategoryId(@Param("categoryId") Long categoryId);
 
+    @Query("SELECT DISTINCT u FROM User u " +
+           "LEFT JOIN FETCH u.categories " +
+           "LEFT JOIN FETCH u.procedures " +
+           "WHERE u.role = 'MASTER' AND u.isActive = true")
+    List<User> findAllActiveMasters();
 }
 
 
