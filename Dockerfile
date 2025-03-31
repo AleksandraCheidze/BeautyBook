@@ -9,4 +9,4 @@ FROM eclipse-temurin:17-jre-focal
 WORKDIR /app
 COPY --from=build /app/target/BeautyBook-1.0.0.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-Dspring.profiles.active=prod", "-jar", "app.jar"] 
+ENTRYPOINT ["java", "-Dspring.profiles.active=production", "-jar", "app.jar"] 
