@@ -20,8 +20,7 @@ public class NewProcedureDto {
     private String name;
 
     @Min(value = 1, message = "Price must be at least 1")
-    @Max(value = 500, message = "Price must be at most 500")
-    @NotNull(message = "Price cannot be null")
+    @Max(value = 500, message = "Price must not exceed 500")
     @Schema(description = "Price of the procedure", example = "50.0")
     private double price;
 

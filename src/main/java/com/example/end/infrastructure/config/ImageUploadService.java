@@ -21,16 +21,16 @@ public class ImageUploadService {
     private Cloudinary cloudinary;
 
     public String uploadImage(MultipartFile file) throws IOException {
-        logger.info("Начало загрузки изображения: {}", file.getOriginalFilename());
+        logger.info("Starting image upload: {}", file.getOriginalFilename());
 
         try {
             Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
             String imageUrl = uploadResult.get("url").toString();
 
-            logger.info("Изображение успешно загружено: {}", imageUrl);
+            logger.info("Image successfully uploaded: {}", imageUrl);
 
             if (uploadResult.containsKey("error")) {
-                logger.error("Ошибка загрузки изображения: {}", uploadResult.get("error"));
+                logger.error("Image upload error: {}", uploadResult.get("error"));
             }
 
             if (imageUrl.startsWith("http://")) {
@@ -39,41 +39,41 @@ public class ImageUploadService {
 
             return imageUrl;
         } catch (Exception e) {
-            logger.error("Ошибка при загрузке изображения: {}", e.getMessage(), e);
-            throw new IOException("Ошибка загрузки изображения", e);
+            logger.error("Error during image upload: {}", e.getMessage(), e);
+            throw new IOException("Image upload error", e);
         }
     }
 
     public void deleteImage(String publicId) throws IOException {
-        logger.info("Удаление изображения с publicId: {}", publicId);
+        logger.info("Deleting image with publicId: {}", publicId);
 
         try {
             cloudinary.uploader().destroy(publicId, ObjectUtils.emptyMap());
-            logger.info("Изображение успешно удалено: {}", publicId);
+            logger.info("Image successfully deleted: {}", publicId);
         } catch (Exception e) {
-            logger.error("Ошибка при удалении изображения: {}", e.getMessage(), e);
-            throw new IOException("Ошибка удаления изображения", e);
+            logger.error("Error during image deletion: {}", e.getMessage(), e);
+            throw new IOException("Image deletion error", e);
         }
     }
 
     public String extractPublicId(String url) {
-        logger.debug("Извлечение publicId из URL: {}", url);
+        logger.debug("Extracting publicId from URL: {}", url);
         return url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
     }
 
     public boolean exists(String publicId) {
-        logger.info("Проверка существования изображения с publicId: {}", publicId);
+        logger.info("Checking existence of image with publicId: {}", publicId);
 
         try {
             ApiResponse resource = cloudinary.api().resource(publicId, ObjectUtils.emptyMap());
             boolean exists = resource != null && !resource.isEmpty();
-            logger.info("Изображение {} существует: {}", publicId, exists);
+            logger.info("Image {} exists: {}", publicId, exists);
             return exists;
         } catch (IOException e) {
-            logger.warn("Ошибка при проверке существования изображения: {}", e.getMessage());
+            logger.warn("Error checking image existence: {}", e.getMessage());
             return false;
         } catch (Exception e) {
-            logger.error("Неожиданная ошибка при проверке изображения: {}", e.getMessage(), e);
+            logger.error("Unexpected error during image check: {}", e.getMessage(), e);
             throw new RuntimeException(e);
         }
     }

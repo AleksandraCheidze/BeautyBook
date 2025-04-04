@@ -1,6 +1,5 @@
 package com.example.end.dto;
 
-
 import com.example.end.models.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
@@ -28,11 +27,10 @@ public class NewUserDto {
     @Schema(description = "Users email", example = "user@mail.com")
     private String email;
 
-    //TODO - password, not a hashpassword?
     @NotNull
     @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$")
     @Schema(description = "Users password", example = "Qwerty007!")
-    private String hashPassword;
+    private String password;
 
     @NotNull
     @Schema(description = "Users role", example = "MASTER")
@@ -44,8 +42,8 @@ public class NewUserDto {
                 .lastName(lastName)
                 .email(email)
                 .role(role != null ? role : User.Role.CLIENT)
-                .hashPassword(hashPassword)
-                .isActive(role != User.Role.MASTER)
+                .password(password)
+                .isActive(true)
                 .build();
     }
 

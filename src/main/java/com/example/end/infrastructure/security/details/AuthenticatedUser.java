@@ -24,7 +24,7 @@ public class AuthenticatedUser implements UserDetails {
 
     @Override
     public String getPassword() { // в качестве пароля берем наш хэш
-        return user.getHashPassword();
+        return user.getPassword();
     }
 
     @Override

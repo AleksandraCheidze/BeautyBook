@@ -1,1 +1,0 @@
-web: java -Dspring.profiles.active=production -Dserver.port=$PORT $JAVA_OPTS -jar target/BeautyBook-1.0.0.jar 

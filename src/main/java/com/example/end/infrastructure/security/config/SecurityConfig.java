@@ -47,7 +47,6 @@ public class SecurityConfig {
         return http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(x -> x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(x -> x
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -57,13 +56,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/users/masters").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/users/by-category/{categoryId}").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/procedures").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/procedures/{id}").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/procedures/by-category/{categoryId}").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/procedures").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/procedures/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/procedures/**").hasRole("ADMIN")
-                        .requestMatchers("/api/users/*/metadata/**").hasRole("MASTER")
+                        .requestMatchers(HttpMethod.GET, "/api/procedures/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
                         .anyRequest().authenticated())
@@ -74,28 +67,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:3000",
-            "https://beauty-book-3-0.vercel.app"
-        ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(Arrays.asList(
-            "Authorization",
-            "Content-Type",
-            "X-Requested-With",
-            "Accept",
-            "Origin",
-            "Access-Control-Request-Method",
-            "Access-Control-Request-Headers"
-        ));
-        configuration.setExposedHeaders(Arrays.asList(
-            "Authorization",
-            "Access-Token",
-            "Refresh-Token",
-            "Content-Disposition"
-        ));
+        configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.addAllowedOrigin("https://beauty-book-3-0.vercel.app");
+        configuration.addAllowedMethod("*");
+        configuration.addAllowedHeader("*");
         configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

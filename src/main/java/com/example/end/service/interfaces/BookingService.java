@@ -16,8 +16,4 @@ public interface BookingService {
     void cancelBooking(Long bookingId);
 
     List<BookingDto> findBookingsByUser(Long userId, BookingStatus status);
-
-    List<BookingDto> findAllBookings();
-
-    List<BookingDto> findBookingsByUserId(Long userId);
 }

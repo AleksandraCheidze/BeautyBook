@@ -38,7 +38,7 @@ public class UserDetailsDto {
     private String description;
 
     @NotBlank(message = "Phone number cannot be blank")
-    @Schema(description = "Phone number of the user", example = "+49 176 44545615")
+    @Schema(description = "Phone number of the user", example = "+4917644545615")
     @Pattern(regexp = "\\+?\\d{1,3}[-\\.\\s]?\\(?(\\d{2,3})\\)?[-\\.\\s]?\\d{1,4}[-\\.\\s]?\\d{1,4}",
             message = "Invalid phone number format")
     private String phoneNumber;

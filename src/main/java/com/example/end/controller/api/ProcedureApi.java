@@ -11,10 +11,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,25 +26,42 @@ import java.util.List;
         @Tag(name = "Procedures", description = "API endpoints for procedure management")
 })
 @ApiResponses(value = {
-        @ApiResponse(responseCode = "401", description = "User not authenticated",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponseDto.class))),
-        @ApiResponse(responseCode = "403", description = "**Access forbidden - You do not have the necessary rights to perform this action.**",
-                content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponseDto.class)))
+        @ApiResponse(responseCode = "401",
+                description = "User not authenticated",
+                content = @Content(mediaType = "application/json",
+                        schema = @Schema(implementation = StandardResponseDto.class))),
+        @ApiResponse(responseCode = "403",
+                description = "Forbidden",
+                content = @Content(mediaType = "application/json",
+                        schema = @Schema(implementation = StandardResponseDto.class)))
 })
 public interface ProcedureApi {
 
-    @Operation(summary = "Create Procedure (ADMIN)", description = "Create a new procedure in the system. Access: ADMIN only")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Create Procedure (ADMIN)",
+            description = "Available to ADMIN")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Procedure created successfully",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProcedureDto.class))),
-            @ApiResponse(responseCode = "400", description = "Validation error",
-                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ValidationErrorsDto.class)))
+            @ApiResponse(responseCode = "201",
+                    description = "Procedure created successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ProcedureDto.class))),
+            @ApiResponse(responseCode = "400",
+                    description = "Validation error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ValidationErrorsDto.class))),
+            @ApiResponse(responseCode = "409",
+                    description = "Procedure with this name already exists in the specified category",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = StandardResponseDto.class)))
     })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     ProcedureDto createProcedure(@RequestBody @Valid NewProcedureDto newProcedureDto);
 
-    @Operation(summary = "Update Procedure (ADMIN)", description = "Update an existing procedure in the system. Access: ADMIN only")
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Update Procedure (ADMIN)",
+            description = "Available to ADMIN")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Procedure updated successfully",
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProcedureDto.class))),
@@ -52,21 +71,21 @@ public interface ProcedureApi {
                     content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponseDto.class)))
     })
     @PutMapping("/{id}")
-    ProcedureDto updateProcedure(
-            @Parameter(description = "Procedure ID", example = "1") @PathVariable("id") Long id,
-            @RequestBody @Valid ProcedureDto procedureDto);
+    ProcedureDto update(@PathVariable ("id") Long id,
+            @RequestBody @Valid ProcedureDto updatedProcedureDto);
 
     @Operation(summary = "Delete Procedure (ADMIN)", description = "Delete a procedure from the system. Access: ADMIN only")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Procedure deleted"),
             @ApiResponse(responseCode = "404", description = "Procedure not found"),
-            @ApiResponse(responseCode = "403", description = "**Forbidden - You do not have the necessary rights to perform this action.**", content = @Content(mediaType = "application/json", schema = @Schema(implementation = StandardResponseDto.class)))
     })
     @DeleteMapping("/{id}")
-    ProcedureDto deleteById(@Parameter(description = "Procedure ID", example = "1") @PathVariable("id") Long id);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void deleteById(@Parameter(description = "Procedure ID", example = "1")
+                    @PathVariable("id") Long id);
 
     @Operation(summary = "Get All Procedures (Public)",
-            description = "Get all procedures in the system. Access: All users (unauthenticated, clients, masters, admins)")
+            description = "Retrieve all procedures.Available to all users")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Procedures found"),
             @ApiResponse(responseCode = "404", description = "Procedures not found")
@@ -75,7 +94,7 @@ public interface ProcedureApi {
     List<ProcedureDto> findAll();
 
     @Operation(summary = "Get Procedure by ID (Public)",
-            description = "Get a specific procedure by its ID. Access: All users (unauthenticated, clients, masters, admins)")
+            description = "Get a specific procedure by its ID. Public")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Procedure found"),
             @ApiResponse(responseCode = "404", description = "Procedure not found")
@@ -84,12 +103,14 @@ public interface ProcedureApi {
     ProcedureDto findById(@Parameter(description = "Procedure ID", example = "1") @PathVariable("id") Long id);
 
     @Operation(summary = "Get Procedures by Category (Public)",
-            description = "Get all procedures for a specific category. Access: All users (unauthenticated, clients, masters, admins)")
+            description = "Get all procedures for a specific category. Public")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Procedure found"),
             @ApiResponse(responseCode = "404", description = "Procedure not found")
     })
+
     @GetMapping("/by-category/{categoryId}")
     List<ProcedureByCategoryDto> findProceduresByCategoryId(
-            @Parameter(description = "Category ID", example = "1") @PathVariable("categoryId") Long categoryId);
+            @Parameter(description = "Category ID", example = "1")
+            @PathVariable("categoryId") Long categoryId);
 }

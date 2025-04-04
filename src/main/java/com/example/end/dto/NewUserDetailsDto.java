@@ -22,7 +22,7 @@ public class NewUserDetailsDto {
     private String description;
 
     @NotBlank(message = "Phone number cannot be empty")
-    @Schema(description = "Phone number of the user", example = "+49 176 44545615")
+    @Schema(description = "Phone number of the user", example = "+4917644545615")
     @Pattern(
             regexp = "^\\+?[1-9]\\d{1,14}$",
             message = "Invalid phone number format")

@@ -38,7 +38,7 @@ public interface UserService {
 
         Optional<User> findByEmail(String email);
 
-        @Cacheable(value = "userById", key = "#currentUserId")
+
         UserDto getUserById(Long currentUserId);
 
         List<UserDetailsDto> getAllUsers();
@@ -47,29 +47,8 @@ public interface UserService {
 
         User findMasterUserByEmail(String email);
 
-        @jakarta.transaction.Transactional
-        String uploadProfilePhoto(Long userId, MultipartFile file, long maxSize)
-                throws IOException, ExecutionException, InterruptedException;
-
-        @jakarta.transaction.Transactional
-        List<PortfolioImageDto> uploadPortfolioPhotos(Long userId, List<MultipartFile> files, long maxSize)
-                throws IOException, ExecutionException, InterruptedException;
-
-        @jakarta.transaction.Transactional
-        void deleteProfilePhoto(Long userId)
-                throws IOException, ExecutionException, InterruptedException;
-
-        @jakarta.transaction.Transactional
-        void deletePortfolioPhoto(Long userId, Long photoId) throws IOException;
-
         List<UserDetailsDto> getAllMasters();
 
-        @jakarta.transaction.Transactional
-        String getProfilePhoto(Long userId) throws IOException;
 
-        @jakarta.transaction.Transactional
-        String getPortfolioPhoto(Long userId, Long photoId) throws IOException;
 
-        @jakarta.transaction.Transactional
-        List<PortfolioImageDto> getAllPortfolioPhotos(Long userId) throws IOException;
 }

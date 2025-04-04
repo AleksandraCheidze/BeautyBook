@@ -7,21 +7,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 
-import java.io.Serializable;
 import java.util.Set;
 
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class CategoryDto implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class CategoryDto {
 
-    @Schema(accessMode = Schema.AccessMode.READ_ONLY, description = "Unique identifier of the category", example = "1")
+
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY,description = "Unique identifier of the category", example = "1")
     private Long id;
 
     @NotBlank(message = "Category name cannot be blank")

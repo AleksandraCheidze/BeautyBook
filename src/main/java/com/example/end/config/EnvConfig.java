@@ -25,24 +25,13 @@ public class EnvConfig {
     }
 
     @Bean
-    public PropertySource<?> dotenvPropertySource(ConfigurableEnvironment environment) {
-        Dotenv dotenv = dotenv();
+    public PropertySource<?> dotenvPropertySource(ConfigurableEnvironment environment, Dotenv dotenv) {
         Map<String, Object> properties = new HashMap<>();
-
-        System.out.println("Loading environment variables from the .env file:");
-        System.out.println("Path to the .env file: " + new File(".env").getAbsolutePath());
-        System.out.println("Does the .env file exist: " + new File(".env").exists());
 
         for (DotenvEntry entry : dotenv.entries()) {
             properties.put(entry.getKey(), entry.getValue());
-            System.out.println("Loaded variable: " + entry.getKey() + " = " + entry.getValue());
+            System.out.println("Loaded variable: " + entry.getKey());
         }
-
-        // Check specific database variables
-        System.out.println("Checking database variables:");
-        System.out.println("SPRING_DATASOURCE_URL: " + dotenv.get("SPRING_DATASOURCE_URL"));
-        System.out.println("SPRING_DATASOURCE_USERNAME: " + dotenv.get("SPRING_DATASOURCE_USERNAME"));
-        System.out.println("SPRING_DATASOURCE_PASSWORD: " + dotenv.get("SPRING_DATASOURCE_PASSWORD"));
 
         MapPropertySource propertySource = new MapPropertySource("dotenv", properties);
         environment.getPropertySources().addFirst(propertySource);

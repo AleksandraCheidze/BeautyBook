@@ -5,11 +5,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @Data
 @Builder
 @NoArgsConstructor
@@ -28,7 +23,7 @@ public class UserDto {
     @Schema(description = "Last name of the user", example = "Doe")
     private String lastName;
 
-    private String hashPassword;
+    private String password;
 
     @NotBlank(message = "Email cannot be blank")
     @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
@@ -39,11 +34,5 @@ public class UserDto {
     @Schema(description = "Set of roles assigned to the user")
     @NotNull(message = "Role cannot be null")
     private User.Role role;
-
-    @Schema(description = "Access token of the user")
-    private String accessToken;
-
-    @Schema(description = "Refresh token of the user")
-    private String refreshToken;
 
 }

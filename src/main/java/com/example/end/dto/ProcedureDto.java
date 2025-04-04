@@ -1,19 +1,18 @@
 package com.example.end.dto;
 
-import com.example.end.models.Procedure;
 import jakarta.validation.constraints.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import java.io.Serializable;
-
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class ProcedureDto implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class ProcedureDto {
 
     @Schema(description = "Unique identifier of the procedure", example = "1")
     private Long id;
@@ -25,18 +24,9 @@ public class ProcedureDto implements Serializable {
     private String name;
 
     @Min(value = 1, message = "Price must be at least 1")
-    @Max(value = 500, message = "Price must be at most 500")
-    @NotNull(message = "Price cannot be null")
+    @Max(value = 500, message = "Price must not exceed 500")
     @Schema(description = "Price of the procedure", example = "50.0")
-    private Double price;
+    private double price;
 
-    @Schema(description = "Description of the procedure")
-    private String description;
-
-    @NotNull(message = "Category ID cannot be null")
-    @Schema(description = "ID of the category this procedure belongs to", example = "1")
-    private Long categoryId;
-
-    @Schema(description = "Is the procedure active")
-    private Boolean isActive;
 }
+

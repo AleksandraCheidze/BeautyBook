@@ -1,46 +1,36 @@
 package com.example.end.service;
 
-import com.example.end.dto.*;
-import com.example.end.infrastructure.config.ImageUploadService;
-import com.example.end.infrastructure.exceptions.*;
+import com.example.end.dto.NewUserDetailsDto;
+import com.example.end.dto.NewUserDto;
+import com.example.end.dto.UserDetailsDto;
+import com.example.end.dto.UserDto;
+import com.example.end.infrastructure.exceptions.ResourceNotFoundException;
+import com.example.end.infrastructure.exceptions.RestException;
 import com.example.end.infrastructure.mail.ProjectMailSender;
 import com.example.end.mapping.UserMapper;
 import com.example.end.models.*;
 import com.example.end.repository.CategoryRepository;
-import com.example.end.repository.PortfolioPhotoRepository;
 import com.example.end.repository.UserRepository;
 import com.example.end.infrastructure.security.sec_servivce.TokenService;
 import com.example.end.service.interfaces.CategoryService;
 import com.example.end.service.interfaces.UserService;
-import com.example.end.utils.FileValidationUtils;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
  * Implementation of {@link UserService}.
  * Provides methods for user registration, authentication, and management,
- * including updating user details, adding images, and fetching users by
- * category or role.
+ * including updating user details, adding images, and fetching users by category or role.
  */
 @RequiredArgsConstructor
 @Service
-@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -51,31 +41,25 @@ public class UserServiceImpl implements UserService {
     private final ProjectMailSender mailSender;
     private final TokenService tokenService;
     private final SenderService senderService;
-    private final PortfolioPhotoRepository portfolioPhotoRepository;
-    private final ImageUploadService imageUploadService;
 
     @Value("${SPRING_MAIL_USERNAME}")
     private String adminEmail;
 
     /**
      * Registers a new user with the provided details.
-     * If the user is a master, sends a confirmation email and sets the user as
-     * inactive.
-     * If the user is a client, sends a registration email and sets the user as
-     * active.
+     * If the user is a master, sends a confirmation email and sets the user as inactive.
+     * If the user is a client, sends a registration email and sets the user as active.
      * Generates access and refresh tokens for the user after registration.
      *
      * @param newUserDto the new user details
      * @return the registered user with access and refresh tokens
      */
-    @Override
     @Transactional
-    @CacheEvict(value = { "allUsers", "mastersByCategory", "allMasters" }, allEntries = true)
+    @Override
     public UserDto register(NewUserDto newUserDto) {
         validateEmail(newUserDto.getEmail());
-
         User user = newUserDto.createUser();
-        user.setHashPassword(passwordEncoder.encode(newUserDto.getHashPassword()));
+        user.setPassword(passwordEncoder.encode(newUserDto.getPassword()));
 
         if (user.getRole() == User.Role.MASTER) {
             senderService.sendMasterRegistrationConfirmation(user);
@@ -91,8 +75,6 @@ public class UserServiceImpl implements UserService {
         String refreshToken = tokenService.generateRefreshToken(savedUser);
 
         UserDto userDto = userMapper.toDto(savedUser);
-        userDto.setAccessToken(accessToken);
-        userDto.setRefreshToken(refreshToken);
 
         return userDto;
     }
@@ -100,7 +82,7 @@ public class UserServiceImpl implements UserService {
     /**
      * Authenticates a user by validating their email and password.
      *
-     * @param email the user's email
+     * @param email    the user's email
      * @param password the user's password
      * @return the authenticated user
      * @throws RestException if authentication fails
@@ -108,27 +90,27 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto authenticate(String email, String password) {
         User user = findUserByEmailOrThrow(email);
-
-        if (!passwordEncoder.matches(password, user.getHashPassword())) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RestException(HttpStatus.UNAUTHORIZED, "Invalid password");
         }
-
         return userMapper.toDto(user);
     }
 
     /**
-     * Retrieves user details by user ID.
+     * Gets user information by ID.
      *
-     * @param id the user ID
-     * @return user details
-     * @throws ResourceNotFoundException if the user is not found
+     * @param id user ID
+     * @return detailed user information
+     * @throws ResourceNotFoundException if user is not found
      */
     @Override
-    @Cacheable(value = "userDetails", key = "#id")
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public UserDetailsDto getById(Long id) {
-        User user = findUserByIdOrThrow(id);
+        User user = userRepository.findByIdWithDetails(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
         return userMapper.userDetailsToDto(user);
     }
+
 
     /**
      * Validates if a user already exists with the given email.
@@ -144,57 +126,47 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
-     * Updates user details such as description, phone number, address, categories,
-     * and procedures.
+     * Updates user details such as description, phone number, address, categories, and procedures.
      *
-     * @param userId the user ID
+     * @param userId         the user ID
      * @param userDetailsDto the new user details
      * @return the updated user details
      * @throws ResourceNotFoundException if the user is not found
      */
     @Override
     @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "userDetails", key = "#userId"),
-            @CacheEvict(value = { "allUsers", "mastersByCategory", "allMasters" }, allEntries = true)
-    })
     public UserDetailsDto updateUserDetails(Long userId, NewUserDetailsDto userDetailsDto) {
-        User user = findUserByIdOrThrow(userId);
+        User user = userRepository.findByIdWithDetails(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
 
         user.setDescription(userDetailsDto.getDescription());
         user.setPhoneNumber(userDetailsDto.getPhoneNumber());
         user.setAddress(userDetailsDto.getAddress());
 
-        Set<Category> selectedCategories = new HashSet<>(
-                categoryRepository.findAllById(userDetailsDto.getCategoryIds()));
+        Set<Category> selectedCategories = new HashSet<>(categoryRepository.findAllById(userDetailsDto.getCategoryIds()));
         user.setCategories(selectedCategories);
 
-        Set<Procedure> selectedProcedures = categoryService.getProceduresForCategories(
-                selectedCategories, userDetailsDto.getProcedureIds());
+        Set<Procedure> selectedProcedures = categoryService.getProceduresForCategories(selectedCategories, userDetailsDto.getProcedureIds());
         user.setProcedures(selectedProcedures);
 
         User updatedUser = userRepository.save(user);
 
         UserDetailsDto responseDto = userMapper.userDetailsToDto(updatedUser);
-        responseDto.setCategoryIds(updatedUser.getCategories().stream()
-                .map(Category::getId)
-                .collect(Collectors.toList()));
-        responseDto.setProcedureIds(updatedUser.getProcedures().stream()
-                .map(Procedure::getId)
-                .collect(Collectors.toList()));
+        responseDto.setCategoryIds(updatedUser.getCategories().stream().map(Category::getId).collect(Collectors.toList()));
+        responseDto.setProcedureIds(updatedUser.getProcedures().stream().map(Procedure::getId).collect(Collectors.toList()));
 
         return responseDto;
     }
+
 
     /**
      * Retrieves a master by their user ID.
      *
      * @param id the user ID
      * @return the master user
-     * @throws ResourceNotFoundException if the user is not found
+     * @throws  if the user is not found
      */
     @Override
-    @Cacheable(value = "masterById", key = "#id")
     public UserDto getMasterById(Long id) {
         return getUserByIdAndRole(id, User.Role.MASTER);
     }
@@ -204,10 +176,9 @@ public class UserServiceImpl implements UserService {
      *
      * @param id the user ID
      * @return the client user
-     * @throws ResourceNotFoundException if the user is not found
+     * @throws  if the user is not found
      */
     @Override
-    @Cacheable(value = "clientById", key = "#id")
     public UserDto getClientById(Long id) {
         return getUserByIdAndRole(id, User.Role.CLIENT);
     }
@@ -219,263 +190,58 @@ public class UserServiceImpl implements UserService {
      * @throws IllegalStateException if the master user is already active
      */
     @Override
-    @CacheEvict(value = { "allUsers", "mastersByCategory", "allMasters" }, allEntries = true)
+    @Transactional
     public void confirmMasterByEmail(String email) {
         User masterUser = findMasterUserByEmail(email);
+
+        if (masterUser.isActive()) {
+            throw new IllegalStateException("Master is already active.");
+        }
         masterUser.setActive(true);
         userRepository.save(masterUser);
+
         mailSender.sendRegistrationEmail(masterUser.getEmail());
     }
 
-    @Override
-    @Transactional
-    @CacheEvict(value = { "userDetails", "masterById" }, key = "#userId")
-    public String uploadProfilePhoto(Long userId, MultipartFile file, long maxSize) {
-        String validationError = FileValidationUtils.validateImage(file);
-
-        if (validationError != null) {
-            throw new InvalidFileException(validationError);
-        }
-
-        if (file.getSize() > maxSize) {
-            throw new InvalidFileException("File size exceeds maximum allowed (" +
-                    maxSize / (1024 * 1024) + "MB)");
-        }
-
-        User user = findUserByIdOrThrow(userId);
-
-        try {
-            String imageUrl = imageUploadService.uploadImage(file);
-            user.setProfilePhotoUrl(imageUrl);
-            userRepository.save(user);
-            return imageUrl;
-        } catch (Exception e) {
-            throw new ImageUploadException("Error during image upload.", e);
-        }
-    }
-
-    @Override
-    @Transactional
-    @CacheEvict(value = { "userDetails", "masterById" }, key = "#userId")
-    public List<PortfolioImageDto> uploadPortfolioPhotos(Long userId, List<MultipartFile> files, long maxSize)
-    {
-        for (MultipartFile file : files) {
-            String validationError = FileValidationUtils.validateImage(file);
-            if (validationError != null) {
-                throw new InvalidFileException(validationError);
-            }
-
-            if (file.getSize() > maxSize) {
-                throw new InvalidFileException(String.format(
-                        "File '%s' size exceeds maximum allowed (%d MB)",
-                        file.getOriginalFilename(), maxSize / (1024 * 1024)));
-            }
-        }
-
-        User user = findUserByIdOrThrow(userId);
-        List<PortfolioImageDto> uploadedPhotos = new ArrayList<>();
-
-        for (MultipartFile file : files) {
-            try {
-                String imageUrl = imageUploadService.uploadImage(file);
-                PortfolioPhoto portfolioPhoto = new PortfolioPhoto();
-                portfolioPhoto.setUrl(imageUrl);
-                portfolioPhoto.setUser(user);
-
-                PortfolioPhoto savedPhoto = portfolioPhotoRepository.save(portfolioPhoto);
-                uploadedPhotos.add(PortfolioImageDto.builder()
-                        .id(savedPhoto.getId())
-                        .url(savedPhoto.getUrl())
-                        .build());
-            } catch (Exception e) {
-                throw new ImageUploadException("Error uploading image for user " + userId, e);
-            }
-        }
-
-        return uploadedPhotos;
-    }
-
-    @Override
-    @Transactional
-    @CacheEvict(value = { "userDetails", "masterById" }, key = "#userId")
-    public void deleteProfilePhoto(Long userId) {
-        User user = findUserByIdOrThrow(userId);
-        String profilePhotoUrl = user.getProfilePhotoUrl();
-
-        if (profilePhotoUrl != null) {
-            try {
-                String publicId = imageUploadService.extractPublicId(profilePhotoUrl);
-                if (imageUploadService.exists(publicId)) {
-                    imageUploadService.deleteImage(publicId);
-                    user.setProfilePhotoUrl(null);
-                    userRepository.save(user);
-                } else {
-                    throw new ImageNotFoundException("Profile photo not found for deletion.");
-                }
-            } catch (Exception e) {
-                throw new ImageUploadException("Error during profile photo deletion.", e);
-            }
-        } else {
-        }
-    }
-
-    @Override
-    @Transactional
-    @CacheEvict(value = { "userDetails", "masterById" }, key = "#userId")
-    public void deletePortfolioPhoto(Long userId, Long photoId)  {
-        User user = findUserByIdOrThrow(userId);
-
-        PortfolioPhoto photo = portfolioPhotoRepository.findById(photoId)
-                .orElseThrow(() -> new PhotoNotFoundException("Photo with ID " + photoId + " not found."));
-
-        if (!photo.getUser().getId().equals(user.getId())) {
-            throw new PhotoOwnershipException("Photo " + photoId + " does not belong to user " + userId);
-        }
-
-        try {
-            String publicId = imageUploadService.extractPublicId(photo.getUrl());
-            imageUploadService.deleteImage(publicId);
-            portfolioPhotoRepository.delete(photo);
-        } catch (Exception e) {
-            throw new ImageDeleteException("Error deleting portfolio photo with ID " + photoId, e);
-        }
-    }
-
-    @Override
-    @Transactional
-    public String getProfilePhoto(Long userId) {
-        User user = findUserByIdOrThrow(userId);
-        String profilePhotoUrl = user.getProfilePhotoUrl();
-
-        if (profilePhotoUrl == null) {
-            return "No profile photo found";
-        }
-
-        try {
-            String publicId = imageUploadService.extractPublicId(profilePhotoUrl);
-            if (imageUploadService.exists(publicId)) {
-                return profilePhotoUrl;
-            } else {
-                throw new ImageNotFoundException("Profile photo not found");
-            }
-        } catch (Exception e) {
-            throw new ImageUploadException("Error retrieving profile photo", e);
-        }
-    }
-
-    @Override
-    @Transactional
-    public String getPortfolioPhoto(Long userId, Long photoId) {
-        User user = findUserByIdOrThrow(userId);
-
-        PortfolioPhoto photo = portfolioPhotoRepository.findById(photoId)
-                .orElseThrow(() -> new PhotoNotFoundException("Photo with ID " + photoId + " not found."));
-
-        if (!photo.getUser().getId().equals(user.getId())) {
-            throw new PhotoOwnershipException("Photo " + photoId + " does not belong to user " + userId);
-        }
-
-        try {
-            String publicId = imageUploadService.extractPublicId(photo.getUrl());
-            if (imageUploadService.exists(publicId)) {
-                return photo.getUrl();
-            } else {
-                throw new ImageNotFoundException("Portfolio photo not found");
-            }
-        } catch (Exception e) {
-            throw new ImageUploadException("Error retrieving portfolio photo", e);
-        }
-    }
-
-    @Override
-    @Transactional
-    public List<PortfolioImageDto> getAllPortfolioPhotos(Long userId) {
-        User user = findUserByIdOrThrow(userId);
-        List<PortfolioPhoto> photos = portfolioPhotoRepository.findByUserId(userId);
-
-        if (photos.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<PortfolioImageDto> portfolioPhotos = new ArrayList<>();
-
-        for (PortfolioPhoto photo : photos) {
-            try {
-                String publicId = imageUploadService.extractPublicId(photo.getUrl());
-                if (imageUploadService.exists(publicId)) {
-                    portfolioPhotos.add(PortfolioImageDto.builder()
-                            .id(photo.getId())
-                            .url(photo.getUrl())
-                            .build());
-                } else {
-                    log.warn("Portfolio photo with ID {} not found in storage", photo.getId());
-                    portfolioPhotoRepository.delete(photo);
-                }
-            } catch (Exception e) {
-                log.error("Error checking portfolio photo with ID {}: {}", photo.getId(), e.getMessage());
-                throw new ImageUploadException("Error retrieving portfolio photos", e);
-            }
-        }
-
-        return portfolioPhotos;
-    }
 
     /**
-     * Retrieves all users with the MASTER role.
+     * Gets a list of all masters.
      *
-     * @return a list of all master users
+     * @return list of all users with MASTER role
      */
     @Override
-    @Cacheable(value = "allMasters")
+    @Transactional(readOnly = true)
     public List<UserDetailsDto> getAllMasters() {
-        log.debug("Fetching all active masters");
-        try {
-            List<User> masters = userRepository.findAllActiveMasters();
-            if (masters == null || masters.isEmpty()) {
-                log.debug("No active masters found");
-                return Collections.emptyList();
-            }
-            log.debug("Found {} active masters", masters.size());
-            return masters.stream()
-                    .map(master -> {
-                        try {
-                            return userMapper.userDetailsToDto(master);
-                        } catch (Exception e) {
-                            log.error("Error mapping master with ID {} to DTO: {}", master.getId(), e.getMessage(), e);
-                            return null;
-                        }
-                    })
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            log.error("Error fetching all masters: {}", e.getMessage(), e);
-            return Collections.emptyList();
-        }
+        List<User> masters = userRepository.findAllMastersWithDetails();
+        return masters.stream()
+                .map(userMapper::userDetailsToDto)
+                .collect(Collectors.toList());
     }
+
 
     /**
      * Retrieves a user by their user ID.
      *
      * @param currentUserId the user ID
      * @return the user details
-     * @throws ResourceNotFoundException if the user is not found
+     * @throws  if the user is not found
      */
     @Override
-    @Cacheable(value = "userById", key = "#currentUserId")
     public UserDto getUserById(Long currentUserId) {
         User user = findUserByIdOrThrow(currentUserId);
         return userMapper.toDto(user);
     }
 
     /**
-     * Retrieves all users.
+     * Gets a list of all users.
      *
-     * @return a list of all users
+     * @return list of all users
      */
     @Override
-    @Cacheable(value = "allUsers")
+    @Transactional(readOnly = true)
     public List<UserDetailsDto> getAllUsers() {
-        return userRepository.findAll().stream()
+        List<User> users = userRepository.findAllWithDetails();
+        return users.stream()
                 .map(userMapper::userDetailsToDto)
                 .collect(Collectors.toList());
     }
@@ -485,60 +251,47 @@ public class UserServiceImpl implements UserService {
      *
      * @param email the email of the master user
      * @return the master user
-     * @throws UserNotFoundException if the user is not found or not a master
+     * @throws  if the user is not found or not a master
      */
     @Override
     public User findMasterUserByEmail(String email) {
         User masterUser = findUserByEmailOrThrow(email);
-
         if (masterUser.getRole() != User.Role.MASTER) {
-            throw UserNotFoundException.notMaster(email);
+            throw new ResourceNotFoundException("User is not a master: " + email);
         }
-
         if (masterUser.isActive()) {
-            throw UserNotFoundException.alreadyActive(email);
+            throw new ResourceNotFoundException ("Master is already active: " + email);
         }
-
         return masterUser;
     }
 
     /**
-     * Retrieves all users associated with a specific category.
+     * Finds users by category ID.
      *
-     * @param categoryId the category ID
-     * @return a list of users associated with the category
-     * @throws ResourceNotFoundException if the category is not found
+     * @param categoryId category ID
+     * @return list of users related to the given category
      */
     @Override
-    @Cacheable(value = "mastersByCategory", key = "#categoryId")
+    @Transactional(readOnly = true)
     public List<UserDetailsDto> findUsersByCategoryId(Long categoryId) {
-        if (!categoryRepository.existsById(categoryId)) {
-            throw new ResourceNotFoundException("Category with ID " + categoryId + " not found");
-        }
-
-        List<User> users = userRepository.findUsersByCategoryId(categoryId);
-        if (users.isEmpty()) {
-            throw new ResourceNotFoundException("User for category with ID " + categoryId + " not found.");
-        }
-
+        List<User> users = userRepository.findUsersByCategoryIdWithDetails(categoryId);
         return users.stream()
                 .map(userMapper::userDetailsToDto)
                 .collect(Collectors.toList());
     }
+
 
     /**
      * Finds a user by their email.
      *
      * @param email the user's email
      * @return an optional containing the user if found
-     * @throws IllegalArgumentException if email is null or empty
      */
     @Override
     public Optional<User> findByEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
             throw new IllegalArgumentException("Email must not be null or empty");
         }
-
         return userRepository.findByEmail(email);
     }
 
@@ -546,29 +299,20 @@ public class UserServiceImpl implements UserService {
      * Deletes a user by their ID.
      *
      * @param id the user ID
-     * @throws ResourceNotFoundException if the user is not found
-     * @throws ForbiddenException if the current user doesn't have permission to delete the user
      */
     @Override
-    @Caching(evict = {
-            @CacheEvict(value = { "userDetails", "userById", "masterById", "clientById" }, key = "#id"),
-            @CacheEvict(value = { "allUsers", "mastersByCategory", "allMasters" }, allEntries = true)
-    })
     @Transactional
     public void deleteById(Long id) {
         User user = findUserByIdOrThrow(id);
         userRepository.delete(user);
-        log.info("User with id {} has been deleted", id);
     }
-
-    // Helper methods
 
     private UserDto getUserByIdAndRole(Long userId, User.Role role) {
         User user = findUserByIdAndRole(userId, role);
         return userMapper.toDto(user);
     }
 
-    private User findUserByIdOrThrow(Long userId) {
+    User findUserByIdOrThrow(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found for id: " + userId));
     }
@@ -580,20 +324,6 @@ public class UserServiceImpl implements UserService {
 
     private User findUserByIdAndRole(Long userId, User.Role role) {
         return userRepository.findByIdAndRole(userId, role)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "User not found for id: " + userId + " with role: " + role));
-    }
-
-    private boolean isCurrentUserOrAdmin(User user) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return false;
-        }
-
-        String currentUserEmail = authentication.getName();
-        return user.getEmail().equals(currentUserEmail) ||
-                authentication.getAuthorities().stream()
-                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found for id: " + userId + " with role: " + role));
     }
 }

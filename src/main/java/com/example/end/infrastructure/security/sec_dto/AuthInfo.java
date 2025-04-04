@@ -21,6 +21,7 @@ public class AuthInfo implements Authentication {
     private final String username;
     private Set<User.Role> roles;
 
+
     public AuthInfo(String username, Set<User.Role> roles) {
         this.username = username;
         this.roles = roles;
@@ -29,7 +30,7 @@ public class AuthInfo implements Authentication {
     public AuthInfo(String username, Collection<? extends GrantedAuthority> authorities) {
         this.username = username;
         this.roles = authorities.stream()
-                .map(authority -> User.Role.valueOf(authority.getAuthority()))
+                .map(authority -> User.Role.valueOf(authority.getAuthority().replace("ROLE_", "")))
                 .collect(Collectors.toSet());
     }
 

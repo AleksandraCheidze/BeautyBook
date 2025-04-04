@@ -10,8 +10,6 @@ import lombok.*;
 @NoArgsConstructor
 public class PortfolioImageDto {
 
-
-
     private Long id;
 
     private String url;

@@ -1,7 +1,6 @@
 package com.example.end.service.interfaces;
 
 import com.example.end.dto.CategoryDto;
-import com.example.end.dto.ProcedureDto;
 import com.example.end.models.Category;
 import com.example.end.models.Procedure;
 import org.springframework.stereotype.Service;
@@ -23,5 +22,5 @@ public interface CategoryService {
 
     CategoryDto updateCategory(Long id, CategoryDto updatedCategoryDto);
 
-    CategoryDto deleteCategory(Long id);
+    void deleteCategory(Long id);
 }

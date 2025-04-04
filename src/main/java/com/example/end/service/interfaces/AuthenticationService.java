@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface AuthenticationService {
-   // UserDto authenticate(String email, String password);
+
     TokenResponseDto getAccessToken(String refreshToken);
 
     TokenResponseDto login(LoginRequestDto loginRequest) throws AuthException;
