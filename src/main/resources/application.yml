@@ -14,7 +14,7 @@ server:
 spring:
   config:
     activate:
-      on-profile: local
+      on-profile: production
   data:
     redis:
       url: ${SPRING_REDIS_URL}
