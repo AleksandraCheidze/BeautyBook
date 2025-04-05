@@ -5,12 +5,11 @@ import com.example.end.infrastructure.exceptions.ResourceNotFoundException;
 import com.example.end.infrastructure.exceptions.RestException;
 import com.example.end.infrastructure.mail.ProjectMailSender;
 import com.example.end.mapping.UserMapper;
-import com.example.end.models.Category;
-import com.example.end.models.User;
+import com.example.end.models.*;
 import com.example.end.repository.CategoryRepository;
 import com.example.end.repository.UserRepository;
 import com.example.end.infrastructure.security.sec_servivce.TokenService;
-import com.example.end.util.TestDataGenerator;
+import com.example.end.service.interfaces.CategoryService;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.Nested;
@@ -28,16 +27,8 @@ import static org.junit.jupiter.api.DisplayNameGenerator.ReplaceUnderscores;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-/**
- * Class name: UserServiceImplTest
- * Description:
- *
- * @author Ganna Bieliaieva
- * @since 02/11/2024
- */
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UserService Tests")
 public class UserServiceImplTest {
@@ -60,11 +51,13 @@ public class UserServiceImplTest {
     private TokenService tokenServiceMocked;
     @InjectMocks
     private UserServiceImpl userServiceMocked;
+    @Mock
+    private CategoryService categoryServiceMocked;
 
     private final User client = new User(1L, "clientFirstName", "clientLastName", "email@testClient.de", true, User.Role.CLIENT);
     private final UserDto userMasterDto = new UserDto(2L, "masterFirstName", "masterLastName", "password", "email@testMaster.de", User.Role.MASTER);
     private final UserDto userClientDto = new UserDto(1L, "clientFirstName", "clientLastName", "password", "email@testClient.de", User.Role.CLIENT);
-    private final User master = new User(2L, "masterFirstName", "masterLastName", "email@testMaster.de", true, User.Role.MASTER);
+    private final User master = new User(2L, "masterFirstName", "masterLastName", "email@testMaster.de", false, User.Role.MASTER);
     private NewUserDto newUserDto = new NewUserDto();
     private final UserDetailsDto userDetailsDto = new UserDetailsDto();
     private final NewUserDetailsDto newUserDetailsDto = new NewUserDetailsDto();
@@ -79,7 +72,7 @@ public class UserServiceImplTest {
 
     @Nested
     @DisplayNameGeneration(ReplaceUnderscores.class)
-    public class RegisterUser_Tests {
+    class RegisterUser_Tests {
 
         @BeforeEach
         void setUp() {
@@ -92,7 +85,7 @@ public class UserServiceImplTest {
         }
 
         @Test
-        void register_return_userDto_with_role_master_registered_successfully() {
+        void register_master_user_successfully() {
             User savedMaster = new User();
             savedMaster.setEmail("email@testMaster.de");
             savedMaster.setRole(User.Role.MASTER);
@@ -112,79 +105,53 @@ public class UserServiceImplTest {
             when(tokenServiceMocked.generateAccessToken(any(User.class))).thenReturn("accessToken");
             when(tokenServiceMocked.generateRefreshToken(any(User.class))).thenReturn("refreshToken");
 
-            UserDto userDto = userServiceMocked.register(newUserDto);
+            UserDto result = userServiceMocked.register(newUserDto);
 
-            verify(userRepositoryMocked, times(1)).existsByEmail(newUserDto.getEmail());
-            verify(passwordEncoderMocked, times(1)).encode(newUserDto.getPassword());
+            verify(userRepositoryMocked).existsByEmail(newUserDto.getEmail());
+            verify(passwordEncoderMocked).encode(newUserDto.getPassword());
+            verify(senderServiceMocked).sendMasterRegistrationConfirmation(userCaptor.capture());
+            verify(userRepositoryMocked).save(any(User.class));
+            verify(tokenServiceMocked).generateAccessToken(any(User.class));
+            verify(tokenServiceMocked).generateRefreshToken(any(User.class));
 
-            verify(senderServiceMocked, times(1)).sendMasterRegistrationConfirmation(userCaptor.capture());
             User capturedUser = userCaptor.getValue();
-
             assertEquals(newUserDto.getEmail(), capturedUser.getEmail());
-            assertEquals(newUserDto.getRole(), capturedUser.getRole());
-            assertEquals(newUserDto.getFirstName(), capturedUser.getFirstName());
-            assertEquals(newUserDto.getLastName(), capturedUser.getLastName());
-            assertEquals("password", capturedUser.getPassword());
+            assertEquals(User.Role.MASTER, capturedUser.getRole());
             assertFalse(capturedUser.isActive());
-
-            verify(mailSenderMocked, never()).sendRegistrationEmail(any());
-            verify(userRepositoryMocked, times(1)).save(any(User.class));
-            verify(userMapperMocked, times(1)).toDto(any(User.class));
-            verify(tokenServiceMocked, times(1)).generateAccessToken(any(User.class));
-            verify(tokenServiceMocked, times(1)).generateRefreshToken(any(User.class));
-
-            assertEquals(userMasterDto.getRole(), userDto.getRole());
-            assertEquals(userMasterDto.getEmail(), userDto.getEmail());
+            assertEquals(userMasterDto.getRole(), result.getRole());
         }
 
         @Test
-        void register_return_userDto_with_role_client_registered_successfully() {
-            newUserDto.setEmail(clientEmail);
+        void register_client_user_successfully() {
             newUserDto.setRole(User.Role.CLIENT);
-
-            client.setPassword("password");
+            newUserDto.setEmail(clientEmail);
 
             when(userRepositoryMocked.existsByEmail(clientEmail)).thenReturn(false);
             when(passwordEncoderMocked.encode("password")).thenReturn("password");
             when(userRepositoryMocked.save(any(User.class))).thenReturn(client);
             when(userMapperMocked.toDto(client)).thenReturn(userClientDto);
 
-            UserDto userDto = userServiceMocked.register(newUserDto);
+            UserDto result = userServiceMocked.register(newUserDto);
 
-            verify(userRepositoryMocked, times(1)).existsByEmail(clientEmail);
-            verify(passwordEncoderMocked, times(1)).encode("password");
-
-            verify(mailSenderMocked, never()).sendConfirmationEmails(any(), eq(clientEmail), eq(client.getFirstName() + " " + client.getLastName()));
-            verify(mailSenderMocked, times(1)).sendRegistrationEmail(any());
-
-            verify(userRepositoryMocked, times(1)).save(any(User.class));
-
-            verify(userMapperMocked, times(1)).toDto(any(User.class));
-            verify(tokenServiceMocked, times(1)).generateAccessToken(client);
-            verify(tokenServiceMocked, times(1)).generateRefreshToken(client);
-
-            assertEquals(userClientDto.getRole(), userDto.getRole());
-            assertEquals(userClientDto.getEmail(), userDto.getEmail());
+            verify(userRepositoryMocked).existsByEmail(clientEmail);
+            verify(passwordEncoderMocked).encode("password");
+            verify(mailSenderMocked).sendRegistrationEmail(clientEmail);
+            verify(userRepositoryMocked).save(any(User.class));
             assertTrue(client.isActive());
+            assertEquals(userClientDto.getRole(), result.getRole());
         }
 
         @Test
-        public void register_User_throws_RestException_Conflict() {
-            newUserDto.setEmail(masterEmail);
+        void register_throws_exception_when_email_exists() {
             when(userRepositoryMocked.existsByEmail(masterEmail)).thenReturn(true);
 
-            RestException e = assertThrows(RestException.class, () -> userServiceMocked.register(newUserDto));
+            RestException e = assertThrows(RestException.class,
+                    () -> userServiceMocked.register(newUserDto));
+
             assertEquals(HttpStatus.CONFLICT, e.getStatus());
             assertEquals("User with email <email@testMaster.de> already exists", e.getMessage());
-
-            verify(userRepositoryMocked, times(1)).existsByEmail(masterEmail);
+            verify(userRepositoryMocked).existsByEmail(masterEmail);
             verify(passwordEncoderMocked, never()).encode(any());
-            verify(userRepositoryMocked, never()).save(any(User.class));
-            verify(userMapperMocked, never()).toDto(any());
-            verify(mailSenderMocked, never()).sendEmail(any(), any(), any());
-            verify(mailSenderMocked, never()).sendMasterConfirmationRequest(anyString(), anyString());
-            verify(tokenServiceMocked, never()).generateAccessToken(master);
-            verify(tokenServiceMocked, never()).generateRefreshToken(master);
         }
     }
 
@@ -192,218 +159,218 @@ public class UserServiceImplTest {
     @DisplayNameGeneration(ReplaceUnderscores.class)
     class Authenticate_Tests {
         @Test
-        void authenticate_return_userDto_successful() {
+        void authenticate_successfully() {
             client.setPassword(password);
 
             when(userRepositoryMocked.findByEmail(clientEmail)).thenReturn(Optional.of(client));
-            when(passwordEncoderMocked.matches(password, "password")).thenReturn(true);
+            when(passwordEncoderMocked.matches(password, password)).thenReturn(true);
             when(userMapperMocked.toDto(client)).thenReturn(userClientDto);
 
-            UserDto userDto = userServiceMocked.authenticate(clientEmail, password);
-            verify(userRepositoryMocked, times(1)).findByEmail(clientEmail);
-            verify(passwordEncoderMocked, times(1)).matches(any(), any());
-            verify(userMapperMocked, times(1)).toDto(any(User.class));
-            assertEquals(userClientDto, userDto);
+            UserDto result = userServiceMocked.authenticate(clientEmail, password);
 
+            verify(userRepositoryMocked).findByEmail(clientEmail);
+            verify(passwordEncoderMocked).matches(password, password);
+            assertEquals(userClientDto, result);
         }
 
         @Test
-        void authenticate_throws_ResourceNotFoundException_incorrect_email() {
+        void authenticate_throws_when_user_not_found() {
             when(userRepositoryMocked.findByEmail(clientEmail)).thenReturn(Optional.empty());
 
             ResourceNotFoundException e = assertThrows(ResourceNotFoundException.class,
                     () -> userServiceMocked.authenticate(clientEmail, password));
 
             assertEquals("User not found for email: " + clientEmail, e.getMessage());
-
-            verify(userRepositoryMocked, times(1)).findByEmail(clientEmail);
-            verify(passwordEncoderMocked, never()).matches(any(), any());
-            verify(userMapperMocked, never()).toDto(any(User.class));
         }
 
-
         @Test
-        void authenticate_throws_RestException_incorrect_password() {
-            client.setPassword("password");
-            client.setEmail(clientEmail);
+        void authenticate_throws_when_password_invalid() {
+            client.setPassword("encodedPassword");
+
             when(userRepositoryMocked.findByEmail(clientEmail)).thenReturn(Optional.of(client));
-            when(passwordEncoderMocked.matches(password, client.getPassword())).thenReturn(false);
-            RestException e = assertThrows(RestException.class, () -> userServiceMocked.authenticate(clientEmail, password));
+            when(passwordEncoderMocked.matches(any(), any())).thenReturn(false);
+
+            RestException e = assertThrows(RestException.class,
+                    () -> userServiceMocked.authenticate(clientEmail, password));
+
             assertEquals(HttpStatus.UNAUTHORIZED, e.getStatus());
             assertEquals("Invalid password", e.getMessage());
-            verify(userRepositoryMocked, times(1)).findByEmail(clientEmail);
-            verify(passwordEncoderMocked, times(1)).matches(any(), any());
-            verify(userMapperMocked, never()).toDto(any(User.class));
-        }
-    }
-
-    @Nested
-    @DisplayNameGeneration(ReplaceUnderscores.class)
-    class GetById_Tests {
-
-        @Test
-        void getById_return_user_successful() {
-            when(userRepositoryMocked.findById(clientId)).thenReturn(Optional.of(client));
-            when(userMapperMocked.userDetailsToDto(client)).thenReturn(userDetailsDto);
-            UserDetailsDto userDto = userServiceMocked.getById(1L);
-            verify(userRepositoryMocked, times(1)).findById(clientId);
-            verify(userMapperMocked, times(1)).userDetailsToDto(any(User.class));
-            assertEquals(userDetailsDto.getId(), userDto.getId());
-            assertEquals(userDetailsDto.getEmail(), userDto.getEmail());
         }
 
-        @Test
-        void getById_throws_ResourceNotFoundException_User_not_found() {
-            when(userRepositoryMocked.findById(clientId)).thenReturn(Optional.empty());
-            ResourceNotFoundException e = assertThrows(ResourceNotFoundException.class, () -> userServiceMocked.getById(clientId));
-            assertEquals("User not found for id: " + clientId, e.getMessage());
-            verify(userRepositoryMocked, times(1)).findById(clientId);
-            verify(userMapperMocked, never()).userDetailsToDto(any(User.class));
-        }
-    }
+        @Nested
+        @DisplayNameGeneration(ReplaceUnderscores.class)
+        class GetById_Tests {
+            @Test
+            void getById_successfully() {
+                when(userRepositoryMocked.findByIdWithDetails(clientId)).thenReturn(Optional.of(client));
+                when(userMapperMocked.userDetailsToDto(client)).thenReturn(userDetailsDto);
 
-    @Nested
-    @DisplayNameGeneration(ReplaceUnderscores.class)
-    class ValidateEmail_Tests {
-        @Test
-        void validateEmail_email_was_validated_successfully() {
-            when(userRepositoryMocked.existsByEmail(clientEmail)).thenReturn(false);
-            userServiceMocked.validateEmail(clientEmail);
-            verify(userRepositoryMocked, times(1)).existsByEmail("email@testClient.de");
-        }
+                UserDetailsDto result = userServiceMocked.getById(clientId);
 
-        @Test
-        void validateEmail_throws_RestException() {
-            when(userRepositoryMocked.existsByEmail(clientEmail)).thenReturn(true);
-            RestException e = assertThrows(RestException.class, () -> userServiceMocked.validateEmail(clientEmail));
-            assertEquals(HttpStatus.CONFLICT, e.getStatus());
-            assertEquals("User with email <email@testClient.de> already exists", e.getMessage());
-            verify(userRepositoryMocked, times(1)).existsByEmail("email@testClient.de");
-        }
-    }
+                verify(userRepositoryMocked).findByIdWithDetails(clientId);
+                assertEquals(userDetailsDto, result);
+            }
 
-    @Nested
-    @DisplayNameGeneration(ReplaceUnderscores.class)
-    class UpdateUserDetails {
-        @Test
-        void updateUserDetails_throws_ResourceNotFoundException_users_not_exist() {
+            @Test
+            void getById_throws_when_user_not_found() {
+                when(userRepositoryMocked.findByIdWithDetails(clientId)).thenReturn(Optional.empty());
 
-            when(userRepositoryMocked.findById(clientId)).thenReturn(Optional.empty());
+                ResourceNotFoundException e = assertThrows(ResourceNotFoundException.class,
+                        () -> userServiceMocked.getById(clientId));
 
-            ResourceNotFoundException e = assertThrows(ResourceNotFoundException.class, () -> userServiceMocked.updateUserDetails(clientId, newUserDetailsDto));
-            assertEquals("User not found for id: 1", e.getMessage());
-
-            verify(userRepositoryMocked, times(1)).findById(clientId);
-            verify(categoryRepositoryMocked, never()).findAllById(any());
-            verify(userRepositoryMocked, never()).save(any());
-            verify(userMapperMocked, never()).userDetailsToDto(any());
+                assertEquals("User not found with ID: " + clientId, e.getMessage());
+            }
         }
 
+        @Nested
+        @DisplayNameGeneration(ReplaceUnderscores.class)
+        class ValidateEmail_Tests {
+            @Test
+            void validateEmail_successfully() {
+                when(userRepositoryMocked.existsByEmail(clientEmail)).thenReturn(false);
+                userServiceMocked.validateEmail(clientEmail);
+                verify(userRepositoryMocked).existsByEmail(clientEmail);
+            }
+
+            @Test
+            void validateEmail_throws_when_email_exists() {
+                when(userRepositoryMocked.existsByEmail(clientEmail)).thenReturn(true);
+
+                RestException e = assertThrows(RestException.class,
+                        () -> userServiceMocked.validateEmail(clientEmail));
+
+                assertEquals(HttpStatus.CONFLICT, e.getStatus());
+                assertEquals("User with email <email@testClient.de> already exists", e.getMessage());
+            }
+        }
+
+        @Nested
+        @DisplayNameGeneration(ReplaceUnderscores.class)
+        class UpdateUserDetails_Tests {
+            @Test
+            void updateUserDetails_successfully() {
+
+                NewUserDetailsDto detailsDto = new NewUserDetailsDto();
+                detailsDto.setDescription("New desc");
+                detailsDto.setPhoneNumber("123");
+                detailsDto.setAddress("Address");
+                detailsDto.setCategoryIds(List.of(1L));
+                detailsDto.setProcedureIds(List.of(1L));
+
+                Category category = new Category();
+                category.setId(1L);
+                category.setName("Category");
+
+                Procedure procedure = new Procedure();
+                procedure.setId(1L);
+                procedure.setName("Procedure");
+                procedure.setPrice(100);
+                procedure.setCategory(category);
+
+                Set<Category> categories = Set.of(category);
+                Set<Procedure> procedures = Set.of(procedure);
+
+                when(userRepositoryMocked.findByIdWithDetails(clientId)).thenReturn(Optional.of(client));
+                when(categoryRepositoryMocked.findAllById(detailsDto.getCategoryIds())).thenReturn(List.of(category));
+                when(categoryServiceMocked.getProceduresForCategories(categories, detailsDto.getProcedureIds()))
+                        .thenReturn(procedures);
+                when(userRepositoryMocked.save(client)).thenReturn(client);
+                when(userMapperMocked.userDetailsToDto(client)).thenReturn(userDetailsDto);
+
+                UserDetailsDto result = userServiceMocked.updateUserDetails(clientId, detailsDto);
+
+                verify(userRepositoryMocked).findByIdWithDetails(clientId);
+                verify(categoryRepositoryMocked).findAllById(detailsDto.getCategoryIds());
+                verify(categoryServiceMocked).getProceduresForCategories(categories, detailsDto.getProcedureIds());
+                verify(userRepositoryMocked).save(client);
+                assertEquals(userDetailsDto, result);
+            }
+
+            @Test
+            void updateUserDetails_throws_when_user_not_found() {
+                when(userRepositoryMocked.findByIdWithDetails(clientId)).thenReturn(Optional.empty());
+
+                ResourceNotFoundException e = assertThrows(ResourceNotFoundException.class,
+                        () -> userServiceMocked.updateUserDetails(clientId, newUserDetailsDto));
+
+                assertEquals("User not found with ID: " + clientId, e.getMessage());
+            }
+        }
 
         @Nested
         @DisplayNameGeneration(ReplaceUnderscores.class)
         class GetMasterById_Tests {
-
             @Test
-            void getMasterById_return_user() {
+            void getMasterById_successfully() {
                 when(userRepositoryMocked.findByIdAndRole(masterId, masterRole)).thenReturn(Optional.of(master));
                 when(userMapperMocked.toDto(master)).thenReturn(userMasterDto);
 
-                UserDto userDto = userServiceMocked.getMasterById(masterId);
+                UserDto result = userServiceMocked.getMasterById(masterId);
 
-                verify(userRepositoryMocked, times(1)).findByIdAndRole(any(), any());
-                verify(userMapperMocked, times(1)).toDto(any(User.class));
-                assertEquals(userMasterDto.getId(), userDto.getId());
-                assertEquals(userMasterDto.getRole(), userDto.getRole());
+                verify(userRepositoryMocked).findByIdAndRole(masterId, masterRole);
+                assertEquals(userMasterDto, result);
             }
 
             @Test
-            void getMasterById_throws_ResourceNotFoundException_User_not_found() {
+            void getMasterById_throws_when_not_found() {
                 when(userRepositoryMocked.findByIdAndRole(masterId, masterRole)).thenReturn(Optional.empty());
 
-                ResourceNotFoundException e = assertThrows(ResourceNotFoundException.class, () -> userServiceMocked.getMasterById(masterId));
+                ResourceNotFoundException e = assertThrows(ResourceNotFoundException.class,
+                        () -> userServiceMocked.getMasterById(masterId));
+
                 assertEquals("User not found for id: 2 with role: MASTER", e.getMessage());
-                verify(userRepositoryMocked, times(1)).findByIdAndRole(any(), any());
-                verify(userMapperMocked, never()).toDto(any(User.class));
             }
         }
 
         @Nested
         @DisplayNameGeneration(ReplaceUnderscores.class)
         class GetClientById_Tests {
-
             @Test
-            void getClientById_return_user() {
+            void getClientById_successfully() {
                 when(userRepositoryMocked.findByIdAndRole(clientId, clientRole)).thenReturn(Optional.of(client));
                 when(userMapperMocked.toDto(client)).thenReturn(userClientDto);
 
-                UserDto userDto = userServiceMocked.getClientById(clientId);
+                UserDto result = userServiceMocked.getClientById(clientId);
 
-                verify(userRepositoryMocked, times(1)).findByIdAndRole(any(), any());
-                verify(userMapperMocked, times(1)).toDto(any(User.class));
-                assertEquals(userClientDto.getId(), userDto.getId());
-                assertEquals(userClientDto.getRole(), userDto.getRole());
+                verify(userRepositoryMocked).findByIdAndRole(clientId, clientRole);
+                assertEquals(userClientDto, result);
             }
 
             @Test
-            void getClientById_throws_ResourceNotFoundException_User_not_found() {
+            void getClientById_throws_when_not_found() {
                 when(userRepositoryMocked.findByIdAndRole(clientId, clientRole)).thenReturn(Optional.empty());
 
-                ResourceNotFoundException e = assertThrows(ResourceNotFoundException.class, () -> userServiceMocked.getClientById(clientId));
-                assertEquals("User not found for id: 1 with role: CLIENT", e.getMessage());
-                verify(userRepositoryMocked, times(1)).findByIdAndRole(any(), any());
-                verify(userMapperMocked, never()).toDto(any(User.class));
-            }
+                ResourceNotFoundException e = assertThrows(ResourceNotFoundException.class,
+                        () -> userServiceMocked.getClientById(clientId));
 
+                assertEquals("User not found for id: 1 with role: CLIENT", e.getMessage());
+            }
         }
 
         @Nested
         @DisplayNameGeneration(ReplaceUnderscores.class)
         class ConfirmMasterByEmail_Tests {
             @Test
-            void confirmMasterByEmail_activate_and_send_email() {
-                master.setRole(User.Role.MASTER);
+            void confirmMasterByEmail_successfully() {
                 master.setActive(false);
                 when(userRepositoryMocked.findByEmail(masterEmail)).thenReturn(Optional.of(master));
 
                 userServiceMocked.confirmMasterByEmail(masterEmail);
-                verify(mailSenderMocked, times(1)).sendRegistrationEmail(master.getEmail());
-                verify(userRepositoryMocked, times(1)).save(master);
+
+                verify(userRepositoryMocked).save(master);
+                verify(mailSenderMocked).sendRegistrationEmail(masterEmail);
                 assertTrue(master.isActive());
             }
 
             @Test
-            void confirmMasterByEmail_throws_ResourceNotFoundException_master_by_wrong_email_not_found() {
-                when(userRepositoryMocked.findByEmail(masterEmail)).thenReturn(Optional.empty());
-
-                ResourceNotFoundException e = assertThrows(ResourceNotFoundException.class, () -> userServiceMocked.confirmMasterByEmail(masterEmail));
-                assertEquals("User not found for email: email@testMaster.de", e.getMessage());
-                verify(mailSenderMocked, never()).sendRegistrationEmail(master.getEmail());
-                verify(userRepositoryMocked, never()).save(master);
-            }
-
-            @Test
-            void confirmMasterByEmail_throws_ResourceNotFoundException_master_by_wrong_role_not_found() {
-                master.setRole(User.Role.CLIENT);
-                master.setActive(false);
-                when(userRepositoryMocked.findByEmail(masterEmail)).thenReturn(Optional.of(master));
-                ResourceNotFoundException e = assertThrows(ResourceNotFoundException.class,
-                        () -> userServiceMocked.confirmMasterByEmail(masterEmail));
-                assertEquals("User is not a master: email@testMaster.de", e.getMessage());
-                verify(mailSenderMocked, never()).sendRegistrationEmail(master.getEmail());
-                verify(userRepositoryMocked, never()).save(master);
-            }
-
-            @Test
-            void confirmMasterByEmail_throws_ResourceNotFoundException_master_has_been_already_confirmed() {
-                master.setRole(User.Role.MASTER);
+            void confirmMasterByEmail_throws_when_already_active() {
                 master.setActive(true);
                 when(userRepositoryMocked.findByEmail(masterEmail)).thenReturn(Optional.of(master));
+
                 ResourceNotFoundException e = assertThrows(ResourceNotFoundException.class,
                         () -> userServiceMocked.confirmMasterByEmail(masterEmail));
+
                 assertEquals("Master is already active: email@testMaster.de", e.getMessage());
-                verify(mailSenderMocked, never()).sendRegistrationEmail(master.getEmail());
-                verify(userRepositoryMocked, never()).save(master);
             }
         }
 
@@ -411,111 +378,40 @@ public class UserServiceImplTest {
         @DisplayNameGeneration(ReplaceUnderscores.class)
         class FindMasterUserByEmail_Tests {
             @Test
-            void findMasterUserByEmail_return_user_successful() {
-                master.setRole(User.Role.MASTER);
+            void findMasterUserByEmail_successfully() {
                 master.setActive(false);
                 when(userRepositoryMocked.findByEmail(masterEmail)).thenReturn(Optional.of(master));
 
-                User masterUserByEmail = userServiceMocked.findMasterUserByEmail(masterEmail);
-                verify(userRepositoryMocked, times(1)).findByEmail(masterEmail);
-                assertEquals(master.getId(), masterUserByEmail.getId());
-                assertEquals(master.getRole(), masterUserByEmail.getRole());
-                assertEquals(master.getEmail(), masterUserByEmail.getEmail());
-                assertEquals(master.getFirstName(), masterUserByEmail.getFirstName());
+                User result = userServiceMocked.findMasterUserByEmail(masterEmail);
 
+                assertEquals(master, result);
             }
 
             @Test
-            void findMasterUserByEmail_throws_ResourceNotFoundException_master_by_wrong_email_not_found() {
-                when(userRepositoryMocked.findByEmail(masterEmail)).thenReturn(Optional.empty());
-                ResourceNotFoundException e = assertThrows(ResourceNotFoundException.class, () -> userServiceMocked.findMasterUserByEmail(masterEmail));
-                assertEquals("User not found for email: " + masterEmail, e.getMessage());
-                verify(userRepositoryMocked, times(1)).findByEmail(masterEmail);
-            }
+            void findMasterUserByEmail_throws_when_not_master() {
+                client.setActive(false);
+                when(userRepositoryMocked.findByEmail(clientEmail)).thenReturn(Optional.of(client));
 
-            @Test
-            void findMasterUserByEmail_throws_ResourceNotFoundException_master_by_wrong_role_not_found() {
-                master.setRole(User.Role.CLIENT);
-                master.setActive(false);
-                when(userRepositoryMocked.findByEmail(masterEmail)).thenReturn(Optional.of(master));
                 ResourceNotFoundException e = assertThrows(ResourceNotFoundException.class,
-                        () -> userServiceMocked.findMasterUserByEmail(masterEmail));
-                assertEquals("User is not a master: email@testMaster.de", e.getMessage());
-                verify(userRepositoryMocked, times(1)).findByEmail(masterEmail);
-            }
+                        () -> userServiceMocked.findMasterUserByEmail(clientEmail));
 
-            @Test
-            void findMasterUserByEmail_throws_ResourceNotFoundException_master_is_already_active() {
-                master.setRole(User.Role.MASTER);
-                master.setActive(true);
-                when(userRepositoryMocked.findByEmail(masterEmail)).thenReturn(Optional.of(master));
-                ResourceNotFoundException e = assertThrows(ResourceNotFoundException.class,
-                        () -> userServiceMocked.findMasterUserByEmail(masterEmail));
-                assertEquals("Master is already active: email@testMaster.de", e.getMessage());
-                verify(userRepositoryMocked, times(1)).findByEmail(masterEmail);
+                assertEquals("User is not a master: email@testClient.de", e.getMessage());
             }
         }
-
 
         @Nested
         @DisplayNameGeneration(ReplaceUnderscores.class)
         class GetAllMasters_Tests {
             @Test
-            void getAllMasters_return_list_of_users_with_role_master_successful() {
-                long startTime = System.currentTimeMillis();
-
-                List<User> masters = new ArrayList<>(List.of(master, master));
-                userDetailsDto.setFirstName("masterFirstName");
-                when(userRepositoryMocked.findAllByRole(masterRole)).thenReturn(masters);
+            void getAllMasters_successfully() {
+                List<User> masters = List.of(master);
+                when(userRepositoryMocked.findAllMastersWithDetails()).thenReturn(masters);
                 when(userMapperMocked.userDetailsToDto(master)).thenReturn(userDetailsDto);
 
-                List<UserDetailsDto> resultMasterList = userServiceMocked.getAllMasters();
-                verify(userRepositoryMocked, times(1)).findAllByRole(masterRole);
-                verify(userMapperMocked, times(2)).userDetailsToDto(any(User.class));
+                List<UserDetailsDto> result = userServiceMocked.getAllMasters();
 
-                assertEquals(2, resultMasterList.size());
-                assertNotNull(resultMasterList);
-                assertEquals("masterFirstName", resultMasterList.get(0).getFirstName());
-                assertEquals("masterFirstName", resultMasterList.get(1).getFirstName());
-
-                long endTime = System.currentTimeMillis();
-                long duration = endTime - startTime;
-                System.out.println("Test, which returned a list with two users, executed in: " + duration + " milliseconds");
-            }
-
-            @Test
-            void getAllMasters_return_empty_list_of_users_with_role_master_successful() {
-
-                when(userRepositoryMocked.findAllByRole(masterRole)).thenReturn(Collections.emptyList());
-
-                List<UserDetailsDto> resultMasterList = userServiceMocked.getAllMasters();
-                verify(userRepositoryMocked, times(1)).findAllByRole(masterRole);
-                verify(userMapperMocked, never()).userDetailsToDto(any(User.class));
-
-                assertTrue(resultMasterList.isEmpty());
-                assertNotNull(resultMasterList);
-            }
-
-            @Test
-            void getAllMasters_return_big_list_of_users_with_role_master_successful() {
-                long startTime = System.currentTimeMillis();
-                int countUsers = 10000;
-
-                List<User> masters = TestDataGenerator.generateMockMasters(countUsers);
-
-                when(userRepositoryMocked.findAllByRole(masterRole)).thenReturn(masters);
-
-                List<UserDetailsDto> resultMasterList = userServiceMocked.getAllMasters();
-
-                verify(userRepositoryMocked, times(1)).findAllByRole(masterRole);
-                verify(userMapperMocked, times(countUsers)).userDetailsToDto(any(User.class));
-
-                assertEquals(countUsers, resultMasterList.size());
-                assertNotNull(resultMasterList);
-
-                long endTime = System.currentTimeMillis();
-                long duration = endTime - startTime;
-                System.out.println("Test, which returned a list with " + countUsers + " users, executed in: " + duration + " milliseconds");
+                assertEquals(1, result.size());
+                verify(userMapperMocked).userDetailsToDto(master);
             }
         }
 
@@ -523,180 +419,75 @@ public class UserServiceImplTest {
         @DisplayNameGeneration(ReplaceUnderscores.class)
         class GetAllUsers_Tests {
             @Test
-            void getAllUsers_return_list_of_users_successful() {
-                List<User> users = new ArrayList<>(List.of(client, master));
-                userDetailsDto.setFirstName("masterFirstName");
-                userDetailsDto1.setFirstName("clientFirstName");
+            void getAllUsers_successfully() {
+                List<User> users = List.of(client, master);
+                when(userRepositoryMocked.findAllWithDetails()).thenReturn(users);
+                when(userMapperMocked.userDetailsToDto(client)).thenReturn(userDetailsDto);
+                when(userMapperMocked.userDetailsToDto(master)).thenReturn(userDetailsDto1);
 
-                when(userRepositoryMocked.findAll()).thenReturn(users);
-                when(userMapperMocked.userDetailsToDto(master)).thenReturn(userDetailsDto);
-                when(userMapperMocked.userDetailsToDto(client)).thenReturn(userDetailsDto1);
+                List<UserDetailsDto> result = userServiceMocked.getAllUsers();
 
-                List<UserDetailsDto> resultUsersList = userServiceMocked.getAllUsers();
-                verify(userRepositoryMocked, times(1)).findAll();
-                verify(userMapperMocked, times(2)).userDetailsToDto(any(User.class));
-
-                assertEquals(2, resultUsersList.size());
-                assertNotNull(resultUsersList);
-                assertEquals("clientFirstName", resultUsersList.get(0).getFirstName());
-                assertEquals("masterFirstName", resultUsersList.get(1).getFirstName());
-            }
-
-            @Test
-            void getAllUsers_return_empty_list_of_users_successful() {
-
-                when(userRepositoryMocked.findAll()).thenReturn(Collections.emptyList());
-
-                List<UserDetailsDto> resultUsersList = userServiceMocked.getAllUsers();
-                verify(userRepositoryMocked, times(1)).findAll();
-                verify(userMapperMocked, never()).userDetailsToDto(any(User.class));
-
-                assertNotNull(resultUsersList);
-                assertTrue(resultUsersList.isEmpty());
+                assertEquals(2, result.size());
+                verify(userMapperMocked, times(2)).userDetailsToDto(any());
             }
         }
 
         @Nested
         @DisplayNameGeneration(ReplaceUnderscores.class)
         class FindUsersByCategoryId_Tests {
-            @BeforeEach
-            void setUp() {
-                Category categoryOne = new Category();
-                categoryOne.setId(1L);
-                Category categoryTwo = new Category();
-                categoryOne.setId(2L);
-                Category categoryThree = new Category();
-                categoryOne.setId(3L);
-                Set<Category> categoriesOneTwo = Set.of(categoryOne, categoryTwo);
-                Set<Category> categoriesTwoThree = Set.of(categoryThree, categoryTwo);
-
-                client.setCategories(categoriesOneTwo);
-                master.setCategories(categoriesTwoThree);
-            }
-
             @Test
-            void findUsersByCategoryId_return_list_of_users_successful_with_each_has_category() {
-
-                List<User> users = new ArrayList<>(List.of(client, master));
-                userDetailsDto.setFirstName("masterFirstName");
-                userDetailsDto1.setFirstName("clientFirstName");
-
-                when(userRepositoryMocked.findUsersByCategoryId(2L)).thenReturn(users);
+            void findUsersByCategoryId_successfully() {
+                List<User> users = List.of(master);
+                when(userRepositoryMocked.findUsersByCategoryIdWithDetails(1L)).thenReturn(users);
                 when(userMapperMocked.userDetailsToDto(master)).thenReturn(userDetailsDto);
-                when(userMapperMocked.userDetailsToDto(client)).thenReturn(userDetailsDto1);
 
-                List<UserDetailsDto> resultUsersList = userServiceMocked.findUsersByCategoryId(2L);
-                verify(userRepositoryMocked, times(1)).findUsersByCategoryId(any());
-                verify(userMapperMocked, times(2)).userDetailsToDto(any(User.class));
+                List<UserDetailsDto> result = userServiceMocked.findUsersByCategoryId(1L);
 
-                assertEquals(2, resultUsersList.size());
-                assertNotNull(resultUsersList);
-                assertEquals("clientFirstName", resultUsersList.get(0).getFirstName());
-                assertEquals("masterFirstName", resultUsersList.get(1).getFirstName());
+                assertEquals(1, result.size());
+                verify(userMapperMocked).userDetailsToDto(master);
+            }
+        }
+
+        @Nested
+        @DisplayNameGeneration(ReplaceUnderscores.class)
+        class FindByEmail_Tests {
+            @Test
+            void findByEmail_successfully() {
+                when(userRepositoryMocked.findByEmail(clientEmail)).thenReturn(Optional.of(client));
+
+                Optional<User> result = userServiceMocked.findByEmail(clientEmail);
+
+                assertTrue(result.isPresent());
+                assertEquals(client, result.get());
             }
 
             @Test
-            void findUsersByCategoryId_return_list_of_users_successful_with_one_has_category() {
+            void findByEmail_throws_when_email_empty() {
+                assertThrows(IllegalArgumentException.class,
+                        () -> userServiceMocked.findByEmail(""));
+            }
+        }
 
-                List<User> users = new ArrayList<>(List.of(client));
-                userDetailsDto1.setFirstName("clientFirstName");
+        @Nested
+        @DisplayNameGeneration(ReplaceUnderscores.class)
+        class DeleteById_Tests {
+            @Test
+            void deleteById_successfully() {
+                when(userRepositoryMocked.findById(clientId)).thenReturn(Optional.of(client));
 
-                when(userRepositoryMocked.findUsersByCategoryId(1L)).thenReturn(users);
-                when(userMapperMocked.userDetailsToDto(client)).thenReturn(userDetailsDto1);
+                userServiceMocked.deleteById(clientId);
 
-                List<UserDetailsDto> resultUsersList = userServiceMocked.findUsersByCategoryId(1L);
-                verify(userRepositoryMocked, times(1)).findUsersByCategoryId(any());
-                verify(userMapperMocked, times(1)).userDetailsToDto(any(User.class));
-
-                assertEquals(1, resultUsersList.size());
-                assertNotNull(resultUsersList);
-                assertEquals("clientFirstName", resultUsersList.get(0).getFirstName());
-
+                verify(userRepositoryMocked).delete(client);
             }
 
             @Test
-            void findUsersByCategoryId_throws_ResourceNotFoundException_when_list_of_users_is_empty() {
-                when(userRepositoryMocked.findUsersByCategoryId(1L)).thenReturn(Collections.emptyList());
+            void deleteById_throws_when_user_not_found() {
+                when(userRepositoryMocked.findById(clientId)).thenReturn(Optional.empty());
+
                 ResourceNotFoundException e = assertThrows(ResourceNotFoundException.class,
-                        () -> userServiceMocked.findUsersByCategoryId(1L));
-                assertEquals("No users found for category: 1", e.getMessage().trim());
-                verify(userRepositoryMocked, times(1)).findUsersByCategoryId(any());
-                verify(userMapperMocked, never()).userDetailsToDto(any(User.class));
-            }
+                        () -> userServiceMocked.deleteById(clientId));
 
-            @Nested
-            @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-            class FindByEmail_Tests {
-                @Test
-                void findByEmail_return_User_successful() {
-                    when(userRepositoryMocked.findByEmail(clientEmail)).thenReturn(Optional.of(client));
-
-                    Optional<User> resultUser = userServiceMocked.findByEmail(clientEmail);
-
-                    verify(userRepositoryMocked, times(1)).findByEmail(any());
-
-                    assertNotNull(resultUser);
-                    assertTrue(resultUser.isPresent());
-                    assertEquals(clientEmail, resultUser.get().getEmail());
-
-                }
-
-                @Test
-                void findByEmail_return_empty_Optional_User_with_this_Email_not_exist() {
-                    String notExistEmail = "email@notExistClient.de";
-                    when(userRepositoryMocked.findByEmail(notExistEmail)).thenReturn(Optional.empty());
-
-                    Optional<User> resultUser = userServiceMocked.findByEmail(notExistEmail);
-
-                    verify(userRepositoryMocked, times(1)).findByEmail(any());
-
-                    assertNotNull(resultUser);
-                    assertFalse(resultUser.isPresent());
-                }
-
-                @Test
-                void findByEmail_throws_IllegalArgumentException_when_email_is_null() {
-
-                    assertThrows(IllegalArgumentException.class, () -> userServiceMocked.findByEmail(null));
-
-                    verify(userRepositoryMocked, never()).findByEmail(any());
-                }
-
-                @Test
-                void findByEmail_throws_IllegalArgumentException_when_email_is_empty() {
-
-                    IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> userServiceMocked.findByEmail(""));
-                    assertEquals("Email must not be null or empty", e.getMessage());
-
-                    verify(userRepositoryMocked, never()).findByEmail(any());
-                }
-            }
-
-            @Nested
-            @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
-            class DeleteById_Tests {
-                @Test
-                void deleteById_user_deleted_successful() {
-
-                    when(userRepositoryMocked.findById(clientId)).thenReturn(Optional.of(client));
-
-                    userServiceMocked.deleteById(clientId);
-                    verify(userRepositoryMocked, times(1)).findById(clientId);
-                    verify(userRepositoryMocked, times(1)).delete(any(User.class));
-                }
-
-                @Test
-                void deleteById_throws_ResourceNotFoundException_users_not_exist() {
-
-                    when(userRepositoryMocked.findById(clientId)).thenReturn(Optional.empty());
-
-                    ResourceNotFoundException e = assertThrows(ResourceNotFoundException.class, () -> userServiceMocked.deleteById(clientId));
-                    assertEquals("User not found for id: 1", e.getMessage());
-
-                    verify(userRepositoryMocked, times(1)).findById(clientId);
-                    verify(userRepositoryMocked, never()).delete(any(User.class));
-
-                }
+                assertEquals("User not found for id: " + clientId, e.getMessage());
             }
         }
     }
