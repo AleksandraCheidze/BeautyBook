@@ -39,6 +39,7 @@ public class User {
     @Column(unique = true)
     private String email;
 
+    @Column(name = "phonenumber")
     private String phoneNumber;
 
     @Column(name = "is_active", nullable = false)
@@ -87,7 +88,7 @@ public class User {
     )
     private Set<Procedure> procedures;
 
-    @Column(name="profilePhotoUrl")
+    @Column(name="profilephotourl")
     private String profilePhotoUrl;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
