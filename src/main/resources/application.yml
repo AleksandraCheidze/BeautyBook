@@ -130,23 +130,16 @@ spring:
       connection-timeout: 20000
   data:
     redis:
-      spring:
-        data:
-          redis:
-            host: ${RAILWAY_PRIVATE_DOMAIN}
-            port: 6379
-            password: ${REDIS_PASSWORD}
-
-          lettuce:
-            pool:
-              max-active: 8
-              max-idle: 8
-              min-idle: 2
-          cache:
-                redis:
-                  key-prefix: "railway:beautybook:"
-                  time-to-live: 1800000
-
+      url: redis://default:${REDIS_PASSWORD}@${RAILWAY_PRIVATE_DOMAIN}:6379  # Упрощенный формат URL
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 2
+  cache:
+    redis:
+      key-prefix: "railway:beautybook:"
+      time-to-live: 1800000
   jpa:
     show-sql: false
     open-in-view: false
