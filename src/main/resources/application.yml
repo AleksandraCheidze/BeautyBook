@@ -1,3 +1,5 @@
+
+
 spring:
   config:
     import:
@@ -45,6 +47,8 @@ springdoc:
 
 server:
   port: ${PORT:8081}
+  forward-headers-strategy: framework
+
 
 jwt:
   access:
@@ -130,7 +134,7 @@ spring:
       connection-timeout: 20000
   data:
     redis:
-      url: redis://default:${REDIS_PASSWORD}@${RAILWAY_PRIVATE_DOMAIN}:6379  # Упрощенный формат URL
+      url: ${REDIS_URL}
       lettuce:
         pool:
           max-active: 8
@@ -167,10 +171,11 @@ spring:
 
 logging:
   level:
+    io.lettuce.core: DEBUG
+    org.springframework.data.redis: TRACE
     org.springframework: ERROR
     org.hibernate: ERROR
     com.example.end: INFO
     org.springframework.security: DEBUG
     org.springframework.mail: DEBUG
     org.springframework.cache: DEBUG
-    org.springframework.data.redis: DEBUG
