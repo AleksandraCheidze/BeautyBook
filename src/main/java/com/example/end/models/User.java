@@ -26,10 +26,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
+    @Column(name = "firstname")
     private String firstName;
 
+    @Column(name = "lastname")
     private String lastName;
 
+    @Column(name = "address")
     private String address;
 
     @Column(unique = true)
@@ -44,6 +48,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column(name="description")
     private String description;
 
 
@@ -82,7 +87,7 @@ public class User {
     )
     private Set<Procedure> procedures;
 
-
+    @Column(name="profilePhotoUrl")
     private String profilePhotoUrl;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
