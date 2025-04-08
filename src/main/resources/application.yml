@@ -1,0 +1,183 @@
+spring:
+  config:
+    import:
+      - optional:file:.env[.properties]
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 500MB
+  profiles:
+    active: local
+  flyway:
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        hbm2ddl:
+          auto: update
+          constraint_name_strategy: new
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000
+      cache-null-values: false
+      key-prefix: "beautybook:"
+      use-key-prefix: true
+      enable-statistics: true
+      enable-transactions: true
+
+# OpenAPI/Swagger configuration
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    url: /v3/api-docs
+    operationsSorter: method
+    tagsSorter: alpha
+    display-request-duration: true
+  show-actuator: true
+  default-produces-media-type: application/json
+
+server:
+  port: ${PORT:8081}
+
+jwt:
+  access:
+    key: ${ACCESS_KEY}
+  refresh:
+    key: ${REFRESH_KEY}
+
+cloudinary:
+  cloud_name: ${CLOUDINARY_CLOUD_NAME}
+  api_key: ${CLOUDINARY_API_KEY}
+  api_secret: ${CLOUDINARY_API_SECRET}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      url: ${SPRING_REDIS_URL:redis://localhost:6379}
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 2
+          max-wait: -1ms
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        'jdbc.time_zone': UTC
+    open-in-view: false
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+  sql:
+    init:
+      mode: always
+  mail:
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
+    host: ${MAIL_HOST:mail.gmx.net}
+    port: ${MAIL_PORT:587}
+    properties:
+      mail:
+        debug: true
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.mail: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.jdbc: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.example.end: DEBUG
+    org.springframework.data.redis: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: production
+  datasource:
+    url: jdbc:postgresql://${PROD_DB_HOST}:${PROD_DB_PORT}/${PROD_DB_NAME}
+    username: ${PROD_DB_USERNAME}
+    password: ${PROD_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 10
+      idle-timeout: 300000
+      connection-timeout: 20000
+  data:
+    redis:
+      spring:
+        data:
+          redis:
+            host: ${RAILWAY_PRIVATE_DOMAIN}
+            port: 6379
+            password: ${REDIS_PASSWORD}
+
+          lettuce:
+            pool:
+              max-active: 8
+              max-idle: 8
+              min-idle: 2
+          cache:
+                redis:
+                  key-prefix: "railway:beautybook:"
+                  time-to-live: 1800000
+
+  jpa:
+    show-sql: false
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+        'jdbc.time_zone': UTC
+  sql:
+    init:
+      mode: never
+  mail:
+    username: ${SPRING_MAIL_USERNAME}
+    password: ${SPRING_MAIL_PASSWORD}
+    host: ${MAIL_HOST:mail.gmx.net}
+    port: ${MAIL_PORT:587}
+    properties:
+      mail:
+        debug: true
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+logging:
+  level:
+    org.springframework: ERROR
+    org.hibernate: ERROR
+    com.example.end: INFO
+    org.springframework.security: DEBUG
+    org.springframework.mail: DEBUG
+    org.springframework.cache: DEBUG
+    org.springframework.data.redis: DEBUG

@@ -1,0 +1,44 @@
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1
+    username: sa
+    password: sa
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  mail:
+    host: localhost
+    port: 1025  # порт тестового SMTP-сервера (например Mailhog)
+    username: test
+    password: test
+    properties:
+      mail:
+        debug: true
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+jwt:
+  access:
+    key: "test-access-key-1234567890"
+  refresh:
+    key: "test-refresh-key-0987654321"
+
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+        mail: DEBUG
+
+
+flyway:
+  enabled: false
