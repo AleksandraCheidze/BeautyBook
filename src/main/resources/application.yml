@@ -108,14 +108,15 @@ spring:
 
 logging:
   level:
-    org.springframework.security: DEBUG
-    org.springframework.mail: DEBUG
-    org.springframework.web: DEBUG
-    org.springframework.jdbc: DEBUG
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-    com.example.end: DEBUG
-    org.springframework.data.redis: DEBUG
+    org.springframework.security: INFO
+    org.springframework.mail: INFO
+    org.springframework.web: INFO
+    org.springframework.jdbc: WARN
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
+    com.example.end: INFO
+    org.springframework.data.redis: INFO
+    root: INFO
 
 ---
 spring:

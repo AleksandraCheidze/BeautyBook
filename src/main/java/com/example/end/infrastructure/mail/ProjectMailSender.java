@@ -31,7 +31,7 @@ public class ProjectMailSender {
      * @param subject - The subject of the email.
      * @param text - The body content of the email.
      */
-    @Async
+    @Async("taskExecutor")
     public void sendEmail(String email, String subject, String text) {
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
@@ -58,7 +58,7 @@ public class ProjectMailSender {
      * @param adminEmail - The email address of the administrator.
      * @param masterName - The name of the master who needs confirmation.
      */
-    @Async
+    @Async("taskExecutor")
     public void sendMasterConfirmationRequest(String adminEmail, String masterName) {
         String subject = "Anfrage zur Bestätigung eines neuen Meisters";
         String text = String.format("Sehr geehrter Administrator,\n\n" +

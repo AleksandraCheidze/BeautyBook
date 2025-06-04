@@ -91,7 +91,7 @@ public class User {
     @Column(name="profilephotourl")
     private String profilePhotoUrl;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<PortfolioPhoto> portfolioPhotos;
 
     public User(Long id, String firstName, String lastName, String email, boolean isActive, Role role) {
