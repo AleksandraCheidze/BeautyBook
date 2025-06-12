@@ -42,17 +42,5 @@ public class CacheMonitoringConfig {
                 }
             });
         }
-    }leanupCache() {
-        if (cacheManager != null) {
-            log.info("Starting scheduled cache cleanup");
-            cacheManager.getCacheNames().forEach(cacheName -> {
-                var cache = cacheManager.getCache(cacheName);
-                if (cache != null) {
-                    // Redis TTL автоматически очищает, но логируем для мониторинга
-                    log.debug("Cache '{}' cleanup checked", cacheName);
-                }
-            });
-            log.info("Scheduled cache cleanup completed");
-        }
     }
 }
