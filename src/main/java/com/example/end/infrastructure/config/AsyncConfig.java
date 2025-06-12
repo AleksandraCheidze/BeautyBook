@@ -15,11 +15,11 @@ public class AsyncConfig {
     public Executor taskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         
-        // Настройки пула потоков для предотвращения утечек
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(5);
-        executor.setQueueCapacity(100);
-        executor.setKeepAliveSeconds(60);
+        // Настройки пула потоков для предотвращения утечек (оптимизировано для Railway)
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(3);
+        executor.setQueueCapacity(50);
+        executor.setKeepAliveSeconds(30);
         
         // Важно: настройка для graceful shutdown
         executor.setWaitForTasksToCompleteOnShutdown(true);

@@ -129,22 +129,24 @@ spring:
     password: ${PROD_DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 20
-      minimum-idle: 10
+      maximum-pool-size: 5
+      minimum-idle: 2
       idle-timeout: 300000
       connection-timeout: 20000
+      leak-detection-threshold: 60000
   data:
     redis:
       url: ${REDIS_URL}
       lettuce:
         pool:
-          max-active: 8
-          max-idle: 8
-          min-idle: 2
+          max-active: 4
+          max-idle: 4
+          min-idle: 1
+          max-wait: 2000ms
   cache:
     redis:
       key-prefix: "railway:beautybook:"
-      time-to-live: 1800000
+      time-to-live: 900000
   jpa:
     show-sql: false
     open-in-view: false
@@ -154,6 +156,10 @@ spring:
       hibernate:
         format_sql: false
         'jdbc.time_zone': UTC
+        jdbc.batch_size: 20
+        order_inserts: true
+        order_updates: true
+        jdbc.batch_versioned_data: true
   sql:
     init:
       mode: never
@@ -172,11 +178,13 @@ spring:
 
 logging:
   level:
-    io.lettuce.core: DEBUG
-    org.springframework.data.redis: TRACE
+    io.lettuce.core: WARN
+    org.springframework.data.redis: WARN
     org.springframework: ERROR
     org.hibernate: ERROR
     com.example.end: INFO
-    org.springframework.security: DEBUG
-    org.springframework.mail: DEBUG
-    org.springframework.cache: DEBUG
+    org.springframework.security: WARN
+    org.springframework.mail: WARN
+    org.springframework.cache: WARN
+    org.springframework.web: ERROR
+    org.springframework.jdbc: ERROR

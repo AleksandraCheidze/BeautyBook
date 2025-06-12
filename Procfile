@@ -1,1 +1,1 @@
-web: java -Dspring.profiles.active=production -Dserver.port=$PORT $JAVA_OPTS -jar target/BeautyBook-*.jar
+web: java -Xms256m -Xmx512m -XX:MetaspaceSize=64m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:+UseCompressedOops -XX:+UseCompressedClassPointers -Dspring.profiles.active=production -Dserver.port=$PORT -jar target/BeautyBook-*.jar

@@ -29,10 +29,20 @@ public class CacheMonitoringConfig {
     }
 
     /**
-     * Очистка кэша каждые 2 часа для предотвращения накопления
+     * Очистка кэша каждый час для предотвращения накопления
      */
-    @Scheduled(fixedRate = 7200000) // 2 часа
-    public void cleanupCache() {
+    @Scheduled(fixedRate = 3600000) // 1 час
+    public void clearCachesPeriodically() {
+        if (cacheManager != null) {
+            cacheManager.getCacheNames().forEach(cacheName -> {
+                var cache = cacheManager.getCache(cacheName);
+                if (cache != null) {
+                    cache.clear();
+                    log.info("Cache '{}' cleared to prevent memory accumulation", cacheName);
+                }
+            });
+        }
+    }leanupCache() {
         if (cacheManager != null) {
             log.info("Starting scheduled cache cleanup");
             cacheManager.getCacheNames().forEach(cacheName -> {

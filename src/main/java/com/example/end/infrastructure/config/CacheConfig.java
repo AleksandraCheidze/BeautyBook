@@ -21,12 +21,12 @@ public class CacheConfig {
                 return builder -> {
                
                         var categoryConfig = RedisCacheConfiguration.defaultCacheConfig()
-                                        .entryTtl(Duration.ofMinutes(30))
+                                        .entryTtl(Duration.ofMinutes(15))
                                         .serializeValuesWith(RedisSerializationContext.SerializationPair
                                                         .fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
                         var procedureConfig = RedisCacheConfiguration.defaultCacheConfig()
-                                        .entryTtl(Duration.ofMinutes(20))
+                                        .entryTtl(Duration.ofMinutes(10))
                                         .serializeValuesWith(RedisSerializationContext.SerializationPair
                                                         .fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
@@ -35,12 +35,12 @@ public class CacheConfig {
                                         .serializeValuesWith(RedisSerializationContext.SerializationPair
                                                         .fromSerializer(new GenericJackson2JsonRedisSerializer()));
                         var mastersConfig = RedisCacheConfiguration.defaultCacheConfig()
-                                .entryTtl(Duration.ofMinutes(30))
+                                .entryTtl(Duration.ofMinutes(15))
                                 .serializeValuesWith(RedisSerializationContext.SerializationPair
                                         .fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
                         var usersByCategoryConfig = RedisCacheConfiguration.defaultCacheConfig()
-                                .entryTtl(Duration.ofMinutes(30))
+                                .entryTtl(Duration.ofMinutes(15))
                                 .serializeValuesWith(RedisSerializationContext.SerializationPair
                                         .fromSerializer(new GenericJackson2JsonRedisSerializer()));
 
