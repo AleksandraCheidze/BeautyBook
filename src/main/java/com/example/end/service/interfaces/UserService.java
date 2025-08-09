@@ -3,15 +3,10 @@ package com.example.end.service.interfaces;
 import com.example.end.dto.*;
 import com.example.end.models.User;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public interface UserService {
@@ -41,13 +36,13 @@ public interface UserService {
 
         UserDto getUserById(Long currentUserId);
 
-        List<UserDetailsDto> getAllUsers();
+        List<UserDetailsDto> getAllUsers(int page, int size);
 
         void deleteById(Long id);
 
         User findMasterUserByEmail(String email);
 
-        List<UserDetailsDto> getAllMasters();
+        List<UserDetailsDto> getAllMasters(int page, int size);
 
 
 

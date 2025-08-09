@@ -36,16 +36,18 @@ public interface UserRepository extends JpaRepository<User,Long> {
      *
      * @return list of masters with loaded categories and procedures
      */
-    @Query("SELECT u FROM User u LEFT JOIN FETCH u.categories LEFT JOIN FETCH u.procedures WHERE u.role = 'MASTER'")
-    List<User> findAllMastersWithDetails();
+    @Query(value = "SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.categories LEFT JOIN FETCH u.procedures WHERE u.role = 'MASTER'",
+        countQuery = "SELECT COUNT(u) FROM User u WHERE u.role = 'MASTER'")
+    List<User> findAllMastersWithDetails(org.springframework.data.domain.Pageable pageable);
 
     /**
      * Finds all users with preloaded categories and procedures.
      *
      * @return list of all users with loaded categories and procedures
      */
-    @Query("SELECT u FROM User u LEFT JOIN FETCH u.categories LEFT JOIN FETCH u.procedures")
-    List<User> findAllWithDetails();
+    @Query(value = "SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.categories LEFT JOIN FETCH u.procedures",
+        countQuery = "SELECT COUNT(u) FROM User u")
+    List<User> findAllWithDetails(org.springframework.data.domain.Pageable pageable);
 
     /**
      * Finds users by category ID with preloaded categories and procedures.

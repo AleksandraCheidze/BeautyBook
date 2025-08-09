@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
-import jakarta.persistence.Cacheable;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -115,7 +114,8 @@ public interface UserApi {
                 content = @Content(mediaType = "application/json",
                         schema = @Schema(implementation = UserDetailsDto.class)))
         @GetMapping
-        List<UserDetailsDto> getAllUsers();
+        List<UserDetailsDto> getAllUsers(@RequestParam(defaultValue = "0") int page,
+                                         @RequestParam(defaultValue = "20") int size);
 
         @Operation(summary = "Get All Masters (Public)", description = "Get all master users in the system. Access: All users")
         @ApiResponses(value = {
@@ -137,7 +137,8 @@ public interface UserApi {
         })
         @SecurityRequirement(name = "none")
         @GetMapping("/masters")
-        ResponseEntity<List<UserDetailsDto>> getAllMasters();
+        ResponseEntity<List<UserDetailsDto>> getAllMasters(@RequestParam(defaultValue = "0") int page,
+                                                          @RequestParam(defaultValue = "20") int size);
 
         @PreAuthorize("hasRole('ADMIN')")
         @Operation(summary = "Delete User (ADMIN)", description = "Delete a user from the system. Access: ADMIN only")

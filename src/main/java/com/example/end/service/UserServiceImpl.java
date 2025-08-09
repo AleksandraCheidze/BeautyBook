@@ -211,8 +211,9 @@ public class UserServiceImpl implements UserService {
     @Cacheable(value = "allMasters", unless = "#result == null || #result.isEmpty()")
     @Override
     @Transactional(readOnly = true)
-    public List<UserDetailsDto> getAllMasters() {
-        List<User> masters = userRepository.findAllMastersWithDetails();
+    public List<UserDetailsDto> getAllMasters(int page, int size) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+        List<User> masters = userRepository.findAllMastersWithDetails(pageable);
         return masters.stream()
                 .map(userMapper::userDetailsToDto)
                 .collect(Collectors.toList());
@@ -239,8 +240,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(readOnly = true)
-    public List<UserDetailsDto> getAllUsers() {
-        List<User> users = userRepository.findAllWithDetails();
+    public List<UserDetailsDto> getAllUsers(int page, int size) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+        List<User> users = userRepository.findAllWithDetails(pageable);
         return users.stream()
                 .map(userMapper::userDetailsToDto)
                 .collect(Collectors.toList());

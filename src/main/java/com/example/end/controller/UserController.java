@@ -52,16 +52,18 @@ public class UserController implements UserApi {
     }
 
     @Override
-    public ResponseEntity<List<UserDetailsDto>> getAllMasters() {
-        List<UserDetailsDto> masters = userService.getAllMasters();
+    public ResponseEntity<List<UserDetailsDto>> getAllMasters(@RequestParam(defaultValue = "0") int page,
+                                                             @RequestParam(defaultValue = "20") int size) {
+        List<UserDetailsDto> masters = userService.getAllMasters(page, size);
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(30, TimeUnit.MINUTES)) // Кешировать на клиенте 30 мин
+                .cacheControl(CacheControl.maxAge(30, TimeUnit.MINUTES))
                 .body(masters);
     }
 
     @Override
-    public List<UserDetailsDto> getAllUsers() {
-        return userService.getAllUsers();
+    public List<UserDetailsDto> getAllUsers(@RequestParam(defaultValue = "0") int page,
+                                           @RequestParam(defaultValue = "20") int size) {
+        return userService.getAllUsers(page, size);
     }
 
     @Override
